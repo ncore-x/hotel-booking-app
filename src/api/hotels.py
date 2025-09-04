@@ -20,11 +20,11 @@ async def get_hotels(
     async with async_session_maker() as session:
         query = select(HotelsOrm)
         if location:
-            query = query.filter(func.lower(HotelsOrm.location).like(
-                f"%{location.strip().lower()}%"))
+            query = query.filter(func.lower(
+                HotelsOrm.location).contains(location.strip().lower()))
         if title:
-            query = query.filter(func.lower(HotelsOrm.title).like(
-                f"%{title.strip().lower()}%"))
+            query = query.filter(func.lower(
+                HotelsOrm.title).contains(title.strip().lower()))
         query = (
             query
             .limit(per_page)
@@ -39,12 +39,12 @@ async def get_hotels(
 @router.post("", summary="Создание нового отеля")
 async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
     "1": {"summary": "Сочи", "value": {
-        "title": "Отель Сочи 5 звезд",
-        "location": "ул. Ленина 123"
+        "title": "Апартаменты Brevis Rents",
+        "location": "Сочи, ул. Орджоникидзе, д. 11/1"
     }},
     "2": {"summary": "Дубай", "value": {
-        "title": "Отель Дубай 5 звезд",
-        "location": "ул. Al Rigga Street 3",
+        "title": "Signature 1 Hotel Tecom",
+        "location": "Al Thanayah 1 Barsha Heights, Tecom, Дубай",
     }}
 })
 ):
@@ -77,8 +77,8 @@ def hotel_patch_update(hotel_id: int, hotel_data: HotelPatch):
         return {"status": "Ok"}
 
 
-@router.delete("/{hotel_id}", summary="Удаление отеля")
-def delete_hotels(hotel_id: int):
+@router.delete("/{hotel_id}")
+def delete_hotel(hotel_id: int):
     global hotels
     hotels = [hotel for hotel in hotels if hotel["id"] != hotel_id]
-    return {"status": "Ok"}
+    return {"status": "OK"}
