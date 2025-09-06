@@ -8,7 +8,7 @@ from src.schemas.hotels import Hotel, HotelPatch
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 
-@router.get("", summary="Получение отеля(ей)", description="Можно фильтровать по id или title")
+@router.get("", summary="Получение отелей", description="Можно фильтровать по title или location")
 async def get_hotels(
     pagination: PaginationDep,
     location: str | None = Query(None, description="Локация"),
@@ -22,6 +22,12 @@ async def get_hotels(
             limit=per_page,
             offset=per_page * (pagination.page - 1)
         )
+
+
+@router.get("/{hotel_id}")
+async def get_hotel(hotel_id: int):
+    async with async_session_maker() as session:
+        return await HotelsRepository(session).get_one_or_none(id=hotel_id)
 
 
 @router.post("", summary="Создание нового отеля")
