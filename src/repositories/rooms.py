@@ -1,5 +1,5 @@
-from models.rooms import RoomsOrm
-from repositories.base import BaseRepository
+from src.models.rooms import RoomsOrm
+from src.repositories.base import BaseRepository
 
 
 class RoomsRepository(BaseRepository):
