@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 import jwt
 
 from src.repositories.users import UsersRepository
@@ -18,6 +18,10 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + \
@@ -27,7 +31,7 @@ def create_access_token(data: dict) -> str:
     return encoded_jwt
 
 
-@router.post("/register")
+@router.post("/register", summary="Регистрация пользователя")
 async def register_user(
     data: UserRequestAdd
 ):
@@ -40,14 +44,17 @@ async def register_user(
     return {"status": "Ok"}
 
 
-@router.post("/login")
+@router.post("/login", summary="Аутентификация пользователя")
 async def login_user(
     data: UserRequestAdd
 ):
     async with async_session_maker() as session:
-        user = await UsersRepository(session).get_one_or_none(email=data.email)
+        user = await UsersRepository(session).get_user_with_hashed_password(email=data.email)
         if not user:
             raise HTTPException(
                 status_code=401, detail="Пользователь с таким email не зарегистрирован")
         access_token = create_access_token({"user_id": user.id})
+        if not verify_password(data.password, user.hashed_password):
+            raise HTTPException(
+                status_code=401, detail="Пароль неверный")
         return {"access_token": access_token}
