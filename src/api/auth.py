@@ -38,7 +38,7 @@ async def login_user(
         return {"access_token": access_token}
 
 
-@router.get("/me")
+@router.get("/me", summary="Получение текущего аутентифицированного пользователя")
 async def get_me(
     user_id: UserIdDep,
 ):
@@ -47,7 +47,7 @@ async def get_me(
         return user
 
 
-@router.post("/logout")
+@router.post("/logout", summary="Выход из текущего аккаунта")
 async def logout(
     response: Response
 ):

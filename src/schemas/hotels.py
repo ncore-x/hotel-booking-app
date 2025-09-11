@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class HotelAdd(BaseModel):
@@ -13,5 +13,5 @@ class Hotel(HotelAdd):
 
 
 class HotelPatch(BaseModel):
-    title: str | None = Field(None)
-    location: str | None = Field(None)
+    title: str | None = None
+    location: str | None = None
