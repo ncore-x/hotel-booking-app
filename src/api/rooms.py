@@ -1,7 +1,5 @@
 from fastapi import APIRouter, Body
 from src.api.dependencies import DBDep
-from src.repositories.rooms import RoomsRepository
-from src.database import async_session_maker
 from src.schemas.rooms import RoomAdd, RoomPatch, RoomAddRequest, RoomPatchRequest
 
 router = APIRouter(
