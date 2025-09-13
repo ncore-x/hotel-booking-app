@@ -1,7 +1,6 @@
 # fmt: off
 from fastapi import FastAPI
 import uvicorn
-
 import sys
 from pathlib import Path
 
