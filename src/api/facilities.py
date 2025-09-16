@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Body
-from schemas.facilities import FacilityAdd
+
+from src.schemas.facilities import FacilityAdd
 from src.api.dependencies import DBDep
 
 router = APIRouter(

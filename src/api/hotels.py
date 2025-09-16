@@ -1,5 +1,4 @@
 from datetime import date
-
 from fastapi import Query, APIRouter, Body
 
 from src.api.dependencies import PaginationDep, DBDep

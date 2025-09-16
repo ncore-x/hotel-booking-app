@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter
 
 from src.api.dependencies import DBDep, UserIdDep
