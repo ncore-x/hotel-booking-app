@@ -50,6 +50,7 @@ async def room_put_update(
 ):
     _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     await db.rooms.edit(_room_data, id=room_id)
+    await db.rooms_facilities.set_room_facilities(room_id, facilities_ids=room_data.facilities_ids)
     await db.commit()
     return {"status": "Ok"}
 
@@ -61,9 +62,12 @@ async def room_patch_update(
     room_data: RoomPatchRequest,
     db: DBDep
 ):
+    _room_data_dict = room_data.model_dump(exclude_unset=True)
     _room_data = RoomPatch(
         hotel_id=hotel_id, **room_data.model_dump(exclude_unset=True))
     await db.rooms.edit(_room_data, exclude_unset=True, id=room_id, hotel_id=hotel_id)
+    if "facilities_ids" in _room_data_dict:
+        await db.rooms_facilities.set_room_fasilities(room_id, facilities_ids=_room_data_dict["facilities_ids"])
     await db.commit()
     return {"status": "Ok"}
 
