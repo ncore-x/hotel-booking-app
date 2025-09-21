@@ -1,4 +1,5 @@
 # fmt: off
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import uvicorn
@@ -10,6 +11,7 @@ from fastapi_cache.backends.redis import RedisBackend
 
 sys.path.append(str(Path(__file__).parent.parent))
 
+from src.api.dependencies import get_db
 from src.init import redis_manager
 from src.api.auth import router as router_auth
 from src.api.hotels import router as router_hotels
@@ -19,8 +21,21 @@ from src.api.facilities import router as router_facilities
 from src.api.images import router as router_images
 
 
+async def send_emails_bookings_today_checkin():
+    async for db in get_db():
+        bookings = await db.bookings.get_bookings_with_today_checkin()
+        print(f"{bookings=}")
+
+
+async def run_send_email_regularly():
+    while True:
+        await send_emails_bookings_today_checkin()
+        await asyncio.sleep(5)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    asyncio.create_task(run_send_email_regularly())
     await redis_manager.connect()
 
     FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
