@@ -8,5 +8,5 @@ def test_decode_and_encode_access_token():
     assert jwt_token
     assert isinstance(jwt_token, str)
 
-    payload = AuthService().encode_token(jwt_token)
+    payload = AuthService().decode_token(jwt_token)
     assert payload["user_id"] == data["user_id"]
