@@ -1,5 +1,4 @@
 from src.schemas.hotels import HotelAdd
-from src.utils.db_manager import DBManager
 
 
 async def test_add_hotel(db):

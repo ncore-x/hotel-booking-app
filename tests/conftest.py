@@ -1,11 +1,11 @@
 import json
 import pytest
+from httpx import AsyncClient, ASGITransport
 
 from src.config import settings
 from src.database import Base, engine_null_pool, async_session_maker_null_pool
 from src.main import app
 from src.models import *
-from httpx import AsyncClient, ASGITransport
 from src.schemas.hotels import HotelAdd
 from src.schemas.rooms import RoomAdd
 from src.utils.db_manager import DBManager
