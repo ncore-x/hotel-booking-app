@@ -1,4 +1,4 @@
-async def test_booking_add(db, authenticated_ac):
+async def test_add_booking(db, authenticated_ac):
     room_id = (await db.rooms.get_all())[0].id
     response = await authenticated_ac.post(
         "/bookings",
