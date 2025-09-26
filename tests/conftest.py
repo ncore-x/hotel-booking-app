@@ -7,7 +7,6 @@ from unittest import mock
 mock.patch("fastapi_cache.decorator.cache",
            lambda *args, **kwargs: lambda f: f).start()
 
-
 from src.utils.db_manager import DBManager
 from src.schemas.rooms import RoomAdd
 from src.schemas.hotels import HotelAdd
