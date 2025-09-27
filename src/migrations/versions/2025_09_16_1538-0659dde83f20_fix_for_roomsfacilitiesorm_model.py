@@ -20,18 +20,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    op.add_column(
-        "rooms_facilities", sa.Column(
-            "facility_id", sa.Integer(), nullable=False)
-    )
+    op.add_column("rooms_facilities", sa.Column("facility_id", sa.Integer(), nullable=False))
     op.drop_constraint(
         op.f("rooms_facilities_facilities_id_fkey"),
         "rooms_facilities",
         type_="foreignkey",
     )
-    op.create_foreign_key(
-        None, "rooms_facilities", "facilities", ["facility_id"], ["id"]
-    )
+    op.create_foreign_key(None, "rooms_facilities", "facilities", ["facility_id"], ["id"])
     op.drop_column("rooms_facilities", "facilities_id")
 
 
@@ -39,8 +34,7 @@ def downgrade() -> None:
     """Downgrade schema."""
     op.add_column(
         "rooms_facilities",
-        sa.Column("facilities_id", sa.INTEGER(),
-                  autoincrement=False, nullable=False),
+        sa.Column("facilities_id", sa.INTEGER(), autoincrement=False, nullable=False),
     )
     op.drop_constraint(None, "rooms_facilities", type_="foreignkey")
     op.create_foreign_key(

@@ -1,4 +1,3 @@
-
 from src.models.facilities import FacilitiesOrm
 from src.schemas.facilities import Facility
 from src.repositories.mappers.base import DataMapper

@@ -8,7 +8,7 @@ from src.database import async_session_maker
 
 
 class PaginationParams(BaseModel):
-    page: Annotated[int | None, Query(1, ge=1)]
+    page: Annotated[int, Query(1, ge=1)]
     per_page: Annotated[int | None, Query(None, ge=1, lt=30)]
 
 
@@ -18,8 +18,7 @@ PaginationDep = Annotated[PaginationParams, Depends()]
 def get_token(request: Request) -> str:
     token = request.cookies.get("access_token", None)
     if not token:
-        raise HTTPException(
-            status_code=401, detail="Вы не предоставили токен доступа")
+        raise HTTPException(status_code=401, detail="Вы не предоставили токен доступа")
     return token
 
 

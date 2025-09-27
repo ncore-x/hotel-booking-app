@@ -9,7 +9,6 @@ Create Date: 2025-09-08 18:25:26.278543
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 
 
 revision: str = "6068eeb7cdae"
@@ -25,4 +24,4 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_constraint(None, "users", type_="unique")
+    op.drop_constraint(None, "users", type_="unique")  # type: ignore
