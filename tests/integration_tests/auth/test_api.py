@@ -6,7 +6,7 @@ from httpx import AsyncClient
     "email, password, status_code",
     [
         ("k0t@pes.com", "1234", 200),
-        ("k0t@pes.com", "1234", 400),
+        ("k0t@pes.com", "1234", 409),
         ("k0t1@pes.com", "1235", 200),
         ("abcde", "1235", 422),
         ("abcde@abc", "1235", 422),

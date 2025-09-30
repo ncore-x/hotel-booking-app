@@ -17,7 +17,7 @@ class AllRoomsAreBookedException(NabronirovalException):
     detail = "Не осталось свободных номеров"
 
 
-def check_date_to_after_date_from(date_to: date, date_from: date):
+def check_date_to_after_date_from(date_from: date, date_to: date):
     if date_to <= date_from:
         raise HTTPException(
             status_code=422, detail="Дата заезда не может быть позже даты выезда")
