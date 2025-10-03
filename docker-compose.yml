@@ -1,0 +1,36 @@
+services:
+  booking_back_service:
+    build:
+      context: .
+    container_name: 'booking_back'
+    ports:
+      - '7777:8000'
+    networks:
+      - myNetwork
+    env_file:
+      - .env
+    command: 'sh -c "uv run alembic upgrade head && uv run uvicorn src.main:app --host 0.0.0.0 --port 8000"'
+
+  booking_celery_worker_service:
+    build:
+      context: .
+    container_name: 'booking_celery_worker'
+    networks:
+      - myNetwork
+    env_file:
+      - .env
+    command: 'uv run celery --app=src.tasks.celery_app:celery_instance worker -l INFO'
+
+  booking_celery_beat_service:
+    build:
+      context: .
+    container_name: 'booking_celery_beat'
+    networks:
+      - myNetwork
+    env_file:
+      - .env
+    command: 'uv run celery --app=src.tasks.celery_app:celery_instance beat -l INFO'
+
+networks:
+  myNetwork:
+    external: true
