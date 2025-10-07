@@ -46,6 +46,10 @@ class UserAlreadyExistsException(NabronirovalException):
     detail = "Пользователь уже существует"
 
 
+class UserNotAuthenticatedException(NabronirovalException):
+    detail = "Вы не в системе, выход невозможен"
+
+
 def check_date_to_after_date_from(date_from: date, date_to: date) -> None:
     if date_to <= date_from:
         raise HTTPException(
@@ -97,3 +101,13 @@ class IncorrectPasswordHTTPException(NabronirovalHTTPException):
 class NoAccessTokenHTTPException(NabronirovalHTTPException):
     status_code = 401
     detail = "Вы не предоставили токен доступа"
+
+
+class UserNotAuthenticatedHTTPException(NabronirovalHTTPException):
+    status_code = 401
+    detail = "Вы не в системе, выход невозможен"
+
+
+class UserIsAlreadyAuthenticatedHTTPException(NabronirovalHTTPException):
+    status_code = 401
+    detail = "Вы уже вошли в систему!"

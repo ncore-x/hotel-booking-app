@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, Depends, Request, Response
 
 from src.api.dependencies import UserIdDep, DBDep
-from src.exceptions import ObjectAlreadyExistsException, IncorrectPasswordHTTPException, IncorrectPasswordException, \
-    EmailNotRegisteredHTTPException, EmailNotRegisteredException, UserAlreadyExistsException, \
-    UserEmailAlreadyExistsHTTPException
-from src.schemas.users import UserRequestAdd, UserAdd
+from src.exceptions import IncorrectPasswordHTTPException, IncorrectPasswordException, \
+    EmailNotRegisteredHTTPException, EmailNotRegisteredException, IncorrectTokenException, UserAlreadyExistsException, \
+    UserEmailAlreadyExistsHTTPException, UserIsAlreadyAuthenticatedHTTPException, UserNotAuthenticatedException, UserNotAuthenticatedHTTPException
+from src.schemas.users import UserRequestAdd
 from src.services.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Авторизация и аутентификация"])
@@ -20,15 +20,24 @@ async def register_user(
     except UserAlreadyExistsException:
         raise UserEmailAlreadyExistsHTTPException
 
-    return {"status": "OK"}
+    return {"detail": "Вы успешно зарегистрировались!"}
 
 
 @router.post("/login")
 async def login_user(
     data: UserRequestAdd,
     response: Response,
+    request: Request,
     db: DBDep,
 ):
+    token = request.cookies.get("access_token")
+    if token:
+        try:
+            AuthService(db).decode_token(token)
+            raise UserIsAlreadyAuthenticatedHTTPException()
+        except IncorrectTokenException:
+            pass
+
     try:
         access_token = await AuthService(db).login_user(data)
     except EmailNotRegisteredException:
@@ -37,7 +46,7 @@ async def login_user(
         raise IncorrectPasswordHTTPException
 
     response.set_cookie("access_token", access_token)
-    return {"access_token": access_token}
+    return {"detail": "Успешный вход в систему!", "access_token": access_token}
 
 
 @router.get("/me")
@@ -48,7 +57,13 @@ async def get_me(
     return await AuthService(db).get_one_or_none_user(user_id)
 
 
-@router.post("/logout")
-async def logout(response: Response):
+@router.post("/logout", response_model=None)
+async def logout(response: Response, request: Request, db: DBDep):
+    token = request.cookies.get("access_token")
+    try:
+        await AuthService(db).logout_user(token)
+    except UserNotAuthenticatedException:
+        raise UserNotAuthenticatedHTTPException
+
     response.delete_cookie("access_token")
-    return {"status": "OK"}
+    return {"detail": "Вы вышли из системы!"}
