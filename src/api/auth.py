@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, Response
 
 from src.api.dependencies import UserIdDep, DBDep
-from src.exceptions import IncorrectPasswordHTTPException, IncorrectPasswordException, \
+from src.exceptions import ExpiredTokenException, IncorrectPasswordHTTPException, IncorrectPasswordException, \
     EmailNotRegisteredHTTPException, EmailNotRegisteredException, IncorrectTokenException, UserAlreadyExistsException, \
     UserEmailAlreadyExistsHTTPException, UserIsAlreadyAuthenticatedHTTPException, UserNotAuthenticatedException, UserNotAuthenticatedHTTPException
 from src.schemas.users import UserRequestAdd
@@ -35,6 +35,8 @@ async def login_user(
         try:
             AuthService(db).decode_token(token)
             raise UserIsAlreadyAuthenticatedHTTPException()
+        except ExpiredTokenException:
+            pass
         except IncorrectTokenException:
             pass
 

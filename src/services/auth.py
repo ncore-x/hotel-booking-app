@@ -3,7 +3,7 @@ from passlib.context import CryptContext
 import jwt
 
 from src.config import settings
-from src.exceptions import IncorrectTokenException, EmailNotRegisteredException, IncorrectPasswordException, \
+from src.exceptions import ExpiredTokenException, IncorrectTokenException, EmailNotRegisteredException, IncorrectPasswordException, \
     ObjectAlreadyExistsException, UserAlreadyExistsException, UserNotAuthenticatedException
 from src.schemas.users import UserRequestAdd, UserAdd
 from src.services.base import BaseService
@@ -32,8 +32,10 @@ class AuthService(BaseService):
     def decode_token(self, token: str) -> dict:
         try:
             return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-        except jwt.exceptions.DecodeError:
-            raise IncorrectTokenException
+        except jwt.ExpiredSignatureError:
+            raise ExpiredTokenException()
+        except jwt.InvalidTokenError:
+            raise IncorrectTokenException()
 
     async def register_user(self, data: UserRequestAdd):
         hashed_password = self.hash_password(data.password)
