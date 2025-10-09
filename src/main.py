@@ -8,6 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from pathlib import Path
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi.staticfiles import StaticFiles
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -34,6 +35,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+BASE_DIR = Path(__file__).parent
+static_dir = BASE_DIR / "static"
+
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 app.include_router(router_auth)
@@ -42,6 +48,7 @@ app.include_router(router_rooms)
 app.include_router(router_facilities)
 app.include_router(router_bookings)
 app.include_router(router_images)
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", reload=True)
