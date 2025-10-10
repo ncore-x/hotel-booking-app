@@ -1,4 +1,5 @@
 from datetime import date
+from fastapi import HTTPException
 
 from src.exceptions import HotelNotFoundException, ObjectNotFoundException, check_date_to_after_date_from
 from src.schemas.hotels import Hotel, HotelAdd, HotelPatch
@@ -29,19 +30,44 @@ class HotelService(BaseService):
         return await self.db.hotels.get_one(id=hotel_id)
 
     async def add_hotel(self, data: HotelAdd):
+        try:
+            await self.db.hotels.get_one(title=data.title, location=data.location)
+            raise HTTPException(
+                status_code=400, detail="Отель с таким названием и адресом уже существует!")
+        except ObjectNotFoundException:
+            pass
+
         hotel = await self.db.hotels.add(data)
         await self.db.commit()
         return hotel
 
     async def hotel_put_update(self, hotel_id: int, data: HotelAdd):
+        try:
+            await self.get_hotel_with_check(hotel_id)
+        except HotelNotFoundException:
+            raise
+
         await self.db.hotels.edit(data, id=hotel_id)
         await self.db.commit()
 
     async def hotel_patch_update(self, hotel_id: int, data: HotelPatch, exclude_unset: bool = False):
+        if (data.title is None) and (data.location is None):
+            raise HTTPException(
+                status_code=400, detail="Нужно указать хотя бы одно поле для обновления: 'название' или 'адрес'")
+        try:
+            await self.get_hotel_with_check(hotel_id)
+        except HotelNotFoundException:
+            raise
+
         await self.db.hotels.edit(data, exclude_unset=exclude_unset, id=hotel_id)
         await self.db.commit()
 
     async def delete_hotel(self, hotel_id: int):
+        try:
+            await self.get_hotel_with_check(hotel_id)
+        except HotelNotFoundException:
+            raise
+
         await self.db.hotels.delete(id=hotel_id)
         await self.db.commit()
 

@@ -3,7 +3,7 @@ from fastapi import Query, APIRouter, Body
 from fastapi_cache.decorator import cache
 
 from src.services.hotels import HotelService
-from src.exceptions import HotelNotFoundHTTPException, ObjectNotFoundException
+from src.exceptions import HotelNotFoundException, HotelNotFoundHTTPException, ObjectNotFoundException
 from src.api.dependencies import PaginationDep, DBDep
 from src.schemas.hotels import HotelPatch, HotelAdd
 
@@ -61,7 +61,7 @@ async def create_hotel(
     ),
 ):
     hotel = await HotelService(db).add_hotel(hotel_data)
-    return {"status": "Ok", "data": hotel}
+    return {"detail": "Отель успешно добавлен!", "data": hotel}
 
 
 @router.put(
@@ -74,8 +74,11 @@ async def hotel_put_update(
     hotel_data: HotelAdd,
     db: DBDep,
 ):
-    await HotelService(db).hotel_put_update(hotel_id, hotel_data)
-    return {"status": "Ok"}
+    try:
+        await HotelService(db).hotel_put_update(hotel_id, hotel_data)
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
+    return {"detail": "Изменения успешно сохранены!"}
 
 
 @router.patch(
@@ -84,11 +87,17 @@ async def hotel_put_update(
     description="Обновление отеля по 'name' или 'title'",
 )
 async def hotel_patch_update(hotel_id: int, hotel_data: HotelPatch, db: DBDep):
-    await HotelService(db).hotel_patch_update(hotel_id, hotel_data, exclude_unset=True)
-    return {"status": "Ok"}
+    try:
+        await HotelService(db).hotel_patch_update(hotel_id, hotel_data, exclude_unset=True)
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
+    return {"detail": "Изменения успешно сохранены!"}
 
 
 @router.delete("/{hotel_id}", summary="Удаление отеля")
 async def delete_hotel(hotel_id: int, db: DBDep):
-    await HotelService(db).delete_hotel(hotel_id)
-    return {"status": "OK"}
+    try:
+        await HotelService(db).delete_hotel(hotel_id)
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
+    return {"detail": "Отель успешно удалён!"}
