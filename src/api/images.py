@@ -15,7 +15,6 @@ async def upload_image(file: UploadFile):
     except HTTPException:
         raise
     except Exception as exc:
-        # В проде логируй exc
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Внутренняя ошибка сервера")
     return result

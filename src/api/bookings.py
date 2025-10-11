@@ -31,4 +31,4 @@ async def add_booking(
         booking = await BookingService(db).add_booking(user_id, booking_data)
     except AllRoomsAreBookedException:
         raise AllRoomsAreBookedHTTPException
-    return {"status": "OK", "data": booking}
+    return {"detail": "Номер успешно забронирован!", "data": booking}

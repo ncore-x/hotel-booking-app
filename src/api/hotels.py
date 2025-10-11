@@ -54,7 +54,7 @@ async def create_hotel(
                 "summary": "Дубай",
                 "value": {
                     "title": "Signature 1 Hotel Tecom",
-                    "location": "Al Thanayah 1 Barsha Heights, Tecom, Дубай",
+                    "location": "Al Thanayah 1 Barsha Heights, Tecom, Dubai",
                 },
             },
         }

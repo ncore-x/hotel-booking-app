@@ -134,3 +134,23 @@ class FacilityTitleEmptyHTTPException(NabronirovalHTTPException):
 class ExpiredTokenHTTPException(NabronirovalHTTPException):
     status_code = 401
     detail = "Токен доступа истёк!"
+
+
+class ObjectNotFoundHTTPException(NabronirovalHTTPException):
+    status_code = 404
+    detail = "Объект не найден!"
+
+
+class ObjectAlreadyExistsHTTPException(NabronirovalHTTPException):
+    status_code = 409
+    detail = "Похожий объект уже существует!"
+
+
+class InvalidDateRangeException(NabronirovalException):
+    status_code = 422
+    detail = "Дата заезда не может быть позже даты выезда!"
+
+
+class InvalidDateRangeHTTPException(NabronirovalHTTPException):
+    status_code = 422
+    detail = "Дата заезда не может быть позже даты выезда!"

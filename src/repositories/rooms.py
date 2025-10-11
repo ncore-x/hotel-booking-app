@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import NoResultFound
 
@@ -22,6 +22,10 @@ class RoomsRepository(BaseRepository):
     ):
         rooms_ids_to_get = rooms_ids_for_booking(date_from, date_to, hotel_id)
 
+        if isinstance(rooms_ids_to_get, (list, tuple, set)):
+            if not rooms_ids_to_get:
+                return []
+
         query = (
             select(self.model)  # type: ignore
             .options(selectinload(self.model.facilities))
@@ -43,3 +47,22 @@ class RoomsRepository(BaseRepository):
         except NoResultFound:
             raise RoomNotFoundException
         return RoomDataWithRelsMapper.map_to_domain_entity(model)
+
+    async def get_by_fields(self, hotel_id: int, title: str, description: str | None, price: int, quantity: int):
+        query = (
+            select(self.model)
+            .filter(
+                and_(
+                    self.model.hotel_id == hotel_id,
+                    self.model.title == title,
+                    self.model.price == price,
+                    self.model.quantity == quantity,
+                    (self.model.description == description)
+                )
+            )
+        )
+        result = await self.session.execute(query)
+        model = result.scalars().first()
+        if not model:
+            return None
+        return RoomDataMapper.map_to_domain_entity(model)

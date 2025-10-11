@@ -22,6 +22,7 @@ from src.api.bookings import router as router_bookings
 from src.api.facilities import router as router_facilities
 from src.api.images import router as router_images
 from src.exception_handlers import validation_exception_handler
+from src.middleware.json_error_handler import JSONErrorHandlerMiddleware
 
 
 @asynccontextmanager
@@ -39,6 +40,8 @@ BASE_DIR = Path(__file__).parent
 static_dir = BASE_DIR / "static"
 
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+app.add_middleware(JSONErrorHandlerMiddleware)
 
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
