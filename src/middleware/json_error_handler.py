@@ -7,6 +7,11 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 class JSONErrorHandlerMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        content_type = request.headers.get("content-type", "").lower()
+
+        if not content_type.startswith("application/json"):
+            return await call_next(request)
+
         try:
             if request.method in ["POST", "PUT", "PATCH"]:
                 body = await request.body()
@@ -34,3 +39,5 @@ class JSONErrorHandlerMiddleware(BaseHTTPMiddleware):
                 status_code=422,
                 content={"detail": error_message}
             )
+        except UnicodeDecodeError:
+            return await call_next(request)
