@@ -65,10 +65,17 @@ class CannotDeleteRoomWithBookingsException(NabronirovalException):
     detail = "Невозможно удалить номер, у которого есть бронирования!"
 
 
+class PastDateException(NabronirovalException):
+    detail = "Дата не может быть в прошлом!"
+
+
+class InvalidBookingPeriodException(NabronirovalException):
+    detail = "Некорректный период бронирования!"
+
+
 def check_date_to_after_date_from(date_from: date, date_to: date) -> None:
     if date_to <= date_from:
-        raise HTTPException(
-            status_code=422, detail="Дата заезда не может быть позже даты выезда!")
+        raise InvalidDateRangeHTTPException()
 
 
 class NabronirovalHTTPException(HTTPException):
@@ -172,3 +179,13 @@ class CannotDeleteHotelWithRoomsHTTPException(NabronirovalHTTPException):
 class CannotDeleteRoomWithBookingsHTTPException(NabronirovalHTTPException):
     status_code = 409
     detail = "Невозможно удалить номер, у которого есть бронирования!"
+
+
+class PastDateHTTPException(NabronirovalHTTPException):
+    status_code = 422
+    detail = "Дата не может быть в прошлом!"
+
+
+class InvalidBookingPeriodHTTPException(NabronirovalHTTPException):
+    status_code = 422
+    detail = "Некорректный период бронирования!"
