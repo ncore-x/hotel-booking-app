@@ -1,9 +1,19 @@
 from fastapi import APIRouter, Depends, Request, Response
 
 from src.api.dependencies import UserIdDep, DBDep
-from src.exceptions import ExpiredTokenException, IncorrectPasswordHTTPException, IncorrectPasswordException, \
-    EmailNotRegisteredHTTPException, EmailNotRegisteredException, IncorrectTokenException, UserAlreadyExistsException, \
-    UserEmailAlreadyExistsHTTPException, UserIsAlreadyAuthenticatedHTTPException, UserNotAuthenticatedException, UserNotAuthenticatedHTTPException
+from src.exceptions import (
+    ExpiredTokenException,
+    IncorrectPasswordHTTPException,
+    IncorrectPasswordException,
+    EmailNotRegisteredHTTPException,
+    EmailNotRegisteredException,
+    IncorrectTokenException,
+    UserAlreadyExistsException,
+    UserEmailAlreadyExistsHTTPException,
+    UserIsAlreadyAuthenticatedHTTPException,
+    UserNotAuthenticatedException,
+    UserNotAuthenticatedHTTPException
+)
 from src.schemas.users import UserRequestAdd
 from src.services.auth import AuthService
 
@@ -18,7 +28,7 @@ async def register_user(
     try:
         await AuthService(db).register_user(data)
     except UserAlreadyExistsException:
-        raise UserEmailAlreadyExistsHTTPException
+        raise UserEmailAlreadyExistsHTTPException()
 
     return {"detail": "Вы успешно зарегистрировались!"}
 
@@ -43,9 +53,9 @@ async def login_user(
     try:
         access_token = await AuthService(db).login_user(data)
     except EmailNotRegisteredException:
-        raise EmailNotRegisteredHTTPException
+        raise EmailNotRegisteredHTTPException()
     except IncorrectPasswordException:
-        raise IncorrectPasswordHTTPException
+        raise IncorrectPasswordHTTPException()
 
     response.set_cookie("access_token", access_token)
     return {"detail": "Успешный вход в систему!", "access_token": access_token}
@@ -65,7 +75,7 @@ async def logout(response: Response, request: Request, db: DBDep):
     try:
         await AuthService(db).logout_user(token)
     except UserNotAuthenticatedException:
-        raise UserNotAuthenticatedHTTPException
+        raise UserNotAuthenticatedHTTPException()
 
     response.delete_cookie("access_token")
     return {"detail": "Вы вышли из системы!"}

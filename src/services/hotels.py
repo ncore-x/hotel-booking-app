@@ -1,7 +1,13 @@
 from datetime import date
-from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
 
-from src.exceptions import HotelNotFoundException, ObjectNotFoundException, check_date_to_after_date_from
+from src.exceptions import (
+    HotelNotFoundException,
+    ObjectNotFoundException,
+    ObjectAlreadyExistsException,
+    CannotDeleteHotelWithRoomsException,
+    check_date_to_after_date_from
+)
 from src.schemas.hotels import Hotel, HotelAdd, HotelPatch
 from src.services.base import BaseService
 
@@ -32,8 +38,7 @@ class HotelService(BaseService):
     async def add_hotel(self, data: HotelAdd):
         try:
             await self.db.hotels.get_one(title=data.title, location=data.location)
-            raise HTTPException(
-                status_code=400, detail="Отель с таким названием и адресом уже существует!")
+            raise ObjectAlreadyExistsException()
         except ObjectNotFoundException:
             pass
 
@@ -52,8 +57,8 @@ class HotelService(BaseService):
 
     async def hotel_patch_update(self, hotel_id: int, data: HotelPatch, exclude_unset: bool = False):
         if (data.title is None) and (data.location is None):
-            raise HTTPException(
-                status_code=400, detail="Нужно указать хотя бы одно поле для обновления: 'название' или 'адрес'")
+            raise ObjectAlreadyExistsException()
+
         try:
             await self.get_hotel_with_check(hotel_id)
         except HotelNotFoundException:
@@ -68,11 +73,16 @@ class HotelService(BaseService):
         except HotelNotFoundException:
             raise
 
-        await self.db.hotels.delete(id=hotel_id)
-        await self.db.commit()
+        try:
+            await self.db.hotels.delete(id=hotel_id)
+            await self.db.commit()
+        except IntegrityError as ex:
+            if "foreign key constraint" in str(ex).lower() and "rooms_hotel_id_fkey" in str(ex):
+                raise CannotDeleteHotelWithRoomsException()
+            raise
 
     async def get_hotel_with_check(self, hotel_id: int) -> Hotel:
         try:
             return await self.db.hotels.get_one(id=hotel_id)
         except ObjectNotFoundException:
-            raise HotelNotFoundException
+            raise HotelNotFoundException()

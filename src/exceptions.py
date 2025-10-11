@@ -57,6 +57,14 @@ class ExpiredTokenException(NabronirovalException):
     detail = "Токен доступа истёк!"
 
 
+class CannotDeleteHotelWithRoomsException(NabronirovalException):
+    detail = "Невозможно удалить отель, у которого есть номера!"
+
+
+class CannotDeleteRoomWithBookingsException(NabronirovalException):
+    detail = "Невозможно удалить номер, у которого есть бронирования!"
+
+
 def check_date_to_after_date_from(date_from: date, date_to: date) -> None:
     if date_to <= date_from:
         raise HTTPException(
@@ -154,3 +162,13 @@ class InvalidDateRangeException(NabronirovalException):
 class InvalidDateRangeHTTPException(NabronirovalHTTPException):
     status_code = 422
     detail = "Дата заезда не может быть позже даты выезда!"
+
+
+class CannotDeleteHotelWithRoomsHTTPException(NabronirovalHTTPException):
+    status_code = 409
+    detail = "Невозможно удалить отель, у которого есть номера!"
+
+
+class CannotDeleteRoomWithBookingsHTTPException(NabronirovalHTTPException):
+    status_code = 409
+    detail = "Невозможно удалить номер, у которого есть бронирования!"

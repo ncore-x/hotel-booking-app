@@ -1,13 +1,14 @@
-# src/services/rooms.py
 from datetime import date
+from sqlalchemy.exc import IntegrityError
 
 from src.services.hotels import HotelService
 from src.schemas.facilities import RoomFacilitiyAdd
 from src.schemas.rooms import Room, RoomAdd, RoomAddRequest, RoomPatch, RoomPatchRequest
 from src.exceptions import (
-    HotelNotFoundException,
     ObjectNotFoundException,
     RoomNotFoundException,
+    ObjectAlreadyExistsException,
+    CannotDeleteRoomWithBookingsException,
     check_date_to_after_date_from,
 )
 from src.services.base import BaseService
@@ -52,7 +53,8 @@ class RoomService(BaseService):
             quantity=room_data.quantity,
         )
         if existing:
-            raise Exception("Номер с такими же полями уже существует!")
+            raise ObjectAlreadyExistsException(
+                "Номер с такими же полями уже существует!")
 
         _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
         room: Room = await self.db.rooms.add(_room_data)
@@ -119,8 +121,14 @@ class RoomService(BaseService):
     ):
         await HotelService(self.db).get_hotel_with_check(hotel_id)
         await self.get_room_with_check(room_id, hotel_id)
-        await self.db.rooms.delete(id=room_id, hotel_id=hotel_id)
-        await self.db.commit()
+
+        try:
+            await self.db.rooms.delete(id=room_id, hotel_id=hotel_id)
+            await self.db.commit()
+        except IntegrityError as ex:
+            if "foreign key constraint" in str(ex).lower() and "bookings_room_id_fkey" in str(ex):
+                raise CannotDeleteRoomWithBookingsException()
+            raise
 
     async def get_room_with_check(self, room_id: int, hotel_id: int = None) -> Room:
         try:
@@ -128,4 +136,4 @@ class RoomService(BaseService):
                 return await self.db.rooms.get_one(id=room_id)
             return await self.db.rooms.get_one(id=room_id, hotel_id=hotel_id)
         except ObjectNotFoundException:
-            raise RoomNotFoundException
+            raise RoomNotFoundException()

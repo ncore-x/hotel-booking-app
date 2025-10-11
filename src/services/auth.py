@@ -1,12 +1,13 @@
+import jwt
 from datetime import datetime, timezone, timedelta
 from passlib.context import CryptContext
-import jwt
 
 from src.config import settings
 from src.exceptions import ExpiredTokenException, IncorrectTokenException, EmailNotRegisteredException, IncorrectPasswordException, \
     ObjectAlreadyExistsException, UserAlreadyExistsException, UserNotAuthenticatedException
 from src.schemas.users import UserRequestAdd, UserAdd
 from src.services.base import BaseService
+from sqlalchemy.exc import NoResultFound
 
 
 class AuthService(BaseService):
@@ -48,21 +49,24 @@ class AuthService(BaseService):
             raise UserAlreadyExistsException from ex
 
     async def login_user(self, data: UserRequestAdd) -> str:
-        user = await self.db.users.get_user_with_hashed_password(email=data.email)
-        if not user:
-            raise EmailNotRegisteredException
+        try:
+            user = await self.db.users.get_user_with_hashed_password(email=data.email)
+        except NoResultFound:
+            raise EmailNotRegisteredException()
+
         if not self.verify_password(data.password, user.hashed_password):
             raise IncorrectPasswordException
+
         access_token = self.create_access_token({"user_id": user.id})
         return access_token
 
     async def logout_user(self, token: str):
         if not token:
-            raise UserNotAuthenticatedException
+            raise UserNotAuthenticatedException()
         try:
             self.decode_token(token)
         except IncorrectTokenException:
-            raise UserNotAuthenticatedException
+            raise UserNotAuthenticatedException()
 
     async def get_one_or_none_user(self, user_id: int):
         return await self.db.users.get_one_or_none(id=user_id)

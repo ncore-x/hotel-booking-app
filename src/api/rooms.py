@@ -4,6 +4,8 @@ from fastapi_cache.decorator import cache
 
 from src.services.rooms import RoomService
 from src.exceptions import (
+    CannotDeleteRoomWithBookingsException,
+    CannotDeleteRoomWithBookingsHTTPException,
     HotelNotFoundException,
     HotelNotFoundHTTPException,
     RoomNotFoundException,
@@ -106,7 +108,10 @@ async def delete_room(hotel_id: int, room_id: int, db: DBDep):
     try:
         await RoomService(db).delete_room(hotel_id, room_id)
     except HotelNotFoundException:
-        raise HotelNotFoundHTTPException
+        raise HotelNotFoundHTTPException()
     except RoomNotFoundException:
-        raise RoomNotFoundHTTPException
+        raise RoomNotFoundHTTPException()
+    except CannotDeleteRoomWithBookingsException:
+        raise CannotDeleteRoomWithBookingsHTTPException()
+
     return {"detail": "Номер успешно удалён!"}
