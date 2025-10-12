@@ -14,7 +14,7 @@ async def upload_image(file: UploadFile):
         result = await ImagesService().upload_image(file)
     except HTTPException:
         raise
-    except Exception as exc:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Внутренняя ошибка сервера")
     return result

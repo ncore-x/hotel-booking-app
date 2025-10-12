@@ -1,4 +1,3 @@
-# src/middleware/json_error_handler.py
 import json
 from fastapi import Request
 from fastapi.responses import JSONResponse

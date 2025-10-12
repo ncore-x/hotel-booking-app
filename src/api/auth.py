@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Request, Response
 
 from src.api.dependencies import UserIdDep, DBDep
 from src.exceptions import (

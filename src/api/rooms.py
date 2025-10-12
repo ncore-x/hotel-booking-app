@@ -1,5 +1,5 @@
 from datetime import date
-from fastapi import APIRouter, Body, Query, HTTPException
+from fastapi import APIRouter, Body, Query
 from fastapi_cache.decorator import cache
 
 from src.services.rooms import RoomService

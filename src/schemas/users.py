@@ -1,10 +1,6 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
+
 from src.validators import validate_email_russian, validate_password_russian
-
-
-class UserRequestAdd(BaseModel):
-    email: str
-    password: str
 
 
 class UserRequestAdd(BaseModel):
