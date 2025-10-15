@@ -30,8 +30,9 @@ def get_token(request: Request) -> str:
 
 
 def get_current_user_id(
-        token: str = Depends(get_token),
-        db: DBManager = Depends(lambda: DBManager(session_factory=async_session_maker))) -> int:
+    token: str = Depends(get_token),
+    db: DBManager = Depends(lambda: DBManager(session_factory=async_session_maker)),
+) -> int:
     try:
         payload = AuthService(db).decode_token(token)
     except ExpiredTokenException:

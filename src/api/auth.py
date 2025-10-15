@@ -12,7 +12,7 @@ from src.exceptions import (
     UserEmailAlreadyExistsHTTPException,
     UserIsAlreadyAuthenticatedHTTPException,
     UserNotAuthenticatedException,
-    UserNotAuthenticatedHTTPException
+    UserNotAuthenticatedHTTPException,
 )
 from src.schemas.users import UserRequestAdd
 from src.services.auth import AuthService

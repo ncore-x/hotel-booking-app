@@ -67,24 +67,34 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
 
 @pytest.fixture(scope="session", autouse=True)
 async def register_user(ac: AsyncClient, setup_database):
-    await ac.post(
+    response = await ac.post(
         "/auth/register",
         json={
-            "email": "kot@pes.com",
-            "password": "123"
+            "email": "test@example.com",
+            "password": "TestPassword123"
         }
     )
+    assert response.status_code == 200, f"Registration failed: {response.text}"
 
 @pytest.fixture(scope="session")
 async def authenticated_ac(register_user, ac: AsyncClient):
-    await ac.post(
+    response = await ac.post(
         "/auth/login",
         json={
-            "email": "kot@pes.com",
-            "password": "123"
+            "email": "test@example.com",
+            "password": "TestPassword123"
         }
     )
-    assert ac.cookies["access_token"]
+
+    print("=== AUTHENTICATED_AC LOGIN ===")
+    print(f"Status: {response.status_code}")
+    print(f"Response: {response.text}")
+    print(f"Cookies: {dict(ac.cookies)}")
+    print("==============================")
+
+    assert response.status_code == 200, f"Login failed: {response.text}"
+    assert ac.cookies["access_token"], "No access token in cookies"
+
     yield ac
 
 # fmt: on

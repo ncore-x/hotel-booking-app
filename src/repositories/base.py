@@ -46,25 +46,23 @@ class BaseRepository:
 
     async def add(self, data: BaseModel) -> BaseModel | Any:
         try:
-            add_data_stmt = insert(self.model).values(
-                **data.model_dump()).returning(self.model)
+            add_data_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
             result = await self.session.execute(add_data_stmt)
             model = result.scalars().one()
             return self.mapper.map_to_domain_entity(model)
         except IntegrityError as ex:
-            logging.exception(
-                f"Не удалось добавить данные в БД, входные данные={data}")
+            logging.exception(f"Не удалось добавить данные в БД, входные данные={data}")
             if isinstance(ex.orig.__cause__, UniqueViolationError):
                 raise ObjectAlreadyExistsException from ex
             else:
                 logging.exception(
-                    f"Незнакомая ошибка: не удалось добавить данные в БД, входные данные={data}")
+                    f"Незнакомая ошибка: не удалось добавить данные в БД, входные данные={data}"
+                )
                 raise ex
 
     async def add_bulk(self, data: Sequence[BaseModel]):
         add_data_stmt = (
-            insert(self.model).values([item.model_dump()
-                                       for item in data]).returning(self.model)
+            insert(self.model).values([item.model_dump() for item in data]).returning(self.model)
         )
         await self.session.execute(add_data_stmt)
 

@@ -20,11 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     # Удаляем старый FK без каскада
-    op.drop_constraint(
-        "rooms_facilities_room_id_fkey",
-        "rooms_facilities",
-        type_="foreignkey"
-    )
+    op.drop_constraint("rooms_facilities_room_id_fkey", "rooms_facilities", type_="foreignkey")
 
     # Создаём новый FK с ON DELETE CASCADE
     op.create_foreign_key(
@@ -33,22 +29,14 @@ def upgrade() -> None:
         "rooms",
         ["room_id"],
         ["id"],
-        ondelete="CASCADE"
+        ondelete="CASCADE",
     )
 
 
 def downgrade() -> None:
     # Возвращаем FK без ON DELETE CASCADE
-    op.drop_constraint(
-        "rooms_facilities_room_id_fkey",
-        "rooms_facilities",
-        type_="foreignkey"
-    )
+    op.drop_constraint("rooms_facilities_room_id_fkey", "rooms_facilities", type_="foreignkey")
 
     op.create_foreign_key(
-        "rooms_facilities_room_id_fkey",
-        "rooms_facilities",
-        "rooms",
-        ["room_id"],
-        ["id"]
+        "rooms_facilities_room_id_fkey", "rooms_facilities", "rooms", ["room_id"], ["id"]
     )

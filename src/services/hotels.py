@@ -6,7 +6,7 @@ from src.exceptions import (
     ObjectNotFoundException,
     ObjectAlreadyExistsException,
     CannotDeleteHotelWithRoomsException,
-    check_date_to_after_date_from
+    check_date_to_after_date_from,
 )
 from src.schemas.hotels import Hotel, HotelAdd, HotelPatch
 from src.services.base import BaseService
@@ -14,12 +14,12 @@ from src.services.base import BaseService
 
 class HotelService(BaseService):
     async def get_filtered_by_time(
-            self,
-            pagination,
-            location: str | None,
-            title: str | None,
-            date_from: date,
-            date_to: date,
+        self,
+        pagination,
+        location: str | None,
+        title: str | None,
+        date_from: date,
+        date_to: date,
     ):
         check_date_to_after_date_from(date_from, date_to)
         per_page = pagination.per_page or 5
@@ -55,7 +55,9 @@ class HotelService(BaseService):
         await self.db.hotels.edit(data, id=hotel_id)
         await self.db.commit()
 
-    async def hotel_patch_update(self, hotel_id: int, data: HotelPatch, exclude_unset: bool = False):
+    async def hotel_patch_update(
+        self, hotel_id: int, data: HotelPatch, exclude_unset: bool = False
+    ):
         if (data.title is None) and (data.location is None):
             raise ObjectAlreadyExistsException()
 

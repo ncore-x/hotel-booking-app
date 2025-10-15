@@ -13,7 +13,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = False
 
 # Конфигурация (при желании вынеси в src.config.settings)
 MAX_IMAGE_SIZE = 5_242_880  # 5 MB в байтах
-MAX_IMAGE_SIZE_MB = MAX_IMAGE_SIZE / (1024*1024)
+MAX_IMAGE_SIZE_MB = MAX_IMAGE_SIZE / (1024 * 1024)
 ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_EXTENSIONS = {"jpeg", "jpg", "png", "webp"}
 IMAGES_DIR = Path("src/static/images")
@@ -37,8 +37,7 @@ class ImagesService(BaseService):
         contents = await file.read()
         file_size = len(contents)
         if file_size == 0:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Файл пустой")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Файл пустой")
         if file_size > MAX_IMAGE_SIZE:
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
@@ -53,22 +52,26 @@ class ImagesService(BaseService):
             img.verify()  # проверяет целостность формата
         except UnidentifiedImageError:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Файл не является изображением")
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Файл не является изображением"
+            )
         except Exception:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail="Повреждённый или неверный файл изображения")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Повреждённый или неверный файл изображения",
+            )
 
         # 4) Получаем метаданные (повторно открываем, т.к. verify() может менять состояние)
         bio.seek(0)
         try:
             with Image.open(bio) as img_meta:
-                img_meta = img_meta.convert(
-                    "RGBA") if img_meta.mode == "P" else img_meta
+                img_meta = img_meta.convert("RGBA") if img_meta.mode == "P" else img_meta
                 img_format = (img_meta.format or "").lower()
                 width, height = img_meta.size
         except Exception:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail="Не удалось получить метаданные изображения")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Не удалось получить метаданные изображения",
+            )
 
         # 5) Нормализация расширения
         ext = img_format
@@ -92,7 +95,9 @@ class ImagesService(BaseService):
         except Exception:
             # В проде логируем полную ошибку
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Не удалось сохранить файл")
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Не удалось сохранить файл",
+            )
 
         # 7) Запускаем Celery задачу для создания resized-версий
         try:

@@ -2,7 +2,11 @@ from datetime import date
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from typing import Any
 
-from src.exceptions import InvalidBookingPeriodHTTPException, PastDateHTTPException, InvalidDateRangeHTTPException
+from src.exceptions import (
+    InvalidBookingPeriodHTTPException,
+    PastDateHTTPException,
+    InvalidDateRangeHTTPException,
+)
 
 
 class BookingAddRequest(BaseModel):
@@ -18,8 +22,7 @@ class BookingAddRequest(BaseModel):
             try:
                 return date.fromisoformat(value)
             except ValueError:
-                raise ValueError(
-                    "Неверный формат даты. Используйте YYYY-MM-DD")
+                raise ValueError("Неверный формат даты. Используйте YYYY-MM-DD")
         return value
 
     @model_validator(mode="after")

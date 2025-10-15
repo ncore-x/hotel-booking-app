@@ -5,11 +5,11 @@ from httpx import AsyncClient
 @pytest.mark.parametrize(
     "email, password, status_code",
     [
-        ("k0t@pes.com", "1234", 200),
-        ("k0t@pes.com", "1234", 409),
-        ("k0t1@pes.com", "1235", 200),
-        ("abcde", "1235", 422),
-        ("abcde@abc", "1235", 422),
+        ("k0t@pes.com", "Password123", 200),
+        ("k0t@pes.com", "Password123", 409),
+        ("k0t1@pes.com", "Password456", 200),
+        ("abcde", "Password123", 422),
+        ("abcde@abc", "Password123", 422),
     ],
 )
 async def test_auth_flow(email: str, password: str, status_code: int, ac: AsyncClient):
@@ -21,7 +21,17 @@ async def test_auth_flow(email: str, password: str, status_code: int, ac: AsyncC
             "password": password,
         },
     )
-    assert resp_register.status_code == status_code
+
+    print("=== DEBUG ===")
+    print(f"Email: {email}, Password: {password}, Expected: {status_code}")
+    print(f"Actual status: {resp_register.status_code}")
+    print(f"Response body: {resp_register.text}")
+    print("==============")
+
+    assert resp_register.status_code == status_code, (
+        f"Expected {status_code}, got {resp_register.status_code}. Response: {resp_register.text}"
+    )
+
     if status_code != 200:
         return
 

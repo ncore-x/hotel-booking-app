@@ -31,19 +31,16 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         # Пропущенные обязательные поля
         if msg == "Field required":
             field_name = loc[-1] if loc else "неизвестное поле"
-            error_messages.append(
-                f"Поле '{field_name}' обязательно для заполнения")
+            error_messages.append(f"Поле '{field_name}' обязательно для заполнения")
 
         # Неверный тип данных
         elif err_type.startswith("type_error"):
             if "int" in err_type and input_value is None:
                 field_name = loc[-1] if loc else "неизвестное поле"
-                error_messages.append(
-                    f"Поле '{field_name}' обязательно для заполнения")
+                error_messages.append(f"Поле '{field_name}' обязательно для заполнения")
             else:
                 field_name = loc[-1] if loc else "неизвестное поле"
-                error_messages.append(
-                    f"Поле '{field_name}' имеет неверный тип данных")
+                error_messages.append(f"Поле '{field_name}' имеет неверный тип данных")
 
         # Другие ошибки
         else:
@@ -74,7 +71,4 @@ async def json_decode_exception_handler(request: Request, exc: Exception):
     elif "Invalid \\u" in str(exc):
         error_message = "Неверная escape-последовательность в JSON данных!"
 
-    return JSONResponse(
-        status_code=422,
-        content={"detail": error_message}
-    )
+    return JSONResponse(status_code=422, content={"detail": error_message})

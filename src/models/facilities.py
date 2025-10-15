@@ -22,7 +22,7 @@ class FacilitiesOrm(Base):
 class RoomsFacilitiesOrm(Base):
     __tablename__ = "rooms_facilities"
 
-    room_id: Mapped[int] = mapped_column(ForeignKey(
-        "rooms.id", ondelete="CASCADE"), primary_key=True)
-    facility_id: Mapped[int] = mapped_column(
-        ForeignKey("facilities.id"), primary_key=True)
+    room_id: Mapped[int] = mapped_column(
+        ForeignKey("rooms.id", ondelete="CASCADE"), primary_key=True
+    )
+    facility_id: Mapped[int] = mapped_column(ForeignKey("facilities.id"), primary_key=True)

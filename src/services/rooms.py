@@ -15,12 +15,7 @@ from src.services.base import BaseService
 
 
 class RoomService(BaseService):
-    async def get_filtered_by_time(
-        self,
-        hotel_id: int,
-        date_from: date,
-        date_to: date
-    ):
+    async def get_filtered_by_time(self, hotel_id: int, date_from: date, date_to: date):
         check_date_to_after_date_from(date_from, date_to)
         await HotelService(self.db).get_hotel_with_check(hotel_id)
         return await self.db.rooms.get_filtered_by_time(
@@ -43,7 +38,8 @@ class RoomService(BaseService):
                 await self.db.facilities.get_one(id=f_id)
             except ObjectNotFoundException as ex:
                 raise ObjectNotFoundException(
-                    f"Удобство с идентификатором {f_id} не найдено!") from ex
+                    f"Удобство с идентификатором {f_id} не найдено!"
+                ) from ex
 
         existing = await self.db.rooms.get_by_fields(
             hotel_id=hotel_id,
@@ -53,8 +49,7 @@ class RoomService(BaseService):
             quantity=room_data.quantity,
         )
         if existing:
-            raise ObjectAlreadyExistsException(
-                "Номер с такими же полями уже существует!")
+            raise ObjectAlreadyExistsException("Номер с такими же полями уже существует!")
 
         _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
         room: Room = await self.db.rooms.add(_room_data)
@@ -67,12 +62,7 @@ class RoomService(BaseService):
         await self.db.commit()
         return await self.db.rooms.get_one_with_rels(id=room.id, hotel_id=hotel_id)
 
-    async def room_put_update(
-        self,
-        hotel_id: int,
-        room_id: int,
-        room_data: RoomAddRequest
-    ):
+    async def room_put_update(self, hotel_id: int, room_id: int, room_data: RoomAddRequest):
         await HotelService(self.db).get_hotel_with_check(hotel_id)
         await self.get_room_with_check(room_id, hotel_id)
 
@@ -81,11 +71,14 @@ class RoomService(BaseService):
                 await self.db.facilities.get_one(id=f_id)
             except ObjectNotFoundException as ex:
                 raise ObjectNotFoundException(
-                    f"Удобство с идентификатором {f_id} не найдено!") from ex
+                    f"Удобство с идентификатором {f_id} не найдено!"
+                ) from ex
 
         _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
         await self.db.rooms.edit(_room_data, id=room_id)
-        await self.db.rooms_facilities.set_room_facilities(room_id, facilities_ids=room_data.facilities_ids)
+        await self.db.rooms_facilities.set_room_facilities(
+            room_id, facilities_ids=room_data.facilities_ids
+        )
         await self.db.commit()
 
     async def room_patch_update(
@@ -107,7 +100,8 @@ class RoomService(BaseService):
                     await self.db.facilities.get_one(id=f_id)
                 except ObjectNotFoundException as ex:
                     raise ObjectNotFoundException(
-                        f"Удобство с идентификатором {f_id} не найдено!") from ex
+                        f"Удобство с идентификатором {f_id} не найдено!"
+                    ) from ex
 
             await self.db.rooms_facilities.set_room_facilities(
                 room_id, facilities_ids=_room_data_dict["facilities_ids"]

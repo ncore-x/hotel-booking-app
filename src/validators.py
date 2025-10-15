@@ -15,7 +15,7 @@ def validate_email_russian(value: Any) -> str:
     if "@" not in value:
         raise ValueError("Email должен содержать символ @")
 
-    parts = value.split('@', 1)
+    parts = value.split("@", 1)
     local_part, domain = parts
 
     if not local_part:
@@ -27,7 +27,7 @@ def validate_email_russian(value: Any) -> str:
     if "." not in domain:
         raise ValueError("Некорректный домен в email адресе")
 
-    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     if not re.match(email_pattern, value):
         raise ValueError("Некорректный формат email адреса")
 
@@ -49,8 +49,7 @@ def validate_password_russian(value: Any) -> str:
         raise ValueError("Пароль должен содержать максимум 100 символов")
 
     if not any(c.isupper() for c in value):
-        raise ValueError(
-            "Пароль должен содержать хотя бы одну заглавную букву")
+        raise ValueError("Пароль должен содержать хотя бы одну заглавную букву")
 
     if not any(c.islower() for c in value):
         raise ValueError("Пароль должен содержать хотя бы одну строчную букву")

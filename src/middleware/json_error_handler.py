@@ -34,9 +34,6 @@ class JSONErrorHandlerMiddleware(BaseHTTPMiddleware):
             elif "Extra data" in error_str:
                 error_message = "Лишние данные в JSON!"
 
-            return JSONResponse(
-                status_code=422,
-                content={"detail": error_message}
-            )
+            return JSONResponse(status_code=422, content={"detail": error_message})
         except UnicodeDecodeError:
             return await call_next(request)

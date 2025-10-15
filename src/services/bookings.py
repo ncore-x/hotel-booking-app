@@ -6,7 +6,7 @@ from src.exceptions import (
     RoomNotFoundHTTPException,
     PastDateHTTPException,
     InvalidDateRangeHTTPException,
-    InvalidBookingPeriodHTTPException
+    InvalidBookingPeriodHTTPException,
 )
 from src.schemas.bookings import BookingAdd, BookingAddRequest
 from src.schemas.hotels import Hotel

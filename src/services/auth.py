@@ -3,8 +3,15 @@ from datetime import datetime, timezone, timedelta
 from passlib.context import CryptContext
 
 from src.config import settings
-from src.exceptions import ExpiredTokenException, IncorrectTokenException, EmailNotRegisteredException, IncorrectPasswordException, \
-    ObjectAlreadyExistsException, UserAlreadyExistsException, UserNotAuthenticatedException
+from src.exceptions import (
+    ExpiredTokenException,
+    IncorrectTokenException,
+    EmailNotRegisteredException,
+    IncorrectPasswordException,
+    ObjectAlreadyExistsException,
+    UserAlreadyExistsException,
+    UserNotAuthenticatedException,
+)
 from src.schemas.users import UserRequestAdd, UserAdd
 from src.services.base import BaseService
 from sqlalchemy.exc import NoResultFound
@@ -40,8 +47,7 @@ class AuthService(BaseService):
 
     async def register_user(self, data: UserRequestAdd):
         hashed_password = self.hash_password(data.password)
-        new_user_data = UserAdd(
-            email=data.email, hashed_password=hashed_password)
+        new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
         try:
             await self.db.users.add(new_user_data)
             await self.db.commit()

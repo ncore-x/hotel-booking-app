@@ -38,8 +38,7 @@ class RoomsRepository(BaseRepository):
 
     async def get_one_with_rels(self, **filter_by):
         query = (
-            select(self.model).options(selectinload(self.model.facilities)).filter_by(
-                **filter_by)  # type: ignore
+            select(self.model).options(selectinload(self.model.facilities)).filter_by(**filter_by)  # type: ignore
         )
         result = await self.session.execute(query)
         try:
@@ -48,17 +47,16 @@ class RoomsRepository(BaseRepository):
             raise RoomNotFoundException
         return RoomDataWithRelsMapper.map_to_domain_entity(model)
 
-    async def get_by_fields(self, hotel_id: int, title: str, description: str | None, price: int, quantity: int):
-        query = (
-            select(self.model)
-            .filter(
-                and_(
-                    self.model.hotel_id == hotel_id,
-                    self.model.title == title,
-                    self.model.price == price,
-                    self.model.quantity == quantity,
-                    (self.model.description == description)
-                )
+    async def get_by_fields(
+        self, hotel_id: int, title: str, description: str | None, price: int, quantity: int
+    ):
+        query = select(self.model).filter(
+            and_(
+                self.model.hotel_id == hotel_id,
+                self.model.title == title,
+                self.model.price == price,
+                self.model.quantity == quantity,
+                (self.model.description == description),
             )
         )
         result = await self.session.execute(query)

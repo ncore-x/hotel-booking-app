@@ -10,7 +10,7 @@ from src.exceptions import (
     HotelNotFoundHTTPException,
     ObjectNotFoundException,
     ObjectAlreadyExistsException,
-    ObjectAlreadyExistsHTTPException
+    ObjectAlreadyExistsHTTPException,
 )
 from src.api.dependencies import PaginationDep, DBDep
 from src.schemas.hotels import HotelPatch, HotelAdd
