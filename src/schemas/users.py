@@ -7,6 +7,10 @@ class UserRequestAdd(BaseModel):
     email: str
     password: str
 
+    @field_validator("email")
+    def normalize_email(cls, email: str) -> str:
+        return email.lower()
+
     # Валидация email и password с русскими сообщениями
     _validate_email = field_validator("email")(validate_email_russian)
     _validate_password = field_validator("password")(validate_password_russian)
