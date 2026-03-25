@@ -6,6 +6,7 @@ from fastapi import HTTPException
 # Domain exceptions (сервисный слой — никаких HTTP-импортов ниже этой черты)
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 class NabronirovalException(Exception):
     detail = "Неожиданная ошибка!"
 
@@ -106,6 +107,7 @@ class CorruptedImageException(NabronirovalException):
 # Domain helper (поднимает domain-исключение, не HTTP!)
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def check_date_to_after_date_from(date_from: date, date_to: date) -> None:
     if date_to <= date_from:
         raise InvalidDateRangeException()
@@ -114,6 +116,7 @@ def check_date_to_after_date_from(date_from: date, date_to: date) -> None:
 # ──────────────────────────────────────────────────────────────────────────────
 # HTTP exceptions (только API-слой)
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 class NabronirovalHTTPException(HTTPException):
     status_code = 500

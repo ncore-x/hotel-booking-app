@@ -20,7 +20,9 @@ from src.database import async_session_maker
 
 class PaginationParams(BaseModel):
     page: Annotated[int, Query(1, ge=1, description="Номер страницы")]
-    per_page: Annotated[int, Query(10, ge=1, le=100, description="Элементов на странице")]
+    per_page: Annotated[
+        int, Query(10, ge=1, le=100, description="Элементов на странице")
+    ]
 
 
 PaginationDep = Annotated[PaginationParams, Depends()]
@@ -44,6 +46,7 @@ async def get_current_user_id(token: str = Depends(get_token)) -> int:
     # JWT blacklist check (Redis)
     try:
         from src.init import redis_manager
+
         if redis_manager.redis and await redis_manager.exists(f"blacklist:{token}"):
             raise ExpiredTokenHTTPException()
     except ExpiredTokenHTTPException:
@@ -68,7 +71,9 @@ async def get_db():
 DBDep = Annotated[DBManager, Depends(get_db)]
 
 
-async def get_current_admin(user_id: int = Depends(get_current_user_id), db: DBManager = Depends(get_db)) -> int:
+async def get_current_admin(
+    user_id: int = Depends(get_current_user_id), db: DBManager = Depends(get_db)
+) -> int:
     """Проверяет, что текущий пользователь является администратором."""
     user = await db.users.get_one_or_none(id=user_id)
     if not user or not user.is_admin:

@@ -23,7 +23,9 @@ from src.schemas.hotels import HotelPatch, HotelAdd, Hotel
 router = APIRouter(prefix="/hotels", tags=["Hotels"])
 
 
-@router.get("", summary="Список доступных отелей", response_model=PaginatedResponse[Hotel])
+@router.get(
+    "", summary="Список доступных отелей", response_model=PaginatedResponse[Hotel]
+)
 @cache(expire=10)
 async def get_hotels(
     pagination: PaginationDep,
@@ -32,12 +34,20 @@ async def get_hotels(
     title: str | None = Query(None, description="Название отеля"),
     date_from: date = Query(examples=["2025-09-01"]),
     date_to: date = Query(examples=["2025-09-15"]),
-    sort_by: Literal["id", "title", "location"] = Query("id", description="Поле сортировки"),
+    sort_by: Literal["id", "title", "location"] = Query(
+        "id", description="Поле сортировки"
+    ),
     order: Literal["asc", "desc"] = Query("asc", description="Направление сортировки"),
 ):
     try:
         return await HotelService(db).get_filtered_by_time(
-            pagination, location, title, date_from, date_to, sort_by, order,
+            pagination,
+            location,
+            title,
+            date_from,
+            date_to,
+            sort_by,
+            order,
         )
     except InvalidDateRangeException:
         raise InvalidDateRangeHTTPException()
@@ -101,9 +111,13 @@ async def hotel_put_update(_: AdminDep, hotel_id: int, hotel_data: HotelAdd, db:
 
 
 @router.patch("/{hotel_id}", summary="Частичное обновление отеля", response_model=Hotel)
-async def hotel_patch_update(_: AdminDep, hotel_id: int, hotel_data: HotelPatch, db: DBDep):
+async def hotel_patch_update(
+    _: AdminDep, hotel_id: int, hotel_data: HotelPatch, db: DBDep
+):
     try:
-        return await HotelService(db).hotel_patch_update(hotel_id, hotel_data, exclude_unset=True)
+        return await HotelService(db).hotel_patch_update(
+            hotel_id, hotel_data, exclude_unset=True
+        )
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException()
     except ObjectAlreadyExistsException:

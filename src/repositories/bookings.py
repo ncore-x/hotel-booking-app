@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from typing import Sequence
 
 from sqlalchemy import select, func
@@ -20,7 +20,9 @@ class BookingsRepository(BaseRepository):
         today = datetime.now(tz=timezone.utc).date()
         query = select(BookingsOrm).filter(BookingsOrm.date_from == today)
         res = await self.session.execute(query)
-        return [self.mapper.map_to_domain_entity(booking) for booking in res.scalars().all()]
+        return [
+            self.mapper.map_to_domain_entity(booking) for booking in res.scalars().all()
+        ]
 
     async def count_by_user(self, user_id: int) -> int:
         query = select(func.count()).where(BookingsOrm.user_id == user_id)

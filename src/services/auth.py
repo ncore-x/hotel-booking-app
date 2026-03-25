@@ -28,7 +28,9 @@ class AuthService(BaseService):
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
         to_encode |= {"exp": expire}
-        return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+        return jwt.encode(
+            to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
+        )
 
     def hash_password(self, password: str) -> str:
         return self.pwd_context.hash(password)
@@ -38,7 +40,9 @@ class AuthService(BaseService):
 
     def decode_token(self, token: str) -> dict:
         try:
-            return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+            return jwt.decode(
+                token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            )
         except jwt.ExpiredSignatureError:
             raise ExpiredTokenException()
         except jwt.InvalidTokenError:
@@ -85,6 +89,7 @@ class AuthService(BaseService):
         ttl = max(1, int(exp - datetime.now(timezone.utc).timestamp()))
         try:
             from src.init import redis_manager
+
             await redis_manager.set(f"blacklist:{token}", "1", expire=ttl)
         except Exception as e:
             logging.warning(f"Не удалось занести токен в блэклист Redis: {e}")

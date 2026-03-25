@@ -69,7 +69,10 @@ class HotelService(BaseService):
         except Exception as ex:
             from asyncpg import UniqueViolationError
             from sqlalchemy.exc import IntegrityError
-            if isinstance(ex, IntegrityError) and isinstance(ex.orig.__cause__, UniqueViolationError):
+
+            if isinstance(ex, IntegrityError) and isinstance(
+                ex.orig.__cause__, UniqueViolationError
+            ):
                 raise ObjectAlreadyExistsException from ex
             raise
         await self.db.commit()
@@ -84,7 +87,10 @@ class HotelService(BaseService):
         except Exception as ex:
             from asyncpg import UniqueViolationError
             from sqlalchemy.exc import IntegrityError
-            if isinstance(ex, IntegrityError) and isinstance(ex.orig.__cause__, UniqueViolationError):
+
+            if isinstance(ex, IntegrityError) and isinstance(
+                ex.orig.__cause__, UniqueViolationError
+            ):
                 raise ObjectAlreadyExistsException from ex
             raise
         await self.db.commit()

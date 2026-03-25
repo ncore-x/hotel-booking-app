@@ -24,7 +24,9 @@ ALLOWED_EXTENSIONS = {"jpeg", "jpg", "png", "webp"}
 
 
 class ImagesService(BaseService):
-    async def upload_image(self, hotel_id: int, file: UploadFile) -> ImageUploadResponse:
+    async def upload_image(
+        self, hotel_id: int, file: UploadFile
+    ) -> ImageUploadResponse:
         # Verify hotel exists
         try:
             await self.db.hotels.get_one(id=hotel_id)
@@ -59,7 +61,9 @@ class ImagesService(BaseService):
         bio.seek(0)
         try:
             with Image.open(bio) as img_meta:
-                img_meta = img_meta.convert("RGBA") if img_meta.mode == "P" else img_meta
+                img_meta = (
+                    img_meta.convert("RGBA") if img_meta.mode == "P" else img_meta
+                )
                 img_format = (img_meta.format or "").lower()
                 width, height = img_meta.size
         except Exception:
@@ -86,7 +90,9 @@ class ImagesService(BaseService):
 
         # Save record to DB
         record = await self.db.hotel_images.add(
-            HotelImageAdd(hotel_id=hotel_id, filename=safe_name, content_type=final_content_type)
+            HotelImageAdd(
+                hotel_id=hotel_id, filename=safe_name, content_type=final_content_type
+            )
         )
         await self.db.commit()
 

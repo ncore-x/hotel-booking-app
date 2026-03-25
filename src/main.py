@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -12,13 +13,6 @@ from fastapi_cache.backends.redis import RedisBackend
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from src.config import settings
-from src.logging_config import setup_logging
-
-setup_logging(level=settings.LOG_LEVEL, json_format=settings.LOG_JSON)
-
-import logging
-
 from src.api.auth import router as router_auth
 from src.api.bookings import router as router_bookings
 from src.api.facilities import router as router_facilities
@@ -29,8 +23,12 @@ from src.api.rooms import router as router_rooms
 from src.exception_handlers import validation_exception_handler
 from src.init import redis_manager
 from src.limiter import limiter
+from src.config import settings
+from src.logging_config import setup_logging
 from src.middleware.json_error_handler import JSONErrorHandlerMiddleware
 from src.middleware.request_id import RequestIDMiddleware
+
+setup_logging(level=settings.LOG_LEVEL, json_format=settings.LOG_JSON)
 
 
 def generate_unique_id(route: APIRoute) -> str:
@@ -39,10 +37,19 @@ def generate_unique_id(route: APIRoute) -> str:
 
 openapi_tags = [
     {"name": "Auth", "description": "Регистрация, вход, выход и профиль пользователя."},
-    {"name": "Hotels", "description": "Поиск и управление отелями. Фильтрация по датам."},
-    {"name": "Rooms", "description": "Номера отеля. Вложенный ресурс: `/api/v1/hotels/{hotel_id}/rooms`."},
+    {
+        "name": "Hotels",
+        "description": "Поиск и управление отелями. Фильтрация по датам.",
+    },
+    {
+        "name": "Rooms",
+        "description": "Номера отеля. Вложенный ресурс: `/api/v1/hotels/{hotel_id}/rooms`.",
+    },
     {"name": "Bookings", "description": "Создание, просмотр и отмена бронирований."},
-    {"name": "Facilities", "description": "Справочник удобств (Wi-Fi, бассейн, парковка и т.д.)."},
+    {
+        "name": "Facilities",
+        "description": "Справочник удобств (Wi-Fi, бассейн, парковка и т.д.).",
+    },
     {"name": "Images", "description": "Загрузка изображений отелей."},
 ]
 
@@ -58,6 +65,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logging.warning(f"Redis недоступен, включается InMemory-кеш: {e}")
         from fastapi_cache.backends.inmemory import InMemoryBackend
+
         FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
 
     yield

@@ -68,7 +68,12 @@ class RoomsRepository(BaseRepository):
         return RoomDataWithRelsMapper.map_to_domain_entity(model)
 
     async def get_by_fields(
-        self, hotel_id: int, title: str, description: str | None, price: int, quantity: int
+        self,
+        hotel_id: int,
+        title: str,
+        description: str | None,
+        price: int,
+        quantity: int,
     ):
         query = select(self.model).filter(
             and_(

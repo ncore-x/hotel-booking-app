@@ -22,7 +22,9 @@ class BaseRepository:
     async def get_filtered(self, *filter, **filter_by) -> list[BaseModel | Any]:
         query = select(self.model).filter(*filter).filter_by(**filter_by)
         result = await self.session.execute(query)
-        return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
+        return [
+            self.mapper.map_to_domain_entity(model) for model in result.scalars().all()
+        ]
 
     async def get_all(self, *args, **kwargs) -> list[BaseModel | Any]:
         return await self.get_filtered()
@@ -46,7 +48,9 @@ class BaseRepository:
 
     async def add(self, data: BaseModel) -> BaseModel | Any:
         try:
-            add_data_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
+            add_data_stmt = (
+                insert(self.model).values(**data.model_dump()).returning(self.model)
+            )
             result = await self.session.execute(add_data_stmt)
             model = result.scalars().one()
             return self.mapper.map_to_domain_entity(model)
@@ -62,11 +66,15 @@ class BaseRepository:
 
     async def add_bulk(self, data: Sequence[BaseModel]):
         add_data_stmt = (
-            insert(self.model).values([item.model_dump() for item in data]).returning(self.model)
+            insert(self.model)
+            .values([item.model_dump() for item in data])
+            .returning(self.model)
         )
         await self.session.execute(add_data_stmt)
 
-    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
+    async def edit(
+        self, data: BaseModel, exclude_unset: bool = False, **filter_by
+    ) -> None:
         update_stmt = (
             update(self.model)
             .filter_by(**filter_by)

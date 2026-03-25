@@ -27,6 +27,7 @@ async def health():
 
     try:
         from src.init import redis_manager
+
         redis_ok = await redis_manager.ping()
     except Exception as e:
         logging.warning(f"Health: Redis недоступен: {e}")
