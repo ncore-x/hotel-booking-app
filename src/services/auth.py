@@ -61,7 +61,7 @@ class AuthService(BaseService):
             raise EmailNotRegisteredException()
 
         if not self.verify_password(data.password, user.hashed_password):
-            raise IncorrectPasswordException
+            raise IncorrectPasswordException()
 
         return self.create_access_token({"user_id": user.id})
 

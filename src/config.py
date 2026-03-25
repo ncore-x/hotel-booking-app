@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     # Cookie
     COOKIE_SECURE: bool = False  # True на HTTPS (продакшн)
 
+    # CORS
+    CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+
     # Rate limiting
     AUTH_RATE_LIMIT: str = "10/minute"  # формат slowapi: "N/unit"
 

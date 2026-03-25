@@ -3,7 +3,7 @@ from typing import Sequence
 
 from sqlalchemy import select, func
 
-from src.exceptions import AllRoomsAreBookedException
+from src.exceptions import AllRoomsAreBookedException, RoomNotFoundException
 from src.repositories.utils import rooms_ids_for_booking
 from src.schemas.bookings import BookingAdd
 from src.models.bookings import BookingsOrm
@@ -51,7 +51,7 @@ class BookingsRepository(BaseRepository):
             select(RoomsOrm).where(RoomsOrm.id == data.room_id).with_for_update()
         )
         if lock_result.scalar_one_or_none() is None:
-            raise AllRoomsAreBookedException
+            raise RoomNotFoundException()
 
         rooms_ids_to_get = rooms_ids_for_booking(
             date_from=data.date_from,

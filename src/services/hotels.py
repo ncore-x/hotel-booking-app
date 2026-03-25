@@ -4,7 +4,6 @@ from datetime import date
 from src.exceptions import (
     CannotDeleteHotelWithRoomsException,
     HotelNotFoundException,
-    ObjectAlreadyExistsException,
     ObjectNotFoundException,
     check_date_to_after_date_from,
 )
@@ -67,17 +66,7 @@ class HotelService(BaseService):
 
     async def hotel_put_update(self, hotel_id: int, data: HotelAdd) -> Hotel:
         await self.get_hotel_with_check(hotel_id)
-        try:
-            await self.db.hotels.edit(data, id=hotel_id)
-        except Exception as ex:
-            from asyncpg import UniqueViolationError
-            from sqlalchemy.exc import IntegrityError
-
-            if isinstance(ex, IntegrityError) and isinstance(
-                ex.orig.__cause__, UniqueViolationError
-            ):
-                raise ObjectAlreadyExistsException from ex
-            raise
+        await self.db.hotels.edit(data, id=hotel_id)
         await self.db.commit()
         return await self.get_hotel(hotel_id)
 
@@ -85,17 +74,7 @@ class HotelService(BaseService):
         self, hotel_id: int, data: HotelPatch, exclude_unset: bool = False
     ) -> Hotel:
         await self.get_hotel_with_check(hotel_id)
-        try:
-            await self.db.hotels.edit(data, exclude_unset=exclude_unset, id=hotel_id)
-        except Exception as ex:
-            from asyncpg import UniqueViolationError
-            from sqlalchemy.exc import IntegrityError
-
-            if isinstance(ex, IntegrityError) and isinstance(
-                ex.orig.__cause__, UniqueViolationError
-            ):
-                raise ObjectAlreadyExistsException from ex
-            raise
+        await self.db.hotels.edit(data, exclude_unset=exclude_unset, id=hotel_id)
         await self.db.commit()
         return await self.get_hotel(hotel_id)
 
