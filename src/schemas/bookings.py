@@ -2,12 +2,6 @@ from datetime import date
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from typing import Any
 
-from src.exceptions import (
-    InvalidBookingPeriodHTTPException,
-    PastDateHTTPException,
-    InvalidDateRangeHTTPException,
-)
-
 
 class BookingAddRequest(BaseModel):
     room_id: int
@@ -17,7 +11,6 @@ class BookingAddRequest(BaseModel):
     @field_validator("date_from", "date_to", mode="before")
     @classmethod
     def validate_date_format(cls, value: Any) -> date:
-        """Проверяет и преобразует строку в дату"""
         if isinstance(value, str):
             try:
                 return date.fromisoformat(value)
@@ -29,14 +22,17 @@ class BookingAddRequest(BaseModel):
     def validate_booking_dates(self) -> "BookingAddRequest":
         today = date.today()
         if self.date_from < today:
-            raise PastDateHTTPException()
+            raise ValueError("Дата не может быть в прошлом!")
         if self.date_to < today:
-            raise PastDateHTTPException()
+            raise ValueError("Дата не может быть в прошлом!")
         if self.date_from >= self.date_to:
-            raise InvalidDateRangeHTTPException()
-        if (self.date_to - self.date_from).days < 1:
-            raise InvalidBookingPeriodHTTPException()
+            raise ValueError("Дата заезда не может быть позже даты выезда!")
         return self
+
+
+class BookingPatchRequest(BaseModel):
+    date_from: date | None = None
+    date_to: date | None = None
 
 
 class BookingAdd(BaseModel):

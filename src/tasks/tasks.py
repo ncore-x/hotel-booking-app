@@ -2,19 +2,12 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from time import sleep
 from typing import Sequence
 from PIL import Image, UnidentifiedImageError, ImageOps
 
 from src.database import async_session_maker_null_pool
 from src.tasks.celery_app import celery_instance
 from src.utils.db_manager import DBManager
-
-
-@celery_instance.task
-def test_task():
-    sleep(5)
-    print("READY")
 
 
 @celery_instance.task(bind=True, name="resize_image")
@@ -28,7 +21,9 @@ def resize_image(self, image_path: str, sizes: Sequence[int] | None = None) -> d
     if sizes is None:
         sizes = [1000, 500, 200]
 
-    output_folder = Path("src/static/images")
+    from src.config import settings
+
+    output_folder = settings.IMAGES_DIR
     output_folder.mkdir(parents=True, exist_ok=True)
 
     results = {"original": str(image_path), "generated": []}
@@ -132,14 +127,67 @@ def resize_image(self, image_path: str, sizes: Sequence[int] | None = None) -> d
     return results
 
 
-async def get_bookings_with_today_checkin_helper():
+def _send_checkin_email(to_email: str, booking_id: int, date_from, date_to) -> None:
+    """
+    Отправляет письмо о заезде через SMTP.
+    Если SMTP не настроен — пропускает отправку и логирует предупреждение.
+    """
+    import smtplib
+    from email.mime.text import MIMEText
+    from src.config import settings
+
+    if not settings.SMTP_HOST:
+        logging.warning(
+            f"SMTP не настроен — письмо о заезде не отправлено "
+            f"(booking_id={booking_id}, to={to_email})"
+        )
+        return
+
+    subject = f"Напоминание о заезде — бронирование #{booking_id}"
+    body = (
+        f"Здравствуйте!\n\n"
+        f"Напоминаем, что сегодня, {date_from}, начинается ваше бронирование #{booking_id}.\n"
+        f"Дата выезда: {date_to}.\n\n"
+        f"Хорошего отдыха!\n"
+        f"Команда Hotel Booking"
+    )
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["Subject"] = subject
+    msg["From"] = settings.SMTP_FROM
+    msg["To"] = to_email
+
+    try:
+        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as smtp:
+            smtp.ehlo()
+            smtp.starttls()
+            if settings.SMTP_USER and settings.SMTP_PASSWORD:
+                smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+            smtp.sendmail(settings.SMTP_FROM, [to_email], msg.as_string())
+        logging.info(f"Письмо о заезде отправлено: booking_id={booking_id}, to={to_email}")
+    except Exception as e:
+        logging.error(f"Не удалось отправить письмо (booking_id={booking_id}, to={to_email}): {e}")
+
+
+async def _get_bookings_and_notify():
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
         bookings = await db.bookings.get_bookings_with_today_checkin()
-        logging.debug(f"{bookings=}")
+        logging.info(f"Заезды сегодня: {len(bookings)} бронирований")
+        for booking in bookings:
+            try:
+                user = await db.users.get_one_or_none(id=booking.user_id)
+                if user:
+                    _send_checkin_email(
+                        to_email=user.email,
+                        booking_id=booking.id,
+                        date_from=booking.date_from,
+                        date_to=booking.date_to,
+                    )
+            except Exception as e:
+                logging.error(f"Ошибка обработки бронирования {booking.id}: {e}")
 
 
 @celery_instance.task(name="booking_today_checkin")
 def send_emails_to_users_with_today_checkin():
     import asyncio
 
-    asyncio.run(get_bookings_with_today_checkin_helper())
+    asyncio.run(_get_bookings_and_notify())

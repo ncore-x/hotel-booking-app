@@ -1,21 +1,53 @@
-from fastapi import APIRouter, UploadFile, HTTPException, status
+from fastapi import APIRouter, UploadFile, status
 
+from src.api.dependencies import AdminDep, DBDep
+from src.exceptions import (
+    CorruptedImageException,
+    CorruptedImageHTTPException,
+    EmptyFileException,
+    EmptyFileHTTPException,
+    FileTooLargeException,
+    FileTooLargeHTTPException,
+    HotelNotFoundException,
+    HotelNotFoundHTTPException,
+    UnsupportedMediaTypeException,
+    UnsupportedMediaTypeHTTPException,
+)
+from src.schemas.images import HotelImage, ImageUploadResponse
 from src.services.images import ImagesService
 
-router = APIRouter(prefix="/images", tags=["Изображения отелей"])
+router = APIRouter(prefix="/hotels", tags=["Images"])
 
 
-@router.post("", summary="Загрузка изображения отеля", status_code=status.HTTP_201_CREATED)
-async def upload_image(file: UploadFile):
-    """
-    Загрузка изображения (PNG/JPEG). Возвращает метаданные сохранённого изображения.
-    """
+@router.post(
+    "/{hotel_id}/images",
+    summary="Загрузка изображения отеля",
+    response_model=ImageUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_image(_: AdminDep, hotel_id: int, db: DBDep, file: UploadFile):
+    """Загрузка изображения (PNG/JPEG/WebP, макс. 5 МБ). Только для администраторов."""
     try:
-        result = await ImagesService().upload_image(file)
-    except HTTPException:
-        raise
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Внутренняя ошибка сервера"
-        )
-    return result
+        return await ImagesService(db).upload_image(hotel_id, file)
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException()
+    except EmptyFileException:
+        raise EmptyFileHTTPException()
+    except FileTooLargeException:
+        raise FileTooLargeHTTPException()
+    except UnsupportedMediaTypeException:
+        raise UnsupportedMediaTypeHTTPException()
+    except CorruptedImageException:
+        raise CorruptedImageHTTPException()
+
+
+@router.get(
+    "/{hotel_id}/images",
+    summary="Изображения отеля",
+    response_model=list[HotelImage],
+)
+async def get_hotel_images(hotel_id: int, db: DBDep):
+    try:
+        return await ImagesService(db).get_hotel_images(hotel_id)
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException()

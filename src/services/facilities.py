@@ -1,11 +1,13 @@
+import math
+
 from src.exceptions import FacilityTitleEmptyException, ObjectAlreadyExistsException
-from src.schemas.facilities import FacilityAdd
+from src.schemas.common import PaginatedResponse
+from src.schemas.facilities import FacilityAdd, Facility
 from src.services.base import BaseService
-from src.tasks.tasks import test_task
 
 
 class FacilityService(BaseService):
-    async def facility_add(self, data: FacilityAdd):
+    async def facility_add(self, data: FacilityAdd) -> Facility:
         if not data.title.strip():
             raise FacilityTitleEmptyException()
 
@@ -14,9 +16,19 @@ class FacilityService(BaseService):
             raise ObjectAlreadyExistsException
         facility = await self.db.facilities.add(data)
         await self.db.commit()
-
-        test_task.delay()  # type: ignore
         return facility
 
-    async def get_facilities(self):
-        return await self.db.facilities.get_all()
+    async def get_facilities(
+        self, page: int = 1, per_page: int = 50
+    ) -> PaginatedResponse[Facility]:
+        total = await self.db.facilities.count()
+        items = await self.db.facilities.get_paginated(
+            limit=per_page, offset=per_page * (page - 1)
+        )
+        return PaginatedResponse(
+            items=items,
+            total=total,
+            page=page,
+            per_page=per_page,
+            pages=max(1, math.ceil(total / per_page)),
+        )

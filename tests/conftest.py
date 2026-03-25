@@ -12,11 +12,13 @@ mock.patch("fastapi_cache.decorator.cache",
 from src.utils.db_manager import DBManager
 from src.schemas.rooms import RoomAdd
 from src.schemas.hotels import HotelAdd
-from src.models import * # noqa
+from src.models import *  # noqa
+from src.models.users import UsersOrm
 from src.main import app
 from src.database import Base, engine_null_pool, async_session_maker_null_pool
 from src.config import settings
 from src.api.dependencies import get_db
+from sqlalchemy import update
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -65,36 +67,64 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
         yield ac
 
 
+@pytest.fixture()
+async def unauth_ac() -> AsyncGenerator[AsyncClient, None]:
+    """Свежий клиент без cookies — всегда неаутентифицирован."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
+
+
 @pytest.fixture(scope="session", autouse=True)
 async def register_user(ac: AsyncClient, setup_database):
     response = await ac.post(
-        "/auth/register",
-        json={
-            "email": "test@example.com",
-            "password": "TestPassword123"
-        }
+        "/api/v1/auth/register",
+        json={"email": "test@example.com", "password": "TestPassword123"},
     )
-    assert response.status_code == 200, f"Registration failed: {response.text}"
+    assert response.status_code == 201, f"Registration failed: {response.text}"
+
 
 @pytest.fixture(scope="session")
 async def authenticated_ac(register_user, ac: AsyncClient):
     response = await ac.post(
-        "/auth/login",
-        json={
-            "email": "test@example.com",
-            "password": "TestPassword123"
-        }
+        "/api/v1/auth/login",
+        json={"email": "test@example.com", "password": "TestPassword123"},
     )
-
-    print("=== AUTHENTICATED_AC LOGIN ===")
-    print(f"Status: {response.status_code}")
-    print(f"Response: {response.text}")
-    print(f"Cookies: {dict(ac.cookies)}")
-    print("==============================")
-
     assert response.status_code == 200, f"Login failed: {response.text}"
     assert ac.cookies["access_token"], "No access token in cookies"
-
     yield ac
+
+
+@pytest.fixture(scope="session")
+async def admin_ac(setup_database) -> AsyncGenerator[AsyncClient, None]:
+    """
+    Клиент с правами администратора.
+    Регистрирует admin@example.com, вручную устанавливает is_admin=True в БД,
+    логинится и возвращает сессию.
+    """
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # Регистрируем
+        reg = await client.post(
+            "/api/v1/auth/register",
+            json={"email": "admin@example.com", "password": "AdminPass123"},
+        )
+        assert reg.status_code in (201, 409), f"Admin registration failed: {reg.text}"
+
+        # Выдаём права напрямую в БД
+        async with engine_null_pool.begin() as conn:
+            await conn.execute(
+                update(UsersOrm)
+                .where(UsersOrm.email == "admin@example.com")
+                .values(is_admin=True)
+            )
+
+        # Логинимся
+        login = await client.post(
+            "/api/v1/auth/login",
+            json={"email": "admin@example.com", "password": "AdminPass123"},
+        )
+        assert login.status_code == 200, f"Admin login failed: {login.text}"
+        yield client
 
 # fmt: on

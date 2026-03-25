@@ -2,6 +2,10 @@ from datetime import date
 from fastapi import HTTPException
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Domain exceptions (сервисный слой — никаких HTTP-импортов ниже этой черты)
+# ──────────────────────────────────────────────────────────────────────────────
+
 class NabronirovalException(Exception):
     detail = "Неожиданная ошибка!"
 
@@ -73,10 +77,43 @@ class InvalidBookingPeriodException(NabronirovalException):
     detail = "Некорректный период бронирования!"
 
 
+class InvalidDateRangeException(NabronirovalException):
+    detail = "Дата заезда не может быть позже даты выезда!"
+
+
+class InsufficientPermissionsException(NabronirovalException):
+    detail = "Недостаточно прав для выполнения этого действия!"
+
+
+# Image domain exceptions
+class FileTooLargeException(NabronirovalException):
+    detail = "Файл слишком большой!"
+
+
+class EmptyFileException(NabronirovalException):
+    detail = "Файл пустой!"
+
+
+class UnsupportedMediaTypeException(NabronirovalException):
+    detail = "Неподдерживаемый тип файла!"
+
+
+class CorruptedImageException(NabronirovalException):
+    detail = "Повреждённый или неверный файл изображения!"
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Domain helper (поднимает domain-исключение, не HTTP!)
+# ──────────────────────────────────────────────────────────────────────────────
+
 def check_date_to_after_date_from(date_from: date, date_to: date) -> None:
     if date_to <= date_from:
-        raise InvalidDateRangeHTTPException()
+        raise InvalidDateRangeException()
 
+
+# ──────────────────────────────────────────────────────────────────────────────
+# HTTP exceptions (только API-слой)
+# ──────────────────────────────────────────────────────────────────────────────
 
 class NabronirovalHTTPException(HTTPException):
     status_code = 500
@@ -156,11 +193,6 @@ class ObjectNotFoundHTTPException(NabronirovalHTTPException):
     detail = "Объект не найден!"
 
 
-class InvalidDateRangeException(NabronirovalException):
-    status_code = 422
-    detail = "Дата заезда не может быть позже даты выезда!"
-
-
 class InvalidDateRangeHTTPException(NabronirovalHTTPException):
     status_code = 422
     detail = "Дата заезда не может быть позже даты выезда!"
@@ -184,3 +216,28 @@ class PastDateHTTPException(NabronirovalHTTPException):
 class InvalidBookingPeriodHTTPException(NabronirovalHTTPException):
     status_code = 422
     detail = "Некорректный период бронирования!"
+
+
+class InsufficientPermissionsHTTPException(NabronirovalHTTPException):
+    status_code = 403
+    detail = "Недостаточно прав для выполнения этого действия!"
+
+
+class FileTooLargeHTTPException(NabronirovalHTTPException):
+    status_code = 413
+    detail = "Файл слишком большой!"
+
+
+class EmptyFileHTTPException(NabronirovalHTTPException):
+    status_code = 400
+    detail = "Файл пустой!"
+
+
+class UnsupportedMediaTypeHTTPException(NabronirovalHTTPException):
+    status_code = 415
+    detail = "Неподдерживаемый тип файла!"
+
+
+class CorruptedImageHTTPException(NabronirovalHTTPException):
+    status_code = 400
+    detail = "Повреждённый или неверный файл изображения!"

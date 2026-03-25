@@ -9,8 +9,8 @@ celery_instance = Celery(
 )
 
 celery_instance.conf.beat_schedule = {
-    "luboe-nazvanie": {
+    "send-checkin-emails-every-day": {
         "task": "booking_today_checkin",
-        "schedule": 5,
+        "schedule": 86400,  # раз в сутки (в секундах)
     }
 }

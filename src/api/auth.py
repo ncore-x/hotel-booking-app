@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Request, Response, status
 
 from src.api.dependencies import UserIdDep, DBDep
+from src.config import settings
 from src.exceptions import (
     ExpiredTokenException,
     IncorrectPasswordHTTPException,
@@ -14,40 +15,45 @@ from src.exceptions import (
     UserNotAuthenticatedException,
     UserNotAuthenticatedHTTPException,
 )
-from src.schemas.users import UserRequestAdd
+from src.limiter import limiter
+from src.schemas.users import UserPasswordUpdate, UserRequestAdd, User, LoginResponse
 from src.services.auth import AuthService
 
-router = APIRouter(prefix="/auth", tags=["Авторизация и аутентификация"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
+
+_COOKIE_KWARGS = dict(
+    key="access_token",
+    httponly=True,
+    samesite="lax",
+    secure=settings.COOKIE_SECURE,
+)
 
 
-@router.post("/register", summary="Регистрация пользователя")
-async def register_user(
-    data: UserRequestAdd,
-    db: DBDep,
-):
+@router.post(
+    "/register",
+    summary="Регистрация пользователя",
+    response_model=User,
+    status_code=status.HTTP_201_CREATED,
+)
+@limiter.limit(settings.AUTH_RATE_LIMIT)
+async def register_user(request: Request, response: Response, data: UserRequestAdd, db: DBDep):
     try:
-        await AuthService(db).register_user(data)
+        user = await AuthService(db).register_user(data)
     except UserAlreadyExistsException:
         raise UserEmailAlreadyExistsHTTPException()
+    response.headers["Location"] = str(request.url_for("get_me"))
+    return user
 
-    return {"detail": "Вы успешно зарегистрировались!"}
 
-
-@router.post("/login", summary="Вход в систему")
-async def login_user(
-    data: UserRequestAdd,
-    response: Response,
-    request: Request,
-    db: DBDep,
-):
+@router.post("/login", summary="Вход в систему", response_model=LoginResponse)
+@limiter.limit(settings.AUTH_RATE_LIMIT)
+async def login_user(request: Request, response: Response, data: UserRequestAdd, db: DBDep):
     token = request.cookies.get("access_token")
     if token:
         try:
             AuthService(db).decode_token(token)
             raise UserIsAlreadyAuthenticatedHTTPException()
-        except ExpiredTokenException:
-            pass
-        except IncorrectTokenException:
+        except (ExpiredTokenException, IncorrectTokenException):
             pass
 
     try:
@@ -57,25 +63,33 @@ async def login_user(
     except IncorrectPasswordException:
         raise IncorrectPasswordHTTPException()
 
-    response.set_cookie("access_token", access_token)
-    return {"detail": "Успешный вход в систему!", "access_token": access_token}
+    response.set_cookie(value=access_token, **_COOKIE_KWARGS)
+    return LoginResponse(access_token=access_token)
 
 
-@router.get("/me", summary="Получение текущего пользователя в системе")
-async def get_me(
-    user_id: UserIdDep,
-    db: DBDep,
-):
+@router.get("/me", summary="Текущий пользователь", response_model=User)
+async def get_me(user_id: UserIdDep, db: DBDep):
     return await AuthService(db).get_one_or_none_user(user_id)
 
 
-@router.post("/logout", summary="Выход из системы", response_model=None)
+@router.patch("/me", summary="Изменить пароль", status_code=status.HTTP_204_NO_CONTENT)
+async def update_password(user_id: UserIdDep, db: DBDep, data: UserPasswordUpdate):
+    try:
+        await AuthService(db).update_password(user_id, data)
+    except IncorrectPasswordException:
+        raise IncorrectPasswordHTTPException()
+
+
+@router.post("/logout", summary="Выход из системы", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(response: Response, request: Request, db: DBDep):
     token = request.cookies.get("access_token")
     try:
         await AuthService(db).logout_user(token)
     except UserNotAuthenticatedException:
         raise UserNotAuthenticatedHTTPException()
-
-    response.delete_cookie("access_token")
-    return {"detail": "Вы вышли из системы!"}
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        samesite="lax",
+        secure=settings.COOKIE_SECURE,
+    )

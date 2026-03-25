@@ -1,19 +1,26 @@
 from src.models.facilities import FacilitiesOrm
-from src.schemas.facilities import Facility
-from src.repositories.mappers.base import DataMapper
+from src.models.hotel_images import HotelImagesOrm
 from src.models.hotels import HotelsOrm
 from src.models.bookings import BookingsOrm
 from src.models.rooms import RoomsOrm
 from src.models.users import UsersOrm
+from src.repositories.mappers.base import DataMapper
 from src.schemas.bookings import Booking
+from src.schemas.facilities import Facility
+from src.schemas.hotels import Hotel
+from src.schemas.images import HotelImage
 from src.schemas.rooms import Room, RoomWithRels
 from src.schemas.users import User
-from src.schemas.hotels import Hotel
 
 
 class HotelDataMapper(DataMapper):
     db_model = HotelsOrm
     schema = Hotel
+
+
+class HotelImageDataMapper(DataMapper):
+    db_model = HotelImagesOrm
+    schema = HotelImage
 
 
 class RoomDataMapper(DataMapper):

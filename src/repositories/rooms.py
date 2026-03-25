@@ -1,5 +1,6 @@
 from datetime import date
-from sqlalchemy import select, and_
+
+from sqlalchemy import select, func, and_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import NoResultFound
 
@@ -11,34 +12,53 @@ from src.repositories.utils import rooms_ids_for_booking
 
 
 class RoomsRepository(BaseRepository):
-    model: RoomsOrm = RoomsOrm
+    model: type[RoomsOrm] = RoomsOrm
     mapper = RoomDataMapper
+
+    def _available_ids_query(self, hotel_id: int, date_from: date, date_to: date):
+        return rooms_ids_for_booking(date_from, date_to, hotel_id)
 
     async def get_filtered_by_time(
         self,
-        hotel_id,
+        hotel_id: int,
         date_from: date,
         date_to: date,
+        limit: int | None = None,
+        offset: int = 0,
     ):
-        rooms_ids_to_get = rooms_ids_for_booking(date_from, date_to, hotel_id)
-
-        if isinstance(rooms_ids_to_get, (list, tuple, set)):
-            if not rooms_ids_to_get:
-                return []
-
+        rooms_ids_to_get = self._available_ids_query(hotel_id, date_from, date_to)
         query = (
-            select(self.model)  # type: ignore
+            select(self.model)
             .options(selectinload(self.model.facilities))
-            .filter(RoomsOrm.id.in_(rooms_ids_to_get))  # type: ignore
+            .filter(RoomsOrm.id.in_(rooms_ids_to_get))
+            .limit(limit)
+            .offset(offset)
         )
         result = await self.session.execute(query)
         return [
-            RoomDataWithRelsMapper.map_to_domain_entity(model) for model in result.scalars().all()
+            RoomDataWithRelsMapper.map_to_domain_entity(model)
+            for model in result.scalars().all()
         ]
+
+    async def count_filtered_by_time(
+        self, hotel_id: int, date_from: date, date_to: date
+    ) -> int:
+        rooms_ids_to_get = self._available_ids_query(hotel_id, date_from, date_to)
+        base = select(self.model).filter(RoomsOrm.id.in_(rooms_ids_to_get))
+        count_query = select(func.count()).select_from(base.subquery())
+        result = await self.session.execute(count_query)
+        return result.scalar_one()
+
+    async def count_by_hotel(self, hotel_id: int) -> int:
+        query = select(func.count()).where(RoomsOrm.hotel_id == hotel_id)
+        result = await self.session.execute(query)
+        return result.scalar_one()
 
     async def get_one_with_rels(self, **filter_by):
         query = (
-            select(self.model).options(selectinload(self.model.facilities)).filter_by(**filter_by)  # type: ignore
+            select(self.model)
+            .options(selectinload(self.model.facilities))
+            .filter_by(**filter_by)
         )
         result = await self.session.execute(query)
         try:
@@ -56,7 +76,7 @@ class RoomsRepository(BaseRepository):
                 self.model.title == title,
                 self.model.price == price,
                 self.model.quantity == quantity,
-                (self.model.description == description),
+                self.model.description == description,
             )
         )
         result = await self.session.execute(query)

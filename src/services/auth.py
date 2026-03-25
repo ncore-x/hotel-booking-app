@@ -1,20 +1,22 @@
-import jwt
+import logging
 from datetime import datetime, timezone, timedelta
+
+import jwt
 from passlib.context import CryptContext
+from sqlalchemy.exc import NoResultFound
 
 from src.config import settings
 from src.exceptions import (
     ExpiredTokenException,
+    IncorrectPasswordException,
     IncorrectTokenException,
     EmailNotRegisteredException,
-    IncorrectPasswordException,
     ObjectAlreadyExistsException,
     UserAlreadyExistsException,
     UserNotAuthenticatedException,
 )
-from src.schemas.users import UserRequestAdd, UserAdd
+from src.schemas.users import UserPasswordUpdate, UserRequestAdd, UserAdd
 from src.services.base import BaseService
-from sqlalchemy.exc import NoResultFound
 
 
 class AuthService(BaseService):
@@ -26,15 +28,12 @@ class AuthService(BaseService):
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
         to_encode |= {"exp": expire}
-        encoded_jwt = jwt.encode(
-            to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
-        )
-        return encoded_jwt
+        return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
     def hash_password(self, password: str) -> str:
         return self.pwd_context.hash(password)
 
-    def verify_password(self, plain_password, hashed_password):
+    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return self.pwd_context.verify(plain_password, hashed_password)
 
     def decode_token(self, token: str) -> dict:
@@ -49,8 +48,9 @@ class AuthService(BaseService):
         hashed_password = self.hash_password(data.password)
         new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
         try:
-            await self.db.users.add(new_user_data)
+            user = await self.db.users.add(new_user_data)
             await self.db.commit()
+            return user
         except ObjectAlreadyExistsException as ex:
             raise UserAlreadyExistsException from ex
 
@@ -63,16 +63,39 @@ class AuthService(BaseService):
         if not self.verify_password(data.password, user.hashed_password):
             raise IncorrectPasswordException
 
-        access_token = self.create_access_token({"user_id": user.id})
-        return access_token
+        return self.create_access_token({"user_id": user.id})
 
-    async def logout_user(self, token: str):
+    async def logout_user(self, token: str) -> None:
+        """
+        Инвалидирует токен, занося его в Redis-блэклист.
+        Если токен уже истёк — выход разрешён без ошибки.
+        Если токен невалиден — считаем пользователя не аутентифицированным.
+        """
         if not token:
             raise UserNotAuthenticatedException()
+
         try:
-            self.decode_token(token)
+            payload = self.decode_token(token)
+        except ExpiredTokenException:
+            return
         except IncorrectTokenException:
             raise UserNotAuthenticatedException()
 
+        exp = payload.get("exp", 0)
+        ttl = max(1, int(exp - datetime.now(timezone.utc).timestamp()))
+        try:
+            from src.init import redis_manager
+            await redis_manager.set(f"blacklist:{token}", "1", expire=ttl)
+        except Exception as e:
+            logging.warning(f"Не удалось занести токен в блэклист Redis: {e}")
+
     async def get_one_or_none_user(self, user_id: int):
         return await self.db.users.get_one_or_none(id=user_id)
+
+    async def update_password(self, user_id: int, data: UserPasswordUpdate) -> None:
+        user = await self.db.users.get_user_with_hashed_password_by_id(user_id)
+        if not self.verify_password(data.current_password, user.hashed_password):
+            raise IncorrectPasswordException()
+        new_hash = self.hash_password(data.new_password)
+        await self.db.users.update_hashed_password(user_id, new_hash)
+        await self.db.commit()
