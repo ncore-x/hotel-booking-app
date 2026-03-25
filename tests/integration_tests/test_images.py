@@ -1,6 +1,7 @@
 """
 Тесты загрузки изображений отелей: POST/GET /hotels/{hotel_id}/images.
 """
+
 import io
 
 from httpx import AsyncClient
@@ -8,7 +9,8 @@ from httpx import AsyncClient
 
 def _make_png_bytes() -> bytes:
     """Минимальный валидный PNG (1x1 пиксель)."""
-    import struct, zlib
+    import struct
+    import zlib
 
     def chunk(name: bytes, data: bytes) -> bytes:
         c = name + data
@@ -16,7 +18,7 @@ def _make_png_bytes() -> bytes:
 
     signature = b"\x89PNG\r\n\x1a\n"
     ihdr = chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
-    idat = chunk(b"IDAT", zlib.compress(b"\x00\xFF\xFF\xFF"))
+    idat = chunk(b"IDAT", zlib.compress(b"\x00\xff\xff\xff"))
     iend = chunk(b"IEND", b"")
     return signature + ihdr + idat + iend
 
@@ -25,6 +27,7 @@ _PNG = _make_png_bytes()
 
 
 # ──── GET /hotels/{hotel_id}/images ──────────────────────────────────────────
+
 
 async def test_get_hotel_images_empty(ac: AsyncClient):
     """Hotel без загруженных изображений возвращает пустой список."""
@@ -39,6 +42,7 @@ async def test_get_hotel_images_not_found(ac: AsyncClient):
 
 
 # ──── POST /hotels/{hotel_id}/images ─────────────────────────────────────────
+
 
 async def test_upload_image_forbidden_for_regular_user(authenticated_ac: AsyncClient):
     response = await authenticated_ac.post(

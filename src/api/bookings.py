@@ -18,18 +18,14 @@ from src.schemas.common import PaginatedResponse
 router = APIRouter(prefix="/bookings", tags=["Bookings"])
 
 
-@router.get(
-    "/me", summary="Мои бронирования", response_model=PaginatedResponse[Booking]
-)
+@router.get("/me", summary="Мои бронирования", response_model=PaginatedResponse[Booking])
 async def get_my_bookings(
     db: DBDep,
     user_id: UserIdDep,
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
 ):
-    return await BookingService(db).get_my_bookings(
-        user_id, page=page, per_page=per_page
-    )
+    return await BookingService(db).get_my_bookings(user_id, page=page, per_page=per_page)
 
 
 @router.get("/{booking_id}", summary="Бронирование по ID", response_model=Booking)
@@ -63,12 +59,8 @@ async def add_booking(
     return booking
 
 
-@router.patch(
-    "/{booking_id}", summary="Изменить даты бронирования", response_model=Booking
-)
-async def patch_booking(
-    booking_id: int, user_id: UserIdDep, db: DBDep, data: BookingPatchRequest
-):
+@router.patch("/{booking_id}", summary="Изменить даты бронирования", response_model=Booking)
+async def patch_booking(booking_id: int, user_id: UserIdDep, db: DBDep, data: BookingPatchRequest):
     try:
         return await BookingService(db).patch_booking(user_id, booking_id, data)
     except ObjectNotFoundException:

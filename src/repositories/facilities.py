@@ -11,9 +11,7 @@ class FacilitiesRepository(BaseRepository):
     mapper = FacilityDataMapper
 
     async def count(self) -> int:
-        result = await self.session.execute(
-            select(func.count()).select_from(self.model)
-        )
+        result = await self.session.execute(select(func.count()).select_from(self.model))
         return result.scalar_one()
 
     async def get_paginated(self, limit: int, offset: int):
@@ -26,20 +24,12 @@ class RoomsFacilitiesRepository(BaseRepository):
     model: type[RoomsFacilitiesOrm] = RoomsFacilitiesOrm
     mapper = None  # type: ignore  # M2M таблица не требует маппинга доменных объектов
 
-    async def set_room_facilities(
-        self, room_id: int, facilities_ids: list[int]
-    ) -> None:
-        get_current_facilities_ids_query = select(self.model.facility_id).filter_by(
-            room_id=room_id
-        )
+    async def set_room_facilities(self, room_id: int, facilities_ids: list[int]) -> None:
+        get_current_facilities_ids_query = select(self.model.facility_id).filter_by(room_id=room_id)
         res = await self.session.execute(get_current_facilities_ids_query)
         current_facilities_ids: Sequence[int] = res.scalars().all()
-        ids_to_delete: list[int] = list(
-            set(current_facilities_ids) - set(facilities_ids)
-        )
-        ids_to_insert: list[int] = list(
-            set(facilities_ids) - set(current_facilities_ids)
-        )
+        ids_to_delete: list[int] = list(set(current_facilities_ids) - set(facilities_ids))
+        ids_to_insert: list[int] = list(set(facilities_ids) - set(current_facilities_ids))
 
         if ids_to_delete:
             delete_m2m_facilities_stmt = delete(self.model).filter(

@@ -11,9 +11,7 @@ if typing.TYPE_CHECKING:
 
 class HotelsOrm(Base):
     __tablename__ = "hotels"
-    __table_args__ = (
-        UniqueConstraint("title", "location", name="uq_hotels_title_location"),
-    )
+    __table_args__ = (UniqueConstraint("title", "location", name="uq_hotels_title_location"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(100))

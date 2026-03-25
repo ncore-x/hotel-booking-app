@@ -5,6 +5,7 @@ from src.validators import validate_email_russian, validate_password_russian
 
 # ──── Email ────────────────────────────────────────────────────────────────
 
+
 class TestValidateEmailRussian:
     def test_valid_email(self):
         assert validate_email_russian("User@Example.COM") == "User@Example.COM"
@@ -42,6 +43,7 @@ class TestValidateEmailRussian:
 
 
 # ──── Password ─────────────────────────────────────────────────────────────
+
 
 class TestValidatePasswordRussian:
     def test_valid_password(self):

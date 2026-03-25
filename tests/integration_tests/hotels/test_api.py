@@ -1,6 +1,5 @@
 from datetime import date, timedelta
 
-import pytest
 from httpx import AsyncClient
 
 
@@ -13,6 +12,7 @@ _DATE_TO = future(45)
 
 
 # ──── GET /hotels ─────────────────────────────────────────────────────────────
+
 
 async def test_get_hotels(ac: AsyncClient):
     response = await ac.get(
@@ -71,6 +71,7 @@ async def test_get_hotels_x_request_id_echoed(ac: AsyncClient):
 
 # ──── GET /hotels/{hotel_id} ─────────────────────────────────────────────────
 
+
 async def test_get_hotel_by_id(ac: AsyncClient):
     response = await ac.get("/api/v1/hotels/1")
     assert response.status_code == 200
@@ -86,6 +87,7 @@ async def test_get_hotel_not_found(ac: AsyncClient):
 
 
 # ──── POST /hotels (только admin) ────────────────────────────────────────────
+
 
 async def test_create_hotel_forbidden_for_regular_user(authenticated_ac: AsyncClient):
     response = await authenticated_ac.post(
@@ -116,6 +118,7 @@ async def test_create_hotel_duplicate(admin_ac: AsyncClient):
 
 # ──── PUT /hotels/{hotel_id} ─────────────────────────────────────────────────
 
+
 async def test_put_hotel(admin_ac: AsyncClient):
     create = await admin_ac.post(
         "/api/v1/hotels",
@@ -141,6 +144,7 @@ async def test_put_hotel_not_found(admin_ac: AsyncClient):
 
 # ──── PATCH /hotels/{hotel_id} ───────────────────────────────────────────────
 
+
 async def test_patch_hotel(admin_ac: AsyncClient):
     create = await admin_ac.post(
         "/api/v1/hotels",
@@ -163,6 +167,7 @@ async def test_patch_hotel_not_found(admin_ac: AsyncClient):
 
 
 # ──── DELETE /hotels/{hotel_id} ──────────────────────────────────────────────
+
 
 async def test_delete_hotel(admin_ac: AsyncClient):
     create = await admin_ac.post(

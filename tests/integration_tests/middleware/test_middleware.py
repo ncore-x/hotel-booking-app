@@ -4,6 +4,7 @@ from httpx import AsyncClient
 
 # ──── JSONErrorHandlerMiddleware ──────────────────────────────────────────────
 
+
 @pytest.mark.parametrize(
     "body, expected_fragment",
     [
@@ -33,6 +34,7 @@ async def test_valid_json_passes_through(ac: AsyncClient):
 
 
 # ──── RequestIDMiddleware ─────────────────────────────────────────────────────
+
 
 async def test_request_id_generated_when_absent(ac: AsyncClient):
     response = await ac.get("/api/v1/facilities")

@@ -22,9 +22,7 @@ class FacilityService(BaseService):
         self, page: int = 1, per_page: int = 50
     ) -> PaginatedResponse[Facility]:
         total = await self.db.facilities.count()
-        items = await self.db.facilities.get_paginated(
-            limit=per_page, offset=per_page * (page - 1)
-        )
+        items = await self.db.facilities.get_paginated(limit=per_page, offset=per_page * (page - 1))
         return PaginatedResponse(
             items=items,
             total=total,

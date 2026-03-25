@@ -56,9 +56,7 @@ class RoomService(BaseService):
         await HotelService(self.db).get_hotel_with_check(hotel_id)
         return await self.db.rooms.get_one_with_rels(id=room_id, hotel_id=hotel_id)
 
-    async def create_room(
-        self, hotel_id: int, room_data: RoomAddRequest
-    ) -> RoomWithRels:
+    async def create_room(self, hotel_id: int, room_data: RoomAddRequest) -> RoomWithRels:
         await HotelService(self.db).get_hotel_with_check(hotel_id)
 
         for f_id in room_data.facilities_ids:
@@ -77,16 +75,13 @@ class RoomService(BaseService):
             quantity=room_data.quantity,
         )
         if existing:
-            raise ObjectAlreadyExistsException(
-                "Номер с такими же полями уже существует!"
-            )
+            raise ObjectAlreadyExistsException("Номер с такими же полями уже существует!")
 
         _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
         room: Room = await self.db.rooms.add(_room_data)
 
         rooms_facilities_data = [
-            RoomFacilityAdd(room_id=room.id, facility_id=f_id)
-            for f_id in room_data.facilities_ids
+            RoomFacilityAdd(room_id=room.id, facility_id=f_id) for f_id in room_data.facilities_ids
         ]
         if rooms_facilities_data:
             await self.db.rooms_facilities.add_bulk(rooms_facilities_data)
@@ -123,14 +118,9 @@ class RoomService(BaseService):
 
         _room_data_dict = room_data.model_dump(exclude_unset=True)
         _room_data = RoomPatch(hotel_id=hotel_id, **_room_data_dict)
-        await self.db.rooms.edit(
-            _room_data, exclude_unset=True, id=room_id, hotel_id=hotel_id
-        )
+        await self.db.rooms.edit(_room_data, exclude_unset=True, id=room_id, hotel_id=hotel_id)
 
-        if (
-            "facilities_ids" in _room_data_dict
-            and _room_data_dict["facilities_ids"] is not None
-        ):
+        if "facilities_ids" in _room_data_dict and _room_data_dict["facilities_ids"] is not None:
             for f_id in _room_data_dict["facilities_ids"]:
                 try:
                     await self.db.facilities.get_one(id=f_id)
@@ -153,9 +143,7 @@ class RoomService(BaseService):
         await self.db.rooms.delete(id=room_id, hotel_id=hotel_id)
         await self.db.commit()
 
-    async def get_room_with_check(
-        self, room_id: int, hotel_id: int | None = None
-    ) -> Room:
+    async def get_room_with_check(self, room_id: int, hotel_id: int | None = None) -> Room:
         try:
             if hotel_id is None:
                 return await self.db.rooms.get_one(id=room_id)

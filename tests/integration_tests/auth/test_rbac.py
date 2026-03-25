@@ -1,6 +1,7 @@
 """
 Тесты RBAC: is_admin в профиле, 401 vs 403, права администратора.
 """
+
 from httpx import AsyncClient
 
 
@@ -30,7 +31,13 @@ async def test_unauthenticated_hotel_write_returns_401(unauth_ac: AsyncClient):
 async def test_unauthenticated_room_write_returns_401(unauth_ac: AsyncClient):
     response = await unauth_ac.post(
         "/api/v1/hotels/1/rooms",
-        json={"title": "Anon Room", "description": None, "price": 1000, "quantity": 1, "facilities_ids": []},
+        json={
+            "title": "Anon Room",
+            "description": None,
+            "price": 1000,
+            "quantity": 1,
+            "facilities_ids": [],
+        },
     )
     assert response.status_code == 401
 

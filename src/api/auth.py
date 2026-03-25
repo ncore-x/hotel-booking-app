@@ -36,9 +36,7 @@ _COOKIE_KWARGS = dict(
     status_code=status.HTTP_201_CREATED,
 )
 @limiter.limit(settings.AUTH_RATE_LIMIT)
-async def register_user(
-    request: Request, response: Response, data: UserRequestAdd, db: DBDep
-):
+async def register_user(request: Request, response: Response, data: UserRequestAdd, db: DBDep):
     try:
         user = await AuthService(db).register_user(data)
     except UserAlreadyExistsException:
@@ -49,9 +47,7 @@ async def register_user(
 
 @router.post("/login", summary="Вход в систему", response_model=LoginResponse)
 @limiter.limit(settings.AUTH_RATE_LIMIT)
-async def login_user(
-    request: Request, response: Response, data: UserRequestAdd, db: DBDep
-):
+async def login_user(request: Request, response: Response, data: UserRequestAdd, db: DBDep):
     token = request.cookies.get("access_token")
     if token:
         try:
@@ -84,9 +80,7 @@ async def update_password(user_id: UserIdDep, db: DBDep, data: UserPasswordUpdat
         raise IncorrectPasswordHTTPException()
 
 
-@router.post(
-    "/logout", summary="Выход из системы", status_code=status.HTTP_204_NO_CONTENT
-)
+@router.post("/logout", summary="Выход из системы", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(response: Response, request: Request, db: DBDep):
     token = request.cookies.get("access_token")
     try:

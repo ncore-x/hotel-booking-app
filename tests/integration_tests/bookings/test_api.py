@@ -88,6 +88,7 @@ async def test_add_and_get_my_bookings(
 
 # ──── POST /bookings — ошибки валидации ──────────────────────────────────────
 
+
 async def test_add_booking_past_date(authenticated_ac: AsyncClient):
     response = await authenticated_ac.post(
         "/api/v1/bookings",
@@ -98,6 +99,7 @@ async def test_add_booking_past_date(authenticated_ac: AsyncClient):
 
 async def test_add_booking_date_from_after_date_to(authenticated_ac: AsyncClient):
     from datetime import date, timedelta
+
     d_from = (date.today() + timedelta(days=10)).isoformat()
     d_to = (date.today() + timedelta(days=5)).isoformat()
     response = await authenticated_ac.post(
@@ -109,6 +111,7 @@ async def test_add_booking_date_from_after_date_to(authenticated_ac: AsyncClient
 
 async def test_add_booking_room_not_found(authenticated_ac: AsyncClient):
     from datetime import date, timedelta
+
     response = await authenticated_ac.post(
         "/api/v1/bookings",
         json={
@@ -122,6 +125,7 @@ async def test_add_booking_room_not_found(authenticated_ac: AsyncClient):
 
 # ──── GET /bookings/me — без аутентификации ───────────────────────────────────
 
+
 async def test_get_my_bookings_unauthenticated(unauth_ac: AsyncClient):
     response = await unauth_ac.get("/api/v1/bookings/me")
     assert response.status_code == 401
@@ -129,8 +133,10 @@ async def test_get_my_bookings_unauthenticated(unauth_ac: AsyncClient):
 
 # ──── DELETE /bookings/{booking_id} ──────────────────────────────────────────
 
+
 async def test_cancel_booking(authenticated_ac: AsyncClient):
     from datetime import date, timedelta
+
     d_from = (date.today() + timedelta(days=80)).isoformat()
     d_to = (date.today() + timedelta(days=85)).isoformat()
 
@@ -157,10 +163,9 @@ async def test_cancel_booking_unauthenticated(unauth_ac: AsyncClient):
 
 # ──── GET /bookings/me — pagination ──────────────────────────────────────────
 
+
 async def test_get_my_bookings_paginated(authenticated_ac: AsyncClient):
-    response = await authenticated_ac.get(
-        "/api/v1/bookings/me", params={"page": 1, "per_page": 1}
-    )
+    response = await authenticated_ac.get("/api/v1/bookings/me", params={"page": 1, "per_page": 1})
     assert response.status_code == 200
     data = response.json()
     assert "items" in data
@@ -176,8 +181,10 @@ async def test_get_my_bookings_paginated(authenticated_ac: AsyncClient):
 
 # ──── GET /bookings/{id} ──────────────────────────────────────────────────────
 
+
 async def test_get_booking_by_id(authenticated_ac: AsyncClient):
     from datetime import date, timedelta
+
     d_from = (date.today() + timedelta(days=100)).isoformat()
     d_to = (date.today() + timedelta(days=105)).isoformat()
 
@@ -200,6 +207,7 @@ async def test_get_booking_not_found(authenticated_ac: AsyncClient):
 
 async def test_get_booking_of_another_user(authenticated_ac: AsyncClient, admin_ac: AsyncClient):
     from datetime import date, timedelta
+
     d_from = (date.today() + timedelta(days=110)).isoformat()
     d_to = (date.today() + timedelta(days=115)).isoformat()
 
@@ -217,8 +225,10 @@ async def test_get_booking_of_another_user(authenticated_ac: AsyncClient, admin_
 
 # ──── PATCH /bookings/{id} ────────────────────────────────────────────────────
 
+
 async def test_patch_booking_dates(authenticated_ac: AsyncClient):
     from datetime import date, timedelta
+
     d_from = (date.today() + timedelta(days=120)).isoformat()
     d_to = (date.today() + timedelta(days=125)).isoformat()
 
@@ -240,6 +250,7 @@ async def test_patch_booking_dates(authenticated_ac: AsyncClient):
 
 async def test_patch_booking_invalid_dates(authenticated_ac: AsyncClient):
     from datetime import date, timedelta
+
     d_from = (date.today() + timedelta(days=130)).isoformat()
     d_to = (date.today() + timedelta(days=135)).isoformat()
 
@@ -261,6 +272,7 @@ async def test_patch_booking_invalid_dates(authenticated_ac: AsyncClient):
 
 async def test_patch_booking_not_found(authenticated_ac: AsyncClient):
     from datetime import date, timedelta
+
     response = await authenticated_ac.patch(
         "/api/v1/bookings/999999",
         json={"date_to": (date.today() + timedelta(days=5)).isoformat()},

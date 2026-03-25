@@ -20,9 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     # Unique constraint on hotels(title, location)
-    op.create_unique_constraint(
-        "uq_hotels_title_location", "hotels", ["title", "location"]
-    )
+    op.create_unique_constraint("uq_hotels_title_location", "hotels", ["title", "location"])
 
     # hotel_images table
     op.create_table(

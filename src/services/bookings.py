@@ -73,9 +73,7 @@ class BookingService(BaseService):
         if booking is None:
             raise ObjectNotFoundException()
 
-        new_date_from = (
-            data.date_from if data.date_from is not None else booking.date_from
-        )
+        new_date_from = data.date_from if data.date_from is not None else booking.date_from
         new_date_to = data.date_to if data.date_to is not None else booking.date_to
 
         check_date_to_after_date_from(new_date_from, new_date_to)
@@ -95,8 +93,6 @@ class BookingService(BaseService):
             date_to=new_date_to,
             price=room.price,
         )
-        new_booking = await self.db.bookings.add_booking(
-            new_booking_data, hotel_id=hotel.id
-        )
+        new_booking = await self.db.bookings.add_booking(new_booking_data, hotel_id=hotel.id)
         await self.db.commit()
         return new_booking

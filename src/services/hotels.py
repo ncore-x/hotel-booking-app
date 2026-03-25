@@ -28,20 +28,23 @@ class HotelService(BaseService):
         per_page = pagination.per_page
         offset = per_page * (pagination.page - 1)
 
-        items, total = await self.db.hotels.get_filtered_by_time(
-            date_from=date_from,
-            date_to=date_to,
-            location=location,
-            title=title,
-            limit=per_page,
-            offset=offset,
-            sort_by=sort_by,
-            order=order,
-        ), await self.db.hotels.count_filtered_by_time(
-            date_from=date_from,
-            date_to=date_to,
-            location=location,
-            title=title,
+        items, total = (
+            await self.db.hotels.get_filtered_by_time(
+                date_from=date_from,
+                date_to=date_to,
+                location=location,
+                title=title,
+                limit=per_page,
+                offset=offset,
+                sort_by=sort_by,
+                order=order,
+            ),
+            await self.db.hotels.count_filtered_by_time(
+                date_from=date_from,
+                date_to=date_to,
+                location=location,
+                title=title,
+            ),
         )
 
         return PaginatedResponse(

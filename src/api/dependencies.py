@@ -20,9 +20,7 @@ from src.database import async_session_maker
 
 class PaginationParams(BaseModel):
     page: Annotated[int, Query(1, ge=1, description="Номер страницы")]
-    per_page: Annotated[
-        int, Query(10, ge=1, le=100, description="Элементов на странице")
-    ]
+    per_page: Annotated[int, Query(10, ge=1, le=100, description="Элементов на странице")]
 
 
 PaginationDep = Annotated[PaginationParams, Depends()]

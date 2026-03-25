@@ -46,9 +46,7 @@ class RoomAddRequest(BaseModel):
         if value is None:
             return []
         if any((not isinstance(i, int) or i <= 0) for i in value):
-            raise ValueError(
-                "facilities_ids должен содержать только положительные целые числа!"
-            )
+            raise ValueError("facilities_ids должен содержать только положительные целые числа!")
         return list(dict.fromkeys(value))
 
 
@@ -92,9 +90,7 @@ class RoomPatchRequest(BaseModel):
         if value is None:
             return None
         if any((not isinstance(i, int) or i <= 0) for i in value):
-            raise ValueError(
-                "facilities_ids должен содержать только положительные целые числа!"
-            )
+            raise ValueError("facilities_ids должен содержать только положительные целые числа!")
         return list(dict.fromkeys(value))
 
 

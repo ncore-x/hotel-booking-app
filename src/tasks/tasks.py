@@ -51,9 +51,7 @@ def resize_image(self, image_path: str, sizes: Sequence[int] | None = None) -> d
                 # Клонируем изображение перед изменением
                 img_copy = img.copy()
                 try:
-                    img_resized = img_copy.resize(
-                        (new_width, new_height), Image.Resampling.LANCZOS
-                    )
+                    img_resized = img_copy.resize((new_width, new_height), Image.Resampling.LANCZOS)
                 finally:
                     img_copy.close()
 
@@ -76,9 +74,7 @@ def resize_image(self, image_path: str, sizes: Sequence[int] | None = None) -> d
                         img_to_save = background
                     else:
                         img_to_save = img_resized.convert("RGB")
-                    save_kwargs.update(
-                        {"format": "JPEG", "quality": 85, "optimize": True}
-                    )
+                    save_kwargs.update({"format": "JPEG", "quality": 85, "optimize": True})
                 else:
                     img_to_save = img_resized
                     save_kwargs.update({"optimize": True})
@@ -86,9 +82,7 @@ def resize_image(self, image_path: str, sizes: Sequence[int] | None = None) -> d
                 # Запись через временный файл, затем атомарный переезд
                 tmp_name = None
                 try:
-                    with tempfile.NamedTemporaryFile(
-                        delete=False, dir=str(output_folder)
-                    ) as tmp:
+                    with tempfile.NamedTemporaryFile(delete=False, dir=str(output_folder)) as tmp:
                         tmp_name = tmp.name
                     img_to_save.save(tmp_name, **save_kwargs)
                     # атомарно заменяет целевой файл
@@ -101,13 +95,9 @@ def resize_image(self, image_path: str, sizes: Sequence[int] | None = None) -> d
                             "height": new_height,
                         }
                     )
-                    logging.info(
-                        f"Saved resized image: {output_path} ({new_width}x{new_height})"
-                    )
+                    logging.info(f"Saved resized image: {output_path} ({new_width}x{new_height})")
                 except Exception as exc:
-                    logging.exception(
-                        f"Не удалось сохранить resized image to {output_path}: {exc}"
-                    )
+                    logging.exception(f"Не удалось сохранить resized image to {output_path}: {exc}")
                     try:
                         if tmp_name and os.path.exists(tmp_name):
                             os.remove(tmp_name)
@@ -173,13 +163,9 @@ def _send_checkin_email(to_email: str, booking_id: int, date_from, date_to) -> N
             if settings.SMTP_USER and settings.SMTP_PASSWORD:
                 smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             smtp.sendmail(settings.SMTP_FROM, [to_email], msg.as_string())
-        logging.info(
-            f"Письмо о заезде отправлено: booking_id={booking_id}, to={to_email}"
-        )
+        logging.info(f"Письмо о заезде отправлено: booking_id={booking_id}, to={to_email}")
     except Exception as e:
-        logging.error(
-            f"Не удалось отправить письмо (booking_id={booking_id}, to={to_email}): {e}"
-        )
+        logging.error(f"Не удалось отправить письмо (booking_id={booking_id}, to={to_email}): {e}")
 
 
 async def _get_bookings_and_notify():

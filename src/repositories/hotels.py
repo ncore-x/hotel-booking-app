@@ -22,13 +22,9 @@ class HotelsRepository(BaseRepository):
         )
         query = select(HotelsOrm).filter(HotelsOrm.id.in_(hotels_ids_to_get))
         if location:
-            query = query.filter(
-                func.lower(HotelsOrm.location).contains(location.strip().lower())
-            )
+            query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
         if title:
-            query = query.filter(
-                func.lower(HotelsOrm.title).contains(title.strip().lower())
-            )
+            query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
         return query
 
     async def get_filtered_by_time(
@@ -47,9 +43,7 @@ class HotelsRepository(BaseRepository):
         query = query.order_by(column.asc() if order == "asc" else column.desc())
         query = query.limit(limit).offset(offset)
         result = await self.session.execute(query)
-        return [
-            self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()
-        ]
+        return [self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()]
 
     async def count_filtered_by_time(
         self,

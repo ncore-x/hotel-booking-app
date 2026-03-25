@@ -2,6 +2,7 @@
 Проверяет, что токен, помещённый в блэклист при logout,
 перестаёт работать для последующих запросов.
 """
+
 from httpx import AsyncClient, ASGITransport
 from src.main import app
 
