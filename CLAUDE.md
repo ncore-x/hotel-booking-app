@@ -164,6 +164,7 @@ Uses `datetime.now(tz=timezone.utc).date()` everywhere — never `date.today()`.
 - `POST /auth/login` — rate-limited (Redis-backed), sets `access_token` + `refresh_token` cookies (`httponly`, `samesite=lax`, `secure=settings.COOKIE_SECURE`). Returns `LoginResponse` with both tokens.
 - `GET /auth/me` — returns current user.
 - `PATCH /auth/me` — change password (`UserPasswordUpdate`: `current_password` + `new_password`). Returns 204.
+- `PATCH /auth/me/email` — change email (`UserEmailUpdate`: `new_email` + `current_password`). Verifies password, rejects same email (409), rejects taken email (409). Returns 204.
 - `POST /auth/refresh` — validates `refresh_token` cookie, issues new `access_token`. Returns `LoginResponse`.
 - `POST /auth/logout` — blacklists both `access_token` and `refresh_token` in Redis, clears both cookies.
 
@@ -195,7 +196,7 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 
 ---
 
-## Project status (as of 2026-03-26, commit pending)
+## Project status (as of 2026-03-26, commit a71f49d)
 
 ### What was implemented
 
@@ -235,12 +236,14 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - `_get_bookings_and_notify` uses JOIN query — no N+1 on user emails
 - HTML email template (multipart/alternative with plain text fallback)
 - Redis graceful degradation: falls back to `InMemoryBackend` if Redis unavailable at startup
+- Sentry: initialized on startup if `SENTRY_DSN` is set (`SENTRY_ENVIRONMENT`, `SENTRY_TRACES_SAMPLE_RATE`)
+- `backup_database` Celery task: `pg_dump | gzip` → `BACKUP_DIR/backup_YYYYMMDD.sql.gz`, daily at 03:00 UTC, auto-cleanup after `BACKUP_RETAIN_DAYS` (default 7)
 - `created_at` / `updated_at` on hotels, users, bookings, rooms models
 - DB indexes: `bookings(user_id)`, `bookings(room_id)`, `bookings(date_from)`, `rooms(hotel_id)`, `hotel_images(hotel_id)`
 - Trigram indexes on `hotels(title)` and `hotels(location)` via `pg_trgm` extension
 - Async file I/O in `ImagesService` via `asyncio.to_thread`; file deleted on DB error (rollback)
 
-**Tests:** 151 passed — RBAC, JWT blacklist, refresh token (5 cases), pagination, middleware, room CRUD, health, images, schema validators.
+**Tests:** 157 passed — RBAC, JWT blacklist, refresh token (5 cases), change email (6 cases), pagination, middleware, room CRUD, health, images, schema validators.
 
 **CI/CD (GitLab pipeline):** build → lint_format → migrations → test → deploy.
 
@@ -252,8 +255,5 @@ None.
 
 ## Known missing features
 
-- **Change email** — `PATCH /auth/me` only supports password change; no email update endpoint.
 - **Prometheus metrics** — no `/metrics` endpoint; can't track latency/error rate in prod.
 - **S3/MinIO for images** — images stored on local disk; breaks with multiple API instances.
-- **Sentry** — no error tracking integration.
-- **Database backups** — no pg_dump cron or managed backup strategy.
