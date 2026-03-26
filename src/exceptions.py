@@ -62,6 +62,10 @@ class ExpiredTokenException(NabronirovalException):
     detail = "Токен доступа истёк!"
 
 
+class InvalidRefreshTokenException(NabronirovalException):
+    detail = "Недействительный refresh-токен!"
+
+
 class CannotDeleteHotelWithRoomsException(NabronirovalException):
     detail = "Невозможно удалить отель, у которого есть номера!"
 
@@ -189,6 +193,11 @@ class FacilityTitleEmptyHTTPException(NabronirovalHTTPException):
 class ExpiredTokenHTTPException(NabronirovalHTTPException):
     status_code = 401
     detail = "Токен доступа истёк!"
+
+
+class InvalidRefreshTokenHTTPException(NabronirovalHTTPException):
+    status_code = 401
+    detail = "Недействительный refresh-токен!"
 
 
 class ObjectNotFoundHTTPException(NabronirovalHTTPException):

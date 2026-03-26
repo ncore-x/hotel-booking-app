@@ -16,11 +16,18 @@ class Settings(BaseSettings):
     REDIS_PORT: int
 
     JWT_SECRET_KEY: str
+    JWT_SECRET_KEY_PREVIOUS: str | None = None  # для ротации: старый ключ остаётся валидным
     JWT_ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     # Cookie
     COOKIE_SECURE: bool = False  # True на HTTPS (продакшн)
+
+    # Database connection pool
+    DB_POOL_SIZE: int = 10
+    DB_MAX_OVERFLOW: int = 20
+    DB_POOL_TIMEOUT: int = 30  # seconds to wait for a connection from the pool
 
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]

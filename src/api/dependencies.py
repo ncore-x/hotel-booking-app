@@ -52,6 +52,9 @@ async def get_current_user_id(token: str = Depends(get_token)) -> int:
     except Exception as e:
         logging.warning(f"Не удалось проверить блэклист токенов: {e}")
 
+    if payload.get("type") != "access":
+        raise IncorrectTokenHTTPException()
+
     user_id = payload.get("user_id")
     if not user_id:
         raise IncorrectTokenHTTPException()

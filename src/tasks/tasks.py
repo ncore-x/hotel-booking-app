@@ -127,12 +127,71 @@ def resize_image(self, image_path: str, sizes: Sequence[int] | None = None) -> d
     return results
 
 
+def _build_checkin_email(booking_id: int, date_from, date_to) -> tuple[str, str, str]:
+    """Возвращает (subject, plain_text, html) для письма о заезде."""
+    subject = f"Напоминание о заезде — бронирование #{booking_id}"
+    plain = (
+        f"Здравствуйте!\n\n"
+        f"Напоминаем, что сегодня, {date_from}, начинается ваше бронирование #{booking_id}.\n"
+        f"Дата выезда: {date_to}.\n\n"
+        f"Хорошего отдыха!\n"
+        f"Команда Hotel Booking"
+    )
+    html = f"""<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+        <tr>
+          <td style="background:#2563eb;padding:28px 40px;">
+            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">Hotel Booking</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:36px 40px;">
+            <h2 style="margin:0 0 16px;color:#1e293b;font-size:20px;">Сегодня день заезда!</h2>
+            <p style="margin:0 0 12px;color:#475569;font-size:15px;line-height:1.6;">
+              Напоминаем, что сегодня <strong>{date_from}</strong> начинается ваше бронирование
+              <strong>#{booking_id}</strong>.
+            </p>
+            <p style="margin:0 0 28px;color:#475569;font-size:15px;line-height:1.6;">
+              Дата выезда: <strong>{date_to}</strong>.
+            </p>
+            <table cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="background:#2563eb;border-radius:6px;padding:12px 28px;">
+                  <span style="color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">
+                    Бронирование #{booking_id}
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#f8fafc;padding:20px 40px;border-top:1px solid #e2e8f0;">
+            <p style="margin:0;color:#94a3b8;font-size:13px;">
+              Хорошего отдыха! &mdash; Команда Hotel Booking
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+    return subject, plain, html
+
+
 def _send_checkin_email(to_email: str, booking_id: int, date_from, date_to) -> None:
     """
     Отправляет письмо о заезде через SMTP.
     Если SMTP не настроен — пропускает отправку и логирует предупреждение.
     """
     import smtplib
+    from email.mime.multipart import MIMEMultipart
     from email.mime.text import MIMEText
     from src.config import settings
 
@@ -143,18 +202,14 @@ def _send_checkin_email(to_email: str, booking_id: int, date_from, date_to) -> N
         )
         return
 
-    subject = f"Напоминание о заезде — бронирование #{booking_id}"
-    body = (
-        f"Здравствуйте!\n\n"
-        f"Напоминаем, что сегодня, {date_from}, начинается ваше бронирование #{booking_id}.\n"
-        f"Дата выезда: {date_to}.\n\n"
-        f"Хорошего отдыха!\n"
-        f"Команда Hotel Booking"
-    )
-    msg = MIMEText(body, "plain", "utf-8")
+    subject, plain, html = _build_checkin_email(booking_id, date_from, date_to)
+
+    msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = settings.SMTP_FROM
     msg["To"] = to_email
+    msg.attach(MIMEText(plain, "plain", "utf-8"))
+    msg.attach(MIMEText(html, "html", "utf-8"))
 
     try:
         with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as smtp:
@@ -168,6 +223,21 @@ def _send_checkin_email(to_email: str, booking_id: int, date_from, date_to) -> N
         logging.error(f"Не удалось отправить письмо (booking_id={booking_id}, to={to_email}): {e}")
 
 
+@celery_instance.task(name="send_checkin_email")
+def send_checkin_email_task(
+    to_email: str, booking_id: int, date_from_str: str, date_to_str: str
+) -> None:
+    """Celery task: отправляет одно письмо о заезде в изолированном воркере."""
+    from datetime import date
+
+    _send_checkin_email(
+        to_email=to_email,
+        booking_id=booking_id,
+        date_from=date.fromisoformat(date_from_str),
+        date_to=date.fromisoformat(date_to_str),
+    )
+
+
 async def _get_bookings_and_notify():
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
         bookings = await db.bookings.get_bookings_with_today_checkin()
@@ -176,11 +246,11 @@ async def _get_bookings_and_notify():
             try:
                 user = await db.users.get_one_or_none(id=booking.user_id)
                 if user:
-                    _send_checkin_email(
+                    send_checkin_email_task.delay(
                         to_email=user.email,
                         booking_id=booking.id,
-                        date_from=booking.date_from,
-                        date_to=booking.date_to,
+                        date_from_str=str(booking.date_from),
+                        date_to_str=str(booking.date_to),
                     )
             except Exception as e:
                 logging.error(f"Ошибка обработки бронирования {booking.id}: {e}")

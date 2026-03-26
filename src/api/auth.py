@@ -9,6 +9,8 @@ from src.exceptions import (
     EmailNotRegisteredHTTPException,
     EmailNotRegisteredException,
     IncorrectTokenException,
+    InvalidRefreshTokenException,
+    InvalidRefreshTokenHTTPException,
     UserAlreadyExistsException,
     UserEmailAlreadyExistsHTTPException,
     UserIsAlreadyAuthenticatedHTTPException,
@@ -23,6 +25,13 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 _COOKIE_KWARGS = dict(
     key="access_token",
+    httponly=True,
+    samesite="lax",
+    secure=settings.COOKIE_SECURE,
+)
+
+_REFRESH_COOKIE_KWARGS = dict(
+    key="refresh_token",
     httponly=True,
     samesite="lax",
     secure=settings.COOKIE_SECURE,
@@ -57,14 +66,15 @@ async def login_user(request: Request, response: Response, data: UserRequestAdd,
             pass
 
     try:
-        access_token = await AuthService(db).login_user(data)
+        access_token, refresh_token = await AuthService(db).login_user(data)
     except EmailNotRegisteredException:
         raise EmailNotRegisteredHTTPException()
     except IncorrectPasswordException:
         raise IncorrectPasswordHTTPException()
 
     response.set_cookie(value=access_token, **_COOKIE_KWARGS)
-    return LoginResponse(access_token=access_token)
+    response.set_cookie(value=refresh_token, **_REFRESH_COOKIE_KWARGS)
+    return LoginResponse(access_token=access_token, refresh_token=refresh_token)
 
 
 @router.get("/me", summary="Текущий пользователь", response_model=User)
@@ -80,16 +90,30 @@ async def update_password(user_id: UserIdDep, db: DBDep, data: UserPasswordUpdat
         raise IncorrectPasswordHTTPException()
 
 
+@router.post("/refresh", summary="Обновить access токен", response_model=LoginResponse)
+async def refresh_token(request: Request, response: Response, db: DBDep):
+    token = request.cookies.get("refresh_token")
+    if not token:
+        raise InvalidRefreshTokenHTTPException()
+    try:
+        access_token = await AuthService(db).refresh_access_token(token)
+    except InvalidRefreshTokenException:
+        raise InvalidRefreshTokenHTTPException()
+    response.set_cookie(value=access_token, **_COOKIE_KWARGS)
+    return LoginResponse(access_token=access_token, refresh_token=token)
+
+
 @router.post("/logout", summary="Выход из системы", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(response: Response, request: Request, db: DBDep):
     token = request.cookies.get("access_token")
+    refresh = request.cookies.get("refresh_token")
     try:
-        await AuthService(db).logout_user(token)
+        await AuthService(db).logout_user(token, refresh)
     except UserNotAuthenticatedException:
         raise UserNotAuthenticatedHTTPException()
     response.delete_cookie(
-        key="access_token",
-        httponly=True,
-        samesite="lax",
-        secure=settings.COOKIE_SECURE,
+        key="access_token", httponly=True, samesite="lax", secure=settings.COOKIE_SECURE
+    )
+    response.delete_cookie(
+        key="refresh_token", httponly=True, samesite="lax", secure=settings.COOKIE_SECURE
     )
