@@ -1,10 +1,19 @@
+import logging
+
 from pydantic import EmailStr
 from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 
+from src.exceptions import ObjectAlreadyExistsException
 from src.repositories.mappers.mappers import UserDataMapper
 from src.schemas.users import UserWithHashedPassword
 from src.models.users import UsersOrm
 from src.repositories.base import BaseRepository
+
+try:
+    from asyncpg import UniqueViolationError
+except ImportError:
+    UniqueViolationError = None  # type: ignore[assignment,misc]
 
 
 class UsersRepository(BaseRepository):
@@ -30,3 +39,13 @@ class UsersRepository(BaseRepository):
             .values(hashed_password=hashed_password)
         )
         await self.session.execute(stmt)
+
+    async def update_email(self, user_id: int, new_email: str) -> None:
+        stmt = update(self.model).where(self.model.id == user_id).values(email=new_email)
+        try:
+            await self.session.execute(stmt)
+        except IntegrityError as ex:
+            logging.exception("Email uniqueness violation: %s", ex)
+            if UniqueViolationError and isinstance(ex.orig.__cause__, UniqueViolationError):
+                raise ObjectAlreadyExistsException() from ex
+            raise

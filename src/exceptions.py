@@ -50,6 +50,10 @@ class UserAlreadyExistsException(NabronirovalException):
     detail = "Пользователь уже существует!"
 
 
+class SameEmailException(NabronirovalException):
+    detail = "Новый email совпадает с текущим!"
+
+
 class UserNotAuthenticatedException(NabronirovalException):
     detail = "Вы не в системе, выход невозможен!"
 
@@ -198,6 +202,11 @@ class ExpiredTokenHTTPException(NabronirovalHTTPException):
 class InvalidRefreshTokenHTTPException(NabronirovalHTTPException):
     status_code = 401
     detail = "Недействительный refresh-токен!"
+
+
+class SameEmailHTTPException(NabronirovalHTTPException):
+    status_code = 409
+    detail = "Новый email совпадает с текущим!"
 
 
 class ObjectNotFoundHTTPException(NabronirovalHTTPException):

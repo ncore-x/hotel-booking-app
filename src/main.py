@@ -2,6 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import sentry_sdk
 import uvicorn
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
@@ -30,6 +31,15 @@ from src.middleware.json_error_handler import JSONErrorHandlerMiddleware
 from src.middleware.request_id import RequestIDMiddleware
 
 setup_logging(level=settings.LOG_LEVEL, json_format=settings.LOG_JSON)
+
+if settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        environment=settings.SENTRY_ENVIRONMENT,
+        traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
+        send_default_pii=False,
+    )
+    logging.info("Sentry инициализирован (env=%s)", settings.SENTRY_ENVIRONMENT)
 
 
 def generate_unique_id(route: APIRoute) -> str:

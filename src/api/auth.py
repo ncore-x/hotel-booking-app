@@ -11,6 +11,8 @@ from src.exceptions import (
     IncorrectTokenException,
     InvalidRefreshTokenException,
     InvalidRefreshTokenHTTPException,
+    SameEmailException,
+    SameEmailHTTPException,
     UserAlreadyExistsException,
     UserEmailAlreadyExistsHTTPException,
     UserIsAlreadyAuthenticatedHTTPException,
@@ -18,7 +20,13 @@ from src.exceptions import (
     UserNotAuthenticatedHTTPException,
 )
 from src.limiter import limiter
-from src.schemas.users import UserPasswordUpdate, UserRequestAdd, User, LoginResponse
+from src.schemas.users import (
+    UserEmailUpdate,
+    UserPasswordUpdate,
+    UserRequestAdd,
+    User,
+    LoginResponse,
+)
 from src.services.auth import AuthService
 from src.services.token_blacklist import TokenBlacklistService
 
@@ -89,6 +97,18 @@ async def update_password(user_id: UserIdDep, db: DBDep, data: UserPasswordUpdat
         await AuthService(db).update_password(user_id, data)
     except IncorrectPasswordException:
         raise IncorrectPasswordHTTPException()
+
+
+@router.patch("/me/email", summary="Изменить email", status_code=status.HTTP_204_NO_CONTENT)
+async def update_email(user_id: UserIdDep, db: DBDep, data: UserEmailUpdate):
+    try:
+        await AuthService(db).update_email(user_id, data)
+    except IncorrectPasswordException:
+        raise IncorrectPasswordHTTPException()
+    except SameEmailException:
+        raise SameEmailHTTPException()
+    except UserAlreadyExistsException:
+        raise UserEmailAlreadyExistsHTTPException()
 
 
 @router.post("/refresh", summary="Обновить access токен", response_model=LoginResponse)

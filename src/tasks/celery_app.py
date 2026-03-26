@@ -6,12 +6,16 @@ from src.config import settings
 celery_instance = Celery(
     "tasks",
     broker=settings.REDIS_URL,
-    include=["src.tasks.tasks"],
+    include=["src.tasks.tasks", "src.tasks.backup"],
 )
 
 celery_instance.conf.beat_schedule = {
     "send-checkin-emails-every-day": {
         "task": "booking_today_checkin",
         "schedule": crontab(hour=8, minute=0),  # ежедневно в 08:00 UTC
-    }
+    },
+    "backup-database-daily": {
+        "task": "backup_database",
+        "schedule": crontab(hour=3, minute=0),  # ежедневно в 03:00 UTC
+    },
 }

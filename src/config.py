@@ -50,6 +50,15 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str | None = None
     SMTP_FROM: str = "noreply@hotelbooking.example"
 
+    # Sentry (опционально — если не задано, Sentry не инициализируется)
+    SENTRY_DSN: str | None = None
+    SENTRY_ENVIRONMENT: str = "local"
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.1  # 10% трейсов в продакшене
+
+    # Database backups
+    BACKUP_DIR: Path = Path("backups")
+    BACKUP_RETAIN_DAYS: int = 7
+
     @property
     def REDIS_URL(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"

@@ -16,3 +16,6 @@ src/static/images/
 
 # Serena semantic index (local tooling, not source)
 .serena/
+
+# Database backups (runtime files, not source)
+backups/

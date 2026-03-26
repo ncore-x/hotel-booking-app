@@ -14,10 +14,11 @@ from src.exceptions import (
     InvalidRefreshTokenException,
     EmailNotRegisteredException,
     ObjectAlreadyExistsException,
+    SameEmailException,
     UserAlreadyExistsException,
     UserNotAuthenticatedException,
 )
-from src.schemas.users import UserPasswordUpdate, UserRequestAdd, UserAdd
+from src.schemas.users import UserEmailUpdate, UserPasswordUpdate, UserRequestAdd, UserAdd
 from src.services.base import BaseService
 from src.utils.db_manager import DBManager
 
@@ -160,3 +161,15 @@ class AuthService(BaseService):
         new_hash = self.hash_password(data.new_password)
         await self.db.users.update_hashed_password(user_id, new_hash)
         await self.db.commit()
+
+    async def update_email(self, user_id: int, data: UserEmailUpdate) -> None:
+        user = await self.db.users.get_user_with_hashed_password_by_id(user_id)
+        if not self.verify_password(data.current_password, user.hashed_password):
+            raise IncorrectPasswordException()
+        if user.email == data.new_email:
+            raise SameEmailException()
+        try:
+            await self.db.users.update_email(user_id, data.new_email)
+            await self.db.commit()
+        except ObjectAlreadyExistsException:
+            raise UserAlreadyExistsException()

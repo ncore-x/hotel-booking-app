@@ -22,6 +22,17 @@ class UserPasswordUpdate(BaseModel):
     _validate_new_password = field_validator("new_password")(validate_password_russian)
 
 
+class UserEmailUpdate(BaseModel):
+    new_email: str
+    current_password: str
+
+    @field_validator("new_email")
+    def normalize_email(cls, v: str) -> str:
+        return v.lower()
+
+    _validate_email = field_validator("new_email")(validate_email_russian)
+
+
 class UserAdd(BaseModel):
     email: EmailStr
     hashed_password: str
