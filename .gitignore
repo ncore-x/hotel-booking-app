@@ -10,3 +10,6 @@ wheels/
 .venv
 .env
 .env-test
+
+# Uploaded images (runtime files, not source)
+src/static/images/

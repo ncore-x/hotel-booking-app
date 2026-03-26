@@ -6,6 +6,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.routing import APIRoute
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
@@ -99,6 +100,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(JSONErrorHandlerMiddleware)
 app.add_middleware(RequestIDMiddleware)
 
