@@ -13,3 +13,6 @@ wheels/
 
 # Uploaded images (runtime files, not source)
 src/static/images/
+
+# Serena semantic index (local tooling, not source)
+.serena/
