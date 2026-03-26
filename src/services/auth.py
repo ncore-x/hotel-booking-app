@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timezone, timedelta
+from typing import TYPE_CHECKING
 
 import jwt
 from passlib.context import CryptContext
@@ -18,10 +19,24 @@ from src.exceptions import (
 )
 from src.schemas.users import UserPasswordUpdate, UserRequestAdd, UserAdd
 from src.services.base import BaseService
+from src.utils.db_manager import DBManager
+
+if TYPE_CHECKING:
+    from src.services.token_blacklist import TokenBlacklistService
+
+logger = logging.getLogger(__name__)
 
 
 class AuthService(BaseService):
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+    def __init__(
+        self,
+        db: DBManager | None = None,
+        blacklist: "TokenBlacklistService | None" = None,
+    ) -> None:
+        super().__init__(db)
+        self._blacklist = blacklist
 
     def create_access_token(self, data: dict) -> str:
         to_encode = data.copy()
@@ -82,7 +97,7 @@ class AuthService(BaseService):
         if not self.verify_password(data.password, user.hashed_password):
             raise IncorrectPasswordException()
 
-        access_token = self.create_access_token({"user_id": user.id})
+        access_token = self.create_access_token({"user_id": user.id, "is_admin": user.is_admin})
         refresh_token = self.create_refresh_token({"user_id": user.id})
         return access_token, refresh_token
 
@@ -102,15 +117,8 @@ class AuthService(BaseService):
         except IncorrectTokenException:
             raise UserNotAuthenticatedException()
 
-        if payload is not None:
-            exp = payload.get("exp", 0)
-            ttl = max(1, int(exp - datetime.now(timezone.utc).timestamp()))
-            try:
-                from src.init import redis_manager
-
-                await redis_manager.set(f"blacklist:{token}", "1", expire=ttl)
-            except Exception as e:
-                logging.warning(f"Не удалось занести токен в блэклист Redis: {e}")
+        if payload is not None and self._blacklist:
+            await self._blacklist.add(token, payload)
 
         if refresh_token:
             await self._blacklist_refresh_token(refresh_token)
@@ -118,37 +126,23 @@ class AuthService(BaseService):
     async def _blacklist_refresh_token(self, refresh_token: str) -> None:
         try:
             payload = self.decode_token(refresh_token)
-            exp = payload.get("exp", 0)
-            ttl = max(1, int(exp - datetime.now(timezone.utc).timestamp()))
-            from src.init import redis_manager
-
-            await redis_manager.set(f"blacklist:{refresh_token}", "1", expire=ttl)
         except (ExpiredTokenException, IncorrectTokenException):
-            pass
-        except Exception as e:
-            logging.warning(f"Не удалось занести refresh токен в блэклист Redis: {e}")
+            return
+        if self._blacklist:
+            await self._blacklist.add(refresh_token, payload)
 
     async def refresh_access_token(self, refresh_token: str) -> str:
         """Проверяет refresh токен и выдаёт новый access токен."""
         try:
             payload = self.decode_token(refresh_token)
-        except ExpiredTokenException:
-            raise InvalidRefreshTokenException()
-        except IncorrectTokenException:
+        except (ExpiredTokenException, IncorrectTokenException):
             raise InvalidRefreshTokenException()
 
         if payload.get("type") != "refresh":
             raise InvalidRefreshTokenException()
 
-        try:
-            from src.init import redis_manager
-
-            if redis_manager.redis and await redis_manager.exists(f"blacklist:{refresh_token}"):
-                raise InvalidRefreshTokenException()
-        except InvalidRefreshTokenException:
-            raise
-        except Exception as e:
-            logging.warning(f"Не удалось проверить блэклист refresh токена: {e}")
+        if self._blacklist and await self._blacklist.is_blacklisted(refresh_token):
+            raise InvalidRefreshTokenException()
 
         user_id = payload.get("user_id")
         if not user_id:

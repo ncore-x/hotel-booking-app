@@ -10,7 +10,13 @@ from src.tasks.celery_app import celery_instance
 from src.utils.db_manager import DBManager
 
 
-@celery_instance.task(bind=True, name="resize_image")
+@celery_instance.task(
+    bind=True,
+    name="resize_image",
+    autoretry_for=(Exception,),
+    max_retries=3,
+    default_retry_delay=60,
+)
 def resize_image(self, image_path: str, sizes: Sequence[int] | None = None) -> dict:
     """
     Celery task: создает несколько версий изображения по ширине (px), сохраняя пропорции.
@@ -211,19 +217,21 @@ def _send_checkin_email(to_email: str, booking_id: int, date_from, date_to) -> N
     msg.attach(MIMEText(plain, "plain", "utf-8"))
     msg.attach(MIMEText(html, "html", "utf-8"))
 
-    try:
-        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as smtp:
-            smtp.ehlo()
-            smtp.starttls()
-            if settings.SMTP_USER and settings.SMTP_PASSWORD:
-                smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            smtp.sendmail(settings.SMTP_FROM, [to_email], msg.as_string())
-        logging.info(f"Письмо о заезде отправлено: booking_id={booking_id}, to={to_email}")
-    except Exception as e:
-        logging.error(f"Не удалось отправить письмо (booking_id={booking_id}, to={to_email}): {e}")
+    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as smtp:
+        smtp.ehlo()
+        smtp.starttls()
+        if settings.SMTP_USER and settings.SMTP_PASSWORD:
+            smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+        smtp.sendmail(settings.SMTP_FROM, [to_email], msg.as_string())
+    logging.info(f"Письмо о заезде отправлено: booking_id={booking_id}, to={to_email}")
 
 
-@celery_instance.task(name="send_checkin_email")
+@celery_instance.task(
+    name="send_checkin_email",
+    autoretry_for=(Exception,),
+    max_retries=3,
+    default_retry_delay=60,
+)
 def send_checkin_email_task(
     to_email: str, booking_id: int, date_from_str: str, date_to_str: str
 ) -> None:
@@ -240,20 +248,19 @@ def send_checkin_email_task(
 
 async def _get_bookings_and_notify():
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
-        bookings = await db.bookings.get_bookings_with_today_checkin()
-        logging.info(f"Заезды сегодня: {len(bookings)} бронирований")
-        for booking in bookings:
+        rows = await db.bookings.get_today_checkins_with_emails()
+        logging.info(f"Заезды сегодня: {len(rows)} бронирований")
+        for row in rows:
             try:
-                user = await db.users.get_one_or_none(id=booking.user_id)
-                if user:
-                    send_checkin_email_task.delay(
-                        to_email=user.email,
-                        booking_id=booking.id,
-                        date_from_str=str(booking.date_from),
-                        date_to_str=str(booking.date_to),
-                    )
+                booking = row["booking"]
+                send_checkin_email_task.delay(
+                    to_email=row["email"],
+                    booking_id=booking.id,
+                    date_from_str=str(booking.date_from),
+                    date_to_str=str(booking.date_to),
+                )
             except Exception as e:
-                logging.error(f"Ошибка обработки бронирования {booking.id}: {e}")
+                logging.error(f"Ошибка обработки бронирования {row['booking'].id}: {e}")
 
 
 @celery_instance.task(name="booking_today_checkin")

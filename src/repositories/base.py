@@ -41,7 +41,7 @@ class BaseRepository:
         try:
             model = result.scalar_one()
         except NoResultFound:
-            raise ObjectNotFoundException
+            raise ObjectNotFoundException()
         return self.mapper.map_to_domain_entity(model)
 
     async def add(self, data: BaseModel) -> BaseModel | Any:

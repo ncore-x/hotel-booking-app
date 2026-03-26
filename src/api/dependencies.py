@@ -1,4 +1,3 @@
-import logging
 from typing import Annotated
 
 from fastapi import Depends, Query, Request
@@ -14,6 +13,7 @@ from src.exceptions import (
     InsufficientPermissionsHTTPException,
 )
 from src.services.auth import AuthService
+from src.services.token_blacklist import TokenBlacklistService
 from src.utils.db_manager import DBManager
 from src.database import async_session_maker
 
@@ -33,7 +33,16 @@ def get_token(request: Request) -> str:
     return token
 
 
-async def get_current_user_id(token: str = Depends(get_token)) -> int:
+def get_blacklist_service() -> TokenBlacklistService:
+    from src.init import redis_manager
+
+    return TokenBlacklistService(redis=redis_manager)
+
+
+async def get_current_user_id(
+    token: str = Depends(get_token),
+    blacklist: TokenBlacklistService = Depends(get_blacklist_service),
+) -> int:
     try:
         payload = AuthService().decode_token(token)
     except ExpiredTokenException:
@@ -41,16 +50,8 @@ async def get_current_user_id(token: str = Depends(get_token)) -> int:
     except IncorrectTokenException:
         raise IncorrectTokenHTTPException()
 
-    # JWT blacklist check (Redis)
-    try:
-        from src.init import redis_manager
-
-        if redis_manager.redis and await redis_manager.exists(f"blacklist:{token}"):
-            raise ExpiredTokenHTTPException()
-    except ExpiredTokenHTTPException:
-        raise
-    except Exception as e:
-        logging.warning(f"Не удалось проверить блэклист токенов: {e}")
+    if await blacklist.is_blacklisted(token):
+        raise ExpiredTokenHTTPException()
 
     if payload.get("type") != "access":
         raise IncorrectTokenHTTPException()
@@ -73,11 +74,12 @@ DBDep = Annotated[DBManager, Depends(get_db)]
 
 
 async def get_current_admin(
-    user_id: int = Depends(get_current_user_id), db: DBManager = Depends(get_db)
+    user_id: int = Depends(get_current_user_id),
+    token: str = Depends(get_token),
 ) -> int:
-    """Проверяет, что текущий пользователь является администратором."""
-    user = await db.users.get_one_or_none(id=user_id)
-    if not user or not user.is_admin:
+    """Проверяет is_admin из JWT payload (без SELECT к БД)."""
+    payload = AuthService().decode_token(token)
+    if not payload.get("is_admin"):
         raise InsufficientPermissionsHTTPException()
     return user_id
 

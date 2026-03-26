@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
 
-from src.api.dependencies import UserIdDep, DBDep
+from src.api.dependencies import UserIdDep, DBDep, get_blacklist_service
 from src.config import settings
 from src.exceptions import (
     ExpiredTokenException,
@@ -20,6 +20,7 @@ from src.exceptions import (
 from src.limiter import limiter
 from src.schemas.users import UserPasswordUpdate, UserRequestAdd, User, LoginResponse
 from src.services.auth import AuthService
+from src.services.token_blacklist import TokenBlacklistService
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -91,12 +92,17 @@ async def update_password(user_id: UserIdDep, db: DBDep, data: UserPasswordUpdat
 
 
 @router.post("/refresh", summary="Обновить access токен", response_model=LoginResponse)
-async def refresh_token(request: Request, response: Response, db: DBDep):
+async def refresh_token(
+    request: Request,
+    response: Response,
+    db: DBDep,
+    blacklist: TokenBlacklistService = Depends(get_blacklist_service),
+):
     token = request.cookies.get("refresh_token")
     if not token:
         raise InvalidRefreshTokenHTTPException()
     try:
-        access_token = await AuthService(db).refresh_access_token(token)
+        access_token = await AuthService(db, blacklist=blacklist).refresh_access_token(token)
     except InvalidRefreshTokenException:
         raise InvalidRefreshTokenHTTPException()
     response.set_cookie(value=access_token, **_COOKIE_KWARGS)
@@ -104,11 +110,16 @@ async def refresh_token(request: Request, response: Response, db: DBDep):
 
 
 @router.post("/logout", summary="Выход из системы", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(response: Response, request: Request, db: DBDep):
+async def logout(
+    response: Response,
+    request: Request,
+    db: DBDep,
+    blacklist: TokenBlacklistService = Depends(get_blacklist_service),
+):
     token = request.cookies.get("access_token")
     refresh = request.cookies.get("refresh_token")
     try:
-        await AuthService(db).logout_user(token, refresh)
+        await AuthService(db, blacklist=blacklist).logout_user(token, refresh)
     except UserNotAuthenticatedException:
         raise UserNotAuthenticatedHTTPException()
     response.delete_cookie(

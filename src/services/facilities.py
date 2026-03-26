@@ -11,11 +11,11 @@ class FacilityService(BaseService):
         if not data.title.strip():
             raise FacilityTitleEmptyException()
 
-        existing = await self.db.facilities.get_one_or_none(title=data.title)
-        if existing:
-            raise ObjectAlreadyExistsException
-        facility = await self.db.facilities.add(data)
-        await self.db.commit()
+        try:
+            facility = await self.db.facilities.add(data)
+            await self.db.commit()
+        except ObjectAlreadyExistsException:
+            raise
         return facility
 
     async def get_facilities(

@@ -22,6 +22,25 @@ class BookingsRepository(BaseRepository):
         res = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(booking) for booking in res.scalars().all()]
 
+    async def get_today_checkins_with_emails(self) -> list[dict]:
+        """Returns today's check-in bookings joined with user emails (avoids N+1)."""
+        from src.models.users import UsersOrm
+
+        today = datetime.now(tz=timezone.utc).date()
+        query = (
+            select(BookingsOrm, UsersOrm.email)
+            .join(UsersOrm, BookingsOrm.user_id == UsersOrm.id)
+            .where(BookingsOrm.date_from == today)
+        )
+        result = await self.session.execute(query)
+        return [
+            {
+                "booking": self.mapper.map_to_domain_entity(row.BookingsOrm),
+                "email": row.email,
+            }
+            for row in result
+        ]
+
     async def count_by_user(self, user_id: int) -> int:
         query = select(func.count()).where(BookingsOrm.user_id == user_id)
         result = await self.session.execute(query)
@@ -63,4 +82,4 @@ class BookingsRepository(BaseRepository):
         if data.room_id in rooms_ids_to_book:
             new_booking = await self.add(data)
             return new_booking
-        raise AllRoomsAreBookedException
+        raise AllRoomsAreBookedException()

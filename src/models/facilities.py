@@ -12,7 +12,7 @@ class FacilitiesOrm(Base):
     __tablename__ = "facilities"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(100))
+    title: Mapped[str] = mapped_column(String(100), unique=True)
 
     rooms: Mapped[list["RoomsOrm"]] = relationship(  # type: ignore
         back_populates="facilities", secondary="rooms_facilities"

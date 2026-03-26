@@ -16,7 +16,6 @@ from src.exceptions import (
     CannotDeleteRoomWithBookingsException,
     ObjectNotFoundException,
     RoomNotFoundException,
-    ObjectAlreadyExistsException,
     check_date_to_after_date_from,
 )
 from src.services.base import BaseService
@@ -66,16 +65,6 @@ class RoomService(BaseService):
                 raise ObjectNotFoundException(
                     f"Удобство с идентификатором {f_id} не найдено!"
                 ) from ex
-
-        existing = await self.db.rooms.get_by_fields(
-            hotel_id=hotel_id,
-            title=room_data.title,
-            description=room_data.description,
-            price=room_data.price,
-            quantity=room_data.quantity,
-        )
-        if existing:
-            raise ObjectAlreadyExistsException("Номер с такими же полями уже существует!")
 
         _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
         room: Room = await self.db.rooms.add(_room_data)

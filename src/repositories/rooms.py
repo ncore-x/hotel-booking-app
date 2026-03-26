@@ -59,7 +59,7 @@ class RoomsRepository(BaseRepository):
         try:
             model = result.scalar_one()
         except NoResultFound:
-            raise RoomNotFoundException
+            raise RoomNotFoundException()
         return RoomDataWithRelsMapper.map_to_domain_entity(model)
 
     async def get_by_fields(

@@ -1,4 +1,6 @@
+import asyncio
 import io
+import logging
 import uuid
 
 from fastapi import UploadFile
@@ -18,6 +20,8 @@ from src.services.base import BaseService
 from src.tasks.tasks import resize_image
 
 ImageFile.LOAD_TRUNCATED_IMAGES = False
+
+logger = logging.getLogger(__name__)
 
 ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_EXTENSIONS = {"jpeg", "jpg", "png", "webp"}
@@ -74,19 +78,31 @@ class ImagesService(BaseService):
         safe_name = f"{uuid.uuid4().hex}.{ext}"
         image_path = images_dir / safe_name
 
+        def _write_file():
+            with open(image_path, "wb") as fh:
+                fh.write(contents)
+
         try:
-            with open(image_path, "wb") as f:
-                f.write(contents)
+            await asyncio.to_thread(_write_file)
         except Exception as e:
             raise CorruptedImageException(f"Не удалось сохранить файл: {e}")
 
         final_content_type = content_type or f"image/{ext}"
 
-        # Save record to DB
-        record = await self.db.hotel_images.add(
-            HotelImageAdd(hotel_id=hotel_id, filename=safe_name, content_type=final_content_type)
-        )
-        await self.db.commit()
+        # Save record to DB; clean up file on failure
+        try:
+            record = await self.db.hotel_images.add(
+                HotelImageAdd(
+                    hotel_id=hotel_id, filename=safe_name, content_type=final_content_type
+                )
+            )
+            await self.db.commit()
+        except Exception:
+            try:
+                image_path.unlink(missing_ok=True)
+            except Exception as cleanup_err:
+                logger.warning("Не удалось удалить файл после ошибки DB: %s", cleanup_err)
+            raise
 
         try:
             resize_image.delay(str(image_path))
