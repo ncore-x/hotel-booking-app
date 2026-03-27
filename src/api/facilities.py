@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Body, Request, Response, status
+from fastapi_cache import FastAPICache
 from fastapi_cache.decorator import cache
 
 from src.exceptions import (
@@ -16,7 +17,7 @@ router = APIRouter(prefix="/facilities", tags=["Facilities"])
 
 
 @router.get("", summary="Список удобств", response_model=PaginatedResponse[Facility])
-@cache(expire=10)
+@cache(expire=300)
 async def get_facilities(pagination: PaginationDep, db: DBDep):
     return await FacilityService(db).get_facilities(
         page=pagination.page, per_page=pagination.per_page
@@ -42,5 +43,9 @@ async def create_facility(
         raise FacilityTitleEmptyHTTPException()
     except ObjectAlreadyExistsException:
         raise ObjectAlreadyExistsHTTPException()
+    try:
+        await FastAPICache.clear()
+    except AssertionError:
+        pass
     response.headers["Location"] = str(request.url_for("get_facilities"))
     return facility

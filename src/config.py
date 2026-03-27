@@ -59,6 +59,9 @@ class Settings(BaseSettings):
     BACKUP_DIR: Path = Path("backups")
     BACKUP_RETAIN_DAYS: int = 7
 
+    # Metrics
+    METRICS_ENABLED: bool = True
+
     @property
     def REDIS_URL(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"

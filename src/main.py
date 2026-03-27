@@ -12,8 +12,12 @@ from fastapi.routing import APIRoute
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from starlette.responses import Response
+
+from src.middleware.prometheus import PrometheusMiddleware
 
 from src.api.auth import router as router_auth
 from src.api.bookings import router as router_bookings
@@ -113,6 +117,13 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(JSONErrorHandlerMiddleware)
 app.add_middleware(RequestIDMiddleware)
+
+if settings.METRICS_ENABLED:
+    app.add_middleware(PrometheusMiddleware, app_name="hotel_booking")
+
+    @app.get("/metrics", include_in_schema=False)
+    async def metrics() -> Response:
+        return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 BASE_DIR = Path(__file__).parent
 static_dir = BASE_DIR / "static"

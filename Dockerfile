@@ -4,9 +4,9 @@ RUN pip install uv
 
 WORKDIR /app
 
-COPY pyproject.toml ./
+COPY pyproject.toml uv.lock ./
 
-RUN uv sync
+RUN uv sync --frozen
 
 # Копируем все файлы проекта
 COPY . .
@@ -16,7 +16,7 @@ RUN echo '#!/bin/sh\n\
 set -e\n\
 \n\
 # Выполняем миграции если alembic настроен\n\
-if [ -f "alembic.ini" ] && [ -d "migration" ]; then\n\
+if [ -f "alembic.ini" ] && [ -d "src/migrations" ]; then\n\
     echo "Applying database migrations..."\n\
     uv run alembic upgrade head\n\
 else\n\

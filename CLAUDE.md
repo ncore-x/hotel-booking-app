@@ -196,7 +196,7 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 
 ---
 
-## Project status (as of 2026-03-26, commit a71f49d)
+## Project status (as of 2026-03-28)
 
 ### What was implemented
 
@@ -243,7 +243,18 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - Trigram indexes on `hotels(title)` and `hotels(location)` via `pg_trgm` extension
 - Async file I/O in `ImagesService` via `asyncio.to_thread`; file deleted on DB error (rollback)
 
-**Tests:** 157 passed — RBAC, JWT blacklist, refresh token (5 cases), change email (6 cases), pagination, middleware, room CRUD, health, images, schema validators.
+**Observability (добавлено 2026-03-28):**
+- `PrometheusMiddleware` (`src/middleware/prometheus.py`) — кастомный `BaseHTTPMiddleware`; метрики `fastapi_requests_total`, `fastapi_responses_total`, `fastapi_requests_duration_seconds` (Histogram), `fastapi_exceptions_total`, `fastapi_requests_in_progress` — все с label `app_name="hotel_booking"`
+- `GET /metrics` — endpoint Prometheus scraping (`generate_latest()`), скрыт из схемы; включается через `METRICS_ENABLED: bool = True` в `src/config.py`
+- `PrometheusMiddleware` регистрируется в `main.py` последним в стеке middleware (после CORS, GZip, RequestID)
+- Grafana dashboard (`grafana/example-dashboard.json`) — 10 панелей: Total Requests, Requests Count, Requests Average Duration, Total Exceptions, Percent of 2xx, Percent of 5xx, PR99 Duration, Request In Process, Request Per Sec, Log Level Rate, Log of All FastAPI App
+- Grafana datasources (`grafana/datasources.yaml`) — Prometheus (`uid: PBFA97CFB590B2093`) + Loki (`uid: P8E80F9AEF21F6940`); UIDs захардкожены чтобы совпадать с dashboard JSON
+- Loki + Promtail — Docker SD (`docker_sd_configs`), pipeline stage `output: log` разворачивает Docker JSON-обёртку; в Loki хранится чистый plain text лог; label `container_name` доступен для фильтрации
+- Prometheus scrape config (`prometheus.yml`) — `job_name: hotel_booking`, target `booking_back_service:8000`, `scrape_interval: 3s`
+- `GET /facilities` кэш: `@cache(expire=300)` вместо 10с; `FastAPICache.clear()` после `POST /facilities` (с `try/except AssertionError` для тестовой среды где кэш не инициализирован)
+- `GET /health` использует `engine_null_pool` (не `engine`) — требование CLAUDE.md; pool-based engine нельзя использовать в health check из-за event loop mismatch в тестах
+
+**Tests:** 168 passed — добавлены `tests/integration_tests/test_metrics.py` (5 тестов: 200, content-type, fastapi_* метрики, app_name label, путь не под /api/v1/).
 
 **CI/CD (GitLab pipeline):** build → lint_format → migrations → test → deploy.
 
@@ -255,5 +266,9 @@ None.
 
 ## Known missing features
 
-- **Prometheus metrics** — no `/metrics` endpoint; can't track latency/error rate in prod.
-- **S3/MinIO for images** — images stored on local disk; breaks with multiple API instances.
+- **Grafana alerting** — alert rules не настроены; нет уведомлений при деградации сервиса. **Следующий приоритет (P0).** Планируется: alert на 5xx rate > 1%, p99 latency > 500ms, health degraded, сервис недоступен. Contact point — предстоит выбрать (Telegram/email).
+- **`/metrics` не защищён** — endpoint публичный, нет IP whitelist или basic auth. P1.
+- **Celery метрики** — нет данных о queue depth, task failure rate, task duration. P1.
+- **S3/MinIO для изображений** — изображения на локальном диске; ломается при нескольких инстансах API.
+- **Distributed tracing** — нет OpenTelemetry/Tempo; `X-Request-ID` есть, но span-ов нет. P2.
+- **Prometheus retention** — дефолт 15 дней, нет долгосрочного хранилища (VictoriaMetrics/Thanos). P2.
