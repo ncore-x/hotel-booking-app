@@ -63,12 +63,10 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
             RESPONSES.labels(
                 app_name=self.app_name, method=method, path=path, status_code=status_code
             ).inc()
-            REQUESTS_DURATION.labels(
-                app_name=self.app_name, method=method, path=path
-            ).observe(duration)
-            REQUESTS_IN_PROGRESS.labels(
-                app_name=self.app_name, method=method, path=path
-            ).dec()
+            REQUESTS_DURATION.labels(app_name=self.app_name, method=method, path=path).observe(
+                duration
+            )
+            REQUESTS_IN_PROGRESS.labels(app_name=self.app_name, method=method, path=path).dec()
 
     @staticmethod
     def _get_path(request: Request) -> str:

@@ -125,6 +125,7 @@ if settings.METRICS_ENABLED:
     async def metrics() -> Response:
         return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
+
 BASE_DIR = Path(__file__).parent
 static_dir = BASE_DIR / "static"
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
