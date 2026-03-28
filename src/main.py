@@ -15,6 +15,7 @@ from fastapi_cache.backends.redis import RedisBackend
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from starlette.requests import Request
 from starlette.responses import Response
 
 from src.middleware.prometheus import PrometheusMiddleware
@@ -122,7 +123,11 @@ if settings.METRICS_ENABLED:
     app.add_middleware(PrometheusMiddleware, app_name="hotel_booking")
 
     @app.get("/metrics", include_in_schema=False)
-    async def metrics() -> Response:
+    async def metrics(request: Request) -> Response:
+        if settings.METRICS_TOKEN:
+            auth = request.headers.get("Authorization", "")
+            if auth != f"Bearer {settings.METRICS_TOKEN}":
+                return Response(status_code=401)
         return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 

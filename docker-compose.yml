@@ -32,6 +32,7 @@ services:
       - myNetwork
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./metrics_token:/etc/prometheus/metrics_token:ro
       - prometheusdata:/prometheus
 
   grafana:
@@ -46,9 +47,26 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_UNIFIED_ALERTING_ENABLED=true
       - GF_ALERTING_ENABLED=false
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
     volumes:
       - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/alerting:/etc/grafana/provisioning/alerting
       - grafanadata:/var/lib/grafana
+
+  celery_exporter:
+    image: danihodovic/celery-exporter:latest
+    platform: linux/amd64
+    container_name: celery_exporter
+    ports:
+      - "9808:9808"
+    networks:
+      - myNetwork
+    env_file:
+      - .env
+    environment:
+      - CE_BROKER_URL=redis://${REDIS_HOST}:${REDIS_PORT}
 
   booking_back_service:
     build:

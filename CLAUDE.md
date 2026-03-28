@@ -196,7 +196,7 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 
 ---
 
-## Project status (as of 2026-03-28)
+## Project status (as of 2026-03-28, updated after alerting)
 
 ### What was implemented
 
@@ -253,11 +253,13 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - Prometheus scrape config (`prometheus.yml`) — `job_name: hotel_booking`, target `booking_back_service:8000`, `scrape_interval: 3s`
 - `GET /facilities` кэш: `@cache(expire=300)` вместо 10с; `FastAPICache.clear()` после `POST /facilities` (с `try/except AssertionError` для тестовой среды где кэш не инициализирован)
 - `GET /health` использует `engine_null_pool` (не `engine`) — требование CLAUDE.md; pool-based engine нельзя использовать в health check из-за event loop mismatch в тестах
-- **Grafana alerting (добавлено 2026-03-28):** 4 alert rules через Grafana Unified Alerting API (provenance=api, в volume `grafanadata`); правила задокументированы в `grafana/alerting/alert-rules.yaml` (не монтируется — конфликт provenance); contact point Telegram (`@hotel_app_bot`, chatid: 1097986020); notification policy: group_wait=30s, group_interval=5m, repeat_interval=1h; alerting directory НЕ монтируется в docker-compose (правила живут в volume). Alert rules: High 5xx Rate (>1%, 2m, critical), High p99 Latency (>500ms, 2m, warning), Service Health Degraded (/health 503, 1m, critical), Service Down (absent metrics, 5m, critical, noDataState=Alerting).
+- **Grafana alerting (добавлено 2026-03-28, file-provisioning 2026-03-28):** 4 alert rules + contact point Telegram + notification policy — всё через file provisioning (`grafana/alerting/`). Alert rules: High 5xx Rate (>1%, 2m, critical), High p99 Latency (>500ms, 2m, warning), Service Health Degraded (/health 503, 1m, critical), Service Down (absent metrics, 5m, critical). contact-points.yaml: `chatid` захардкожен как строка `"1097986020"` (Grafana не принимает числа из env var через YAML). `TELEGRAM_BOT_TOKEN` — env var, передаётся через `environment` в docker-compose. Grafana dashboard provisioning: `grafana/provisioning/dashboards/` монтируется в `/etc/grafana/provisioning/dashboards`.
+- **`/metrics` защита:** Bearer token (`METRICS_TOKEN` в `.env`, `metrics_token` файл для Prometheus `credentials_file`); без токена — 401. `metrics_token` в `.gitignore`. `Settings` имеет `extra="ignore"` для совместимости с TELEGRAM_* переменными в `.env`.
+- **Celery метрики:** `danihodovic/celery-exporter` в docker-compose (`platform: linux/amd64`); Prometheus scrape job `celery` на `celery_exporter:9808`; метрики: `celery_worker_up`, `celery_queue_length`, `celery_active_worker_count`, `celery_worker_tasks_active`.
 
-**Tests:** 168 passed — добавлены `tests/integration_tests/test_metrics.py` (5 тестов: 200, content-type, fastapi_* метрики, app_name label, путь не под /api/v1/).
+**Tests:** 163 passed — `tests/integration_tests/test_metrics.py`: 6 тестов (200, content-type, fastapi_* метрики, app_name label, auth-required 401, путь не под /api/v1/); тесты передают Bearer-токен через `_auth_headers()` хелпер.
 
-**CI/CD (GitLab pipeline):** build → lint_format → migrations → test → deploy.
+**CI/CD (GitLab pipeline):** build → lint_format → migrations → test → deploy. Pipeline стабильный: Dockerfile пропускает миграции для `pytest`/`ruff` командами через `case "$*"` в entrypoint; `AUTH_RATE_LIMIT=1000/minute` добавлен в CI переменные GitLab.
 
 ---
 
@@ -267,7 +269,7 @@ None.
 
 ## Known missing features
 
-- **Grafana alerting contact-points provisioning** — `grafana/alerting/contact-points.yaml.example` есть как шаблон, но не монтируется: Grafana не принимает chatid как число в YAML (type mismatch). Contact point управляется через API. P1.
+- **`/metrics` Celery-экспортёр** — `celery_exporter` использует образ `linux/amd64` (Rosetta на Apple Silicon). На Linux-сервере работает нативно. P2.
 - **`/metrics` не защищён** — endpoint публичный, нет IP whitelist или basic auth. P1.
 - **Celery метрики** — нет данных о queue depth, task failure rate, task duration. P1.
 - **S3/MinIO для изображений** — изображения на локальном диске; ломается при нескольких инстансах API.

@@ -19,3 +19,5 @@ src/static/images/
 
 # Database backups (runtime files, not source)
 backups/
+CLAUDE.md
+metrics_token
