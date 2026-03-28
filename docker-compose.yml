@@ -150,7 +150,7 @@ services:
       - .env
     volumes:
       - imagesdata:/app/src/static/images
-    command: 'uv run celery --app=src.tasks.celery_app:celery_instance worker -l INFO'
+    command: 'uv run celery --app=src.tasks.celery_app:celery_instance worker -l INFO --max-tasks-per-child=50 --max-memory-per-child=400000'
 
   booking_celery_beat_service:
     build:
