@@ -253,6 +253,7 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - Prometheus scrape config (`prometheus.yml`) — `job_name: hotel_booking`, target `booking_back_service:8000`, `scrape_interval: 3s`
 - `GET /facilities` кэш: `@cache(expire=300)` вместо 10с; `FastAPICache.clear()` после `POST /facilities` (с `try/except AssertionError` для тестовой среды где кэш не инициализирован)
 - `GET /health` использует `engine_null_pool` (не `engine`) — требование CLAUDE.md; pool-based engine нельзя использовать в health check из-за event loop mismatch в тестах
+- **Grafana alerting (добавлено 2026-03-28):** 4 alert rules через Grafana Unified Alerting API (provenance=api, в volume `grafanadata`); правила задокументированы в `grafana/alerting/alert-rules.yaml` (не монтируется — конфликт provenance); contact point Telegram (`@hotel_app_bot`, chatid: 1097986020); notification policy: group_wait=30s, group_interval=5m, repeat_interval=1h; alerting directory НЕ монтируется в docker-compose (правила живут в volume). Alert rules: High 5xx Rate (>1%, 2m, critical), High p99 Latency (>500ms, 2m, warning), Service Health Degraded (/health 503, 1m, critical), Service Down (absent metrics, 5m, critical, noDataState=Alerting).
 
 **Tests:** 168 passed — добавлены `tests/integration_tests/test_metrics.py` (5 тестов: 200, content-type, fastapi_* метрики, app_name label, путь не под /api/v1/).
 
@@ -266,7 +267,7 @@ None.
 
 ## Known missing features
 
-- **Grafana alerting** — alert rules не настроены; нет уведомлений при деградации сервиса. **Следующий приоритет (P0).** Планируется: alert на 5xx rate > 1%, p99 latency > 500ms, health degraded, сервис недоступен. Contact point — предстоит выбрать (Telegram/email).
+- **Grafana alerting contact-points provisioning** — `grafana/alerting/contact-points.yaml.example` есть как шаблон, но не монтируется: Grafana не принимает chatid как число в YAML (type mismatch). Contact point управляется через API. P1.
 - **`/metrics` не защищён** — endpoint публичный, нет IP whitelist или basic auth. P1.
 - **Celery метрики** — нет данных о queue depth, task failure rate, task duration. P1.
 - **S3/MinIO для изображений** — изображения на локальном диске; ломается при нескольких инстансах API.
