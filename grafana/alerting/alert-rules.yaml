@@ -16,6 +16,7 @@ groups:
         labels:
           severity: critical
         annotations:
+          emoji: "💥"
           summary: Высокий процент 5xx ошибок
           description: Более 1% запросов завершаются ошибками 5xx на протяжении 2 минут
         data:
@@ -48,6 +49,7 @@ groups:
         labels:
           severity: warning
         annotations:
+          emoji: "🐢"
           summary: Высокая задержка p99
           description: p99 latency превысил 500ms на протяжении 2 минут
         data:
@@ -80,6 +82,7 @@ groups:
         labels:
           severity: critical
         annotations:
+          emoji: "🏥"
           summary: Сервис деградировал
           description: "Endpoint /health вернул 503 — БД или Redis недоступны"
         data:
@@ -112,6 +115,7 @@ groups:
         labels:
           severity: critical
         annotations:
+          emoji: "👷"
           summary: Celery воркер недоступен
           description: Prometheus не получает метрики от celery-exporter более 2 минут — воркеры могут быть остановлены
         data:
@@ -137,15 +141,16 @@ groups:
 
       - uid: cfhd44ef56gh7i
         title: Celery Queue High
-        condition: threshold
+        condition: C
         for: 5m
         noDataState: OK
         execErrState: Error
         labels:
           severity: warning
         annotations:
+          emoji: "📬"
           summary: Очередь Celery переполнена
-          description: В очереди celery более 50 задач на протяжении 5 минут — воркеры не справляются
+          description: "В очереди {{ $labels.queue_name }} более 50 задач на протяжении 5 минут — воркеры не справляются"
         data:
           - refId: A
             relativeTimeRange: {from: 300, to: 0}
@@ -153,19 +158,26 @@ groups:
             model:
               expr: 'sum(celery_queue_length) by (queue_name)'
               refId: A
-              instant: true
-          - refId: threshold
+              instant: false
+          - refId: B
             relativeTimeRange: {from: 0, to: 0}
             datasourceUid: "-100"
             model:
-              refId: threshold
-              type: classic_conditions
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings:
+                mode: ""
+          - refId: C
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: C
+              type: threshold
+              expression: B
               conditions:
                 - evaluator: {params: [50], type: gt}
-                  operator: {type: and}
-                  query: {params: [A]}
-                  reducer: {params: [], type: last}
-                  type: query
 
       - uid: bghd45mn12rs3t
         title: High Container Memory
@@ -176,6 +188,7 @@ groups:
         labels:
           severity: warning
         annotations:
+          emoji: "💾"
           summary: Высокое потребление памяти контейнером
           description: "Контейнер {{ $labels.name }} потребляет более 500MB RSS на протяжении 5 минут"
         data:
@@ -215,6 +228,7 @@ groups:
         labels:
           severity: warning
         annotations:
+          emoji: "⚙️"
           summary: Высокое потребление CPU контейнером
           description: "Контейнер {{ $labels.name }} использует более 80% CPU на протяжении 5 минут"
         data:
@@ -254,6 +268,7 @@ groups:
         labels:
           severity: warning
         annotations:
+          emoji: "🐌"
           summary: Медленный запрос к БД
           description: Активная транзакция в PostgreSQL выполняется более 30 секунд — возможен медленный запрос или блокировка
         data:
@@ -280,7 +295,7 @@ groups:
       - uid: watchdog00000001
         title: Watchdog
         condition: threshold
-        for: 0s
+        for: 0m
         noDataState: Alerting
         execErrState: Alerting
         labels:
@@ -290,39 +305,10 @@ groups:
           description: Этот алерт всегда активен. Если он перестаёт приходить — Grafana или Prometheus сломаны.
         data:
           - refId: A
-            relativeTimeRange: {from: 0, to: 0}
-            datasourceUid: "-100"
-            model:
-              refId: A
-              type: math
-              expression: '1'
-          - refId: threshold
-            relativeTimeRange: {from: 0, to: 0}
-            datasourceUid: "-100"
-            model:
-              refId: threshold
-              type: threshold
-              expression: A
-              conditions:
-                - evaluator: {params: [0], type: gt}
-
-      - uid: blackbox000001
-        title: Endpoint Probe Failed
-        condition: threshold
-        for: 1m
-        noDataState: Alerting
-        execErrState: Alerting
-        labels:
-          severity: critical
-        annotations:
-          summary: HTTP-проба провалилась
-          description: "Blackbox exporter не может достучаться до {{ $labels.instance }} — сервис недоступен снаружи"
-        data:
-          - refId: A
-            relativeTimeRange: {from: 300, to: 0}
+            relativeTimeRange: {from: 60, to: 0}
             datasourceUid: PBFA97CFB590B2093
             model:
-              expr: 'probe_success{job="blackbox"}'
+              expr: 'vector(1)'
               refId: A
               instant: true
           - refId: threshold
@@ -332,11 +318,91 @@ groups:
               refId: threshold
               type: classic_conditions
               conditions:
-                - evaluator: {params: [1], type: lt}
+                - evaluator: {params: [0], type: gt}
                   operator: {type: and}
                   query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
+
+      - uid: blackbox000001
+        title: Endpoint Probe Failed
+        condition: C
+        for: 1m
+        noDataState: OK
+        execErrState: Error
+        labels:
+          severity: critical
+        annotations:
+          emoji: "🔍"
+          summary: HTTP-проба провалилась
+          description: "HTTP-проба на booking_back_service:8000/api/v1/health провалилась — сервис недоступен снаружи"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'probe_success{job="blackbox"}'
+              refId: A
+              instant: false
+          - refId: B
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings:
+                mode: ""
+          - refId: C
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [1], type: lt}
+
+      - uid: blackbox000002
+        title: Blackbox Exporter Down
+        condition: C
+        for: 1m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          emoji: "📡"
+          summary: Blackbox exporter недоступен
+          description: Prometheus не получает метрики от blackbox_exporter — HTTP-пробы не выполняются, внешняя доступность сервиса не проверяется
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'absent(probe_success{job="blackbox"})'
+              refId: A
+              instant: false
+          - refId: B
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings:
+                mode: ""
+          - refId: C
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [0], type: gt}
 
       - uid: sloburn0000001
         title: SLO Fast Burn
@@ -347,6 +413,7 @@ groups:
         labels:
           severity: critical
         annotations:
+          emoji: "🔥"
           summary: Быстрое сжигание бюджета ошибок
           description: Более 5% запросов завершаются ошибками 5xx — бюджет ошибок сгорит за несколько часов
         data:
@@ -370,6 +437,152 @@ groups:
                   reducer: {params: [], type: last}
                   type: query
 
+      - uid: redis00000001
+        title: Redis Down
+        condition: C
+        for: 1m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          emoji: "🗄️"
+          summary: Redis недоступен
+          description: Prometheus не получает метрики от redis_exporter — Redis может быть остановлен. Затронуты auth (JWT blacklist), rate limiting, кэш, Celery broker.
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'redis_up == 0 or absent(redis_up)'
+              refId: A
+              instant: false
+          - refId: B
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings:
+                mode: ""
+          - refId: C
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [0], type: gte}
+
+      - uid: celerybeat0001
+        title: Celery Beat Down
+        condition: threshold
+        for: 2m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          emoji: "⏰"
+          summary: Celery Beat остановлен
+          description: cAdvisor не видит контейнер booking_celery_beat более 2 минут — ежедневные email и бэкапы не запускаются
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'absent(container_memory_rss{name="booking_celery_beat"})'
+              refId: A
+              instant: true
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: classic_conditions
+              conditions:
+                - evaluator: {params: [0], type: gt}
+                  operator: {type: and}
+                  query: {params: [A]}
+                  reducer: {params: [], type: last}
+                  type: query
+
+      - uid: disk000000001
+        title: Disk Usage High
+        condition: C
+        for: 5m
+        noDataState: OK
+        execErrState: OK
+        labels:
+          severity: warning
+        annotations:
+          emoji: "💿"
+          summary: Диск заполняется
+          description: "Файловая система {{ $labels.mountpoint }} заполнена более чем на 80% — скоро закончится место для изображений или бэкапов"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: '(node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} - node_filesystem_free_bytes{fstype!~"tmpfs|overlay"}) / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} * 100'
+              refId: A
+              instant: false
+          - refId: B
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings:
+                mode: ""
+          - refId: C
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [80], type: gt}
+
+      - uid: dbconn000001
+        title: DB Connections High
+        condition: threshold
+        for: 3m
+        noDataState: OK
+        execErrState: Error
+        labels:
+          severity: warning
+        annotations:
+          emoji: "🔗"
+          summary: Высокое число соединений с БД
+          description: Используется более 80% доступных соединений PostgreSQL — риск connection refused при пиковой нагрузке
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'sum(pg_stat_activity_count{datname!~"template.*|postgres"}) / pg_settings_max_connections * 100'
+              refId: A
+              instant: true
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: classic_conditions
+              conditions:
+                - evaluator: {params: [80], type: gt}
+                  operator: {type: and}
+                  query: {params: [A]}
+                  reducer: {params: [], type: last}
+                  type: query
+
       - uid: afhd42ync7f28f
         title: Service Down
         condition: threshold
@@ -379,6 +592,7 @@ groups:
         labels:
           severity: critical
         annotations:
+          emoji: "🌐"
           summary: Сервис недоступен
           description: Prometheus не получает метрики от hotel_booking более 5 минут
         data:

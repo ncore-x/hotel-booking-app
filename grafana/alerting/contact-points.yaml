@@ -24,14 +24,24 @@ contactPoints:
           message: |
             {{ range .Alerts -}}
             {{ if eq .Status "firing" -}}
-            🔴 [FIRING] {{ .Labels.alertname }}
+            {{ .Annotations.emoji }} 🔴 [FIRING] {{ .Labels.alertname }}
             {{ .Annotations.summary }}
             {{ .Annotations.description }}
+            {{- if .Labels.name }}
+            Контейнер: {{ .Labels.name }}{{ end }}
+            {{- if .Labels.queue_name }}
+            Очередь: {{ .Labels.queue_name }}{{ end }}
+            {{- if .Labels.mountpoint }}
+            Раздел: {{ .Labels.mountpoint }}{{ end }}
             {{- else -}}
-            ✅ [RESOLVED] {{ .Labels.alertname }}
+            {{ .Annotations.emoji }} ✅ [RESOLVED] {{ .Labels.alertname }}
             {{ .Annotations.summary }}
-            {{ if .Labels.name }}Контейнер: {{ .Labels.name }}
-            {{ end -}}
+            {{- if .Labels.name }}
+            Контейнер: {{ .Labels.name }}{{ end }}
+            {{- if .Labels.queue_name }}
+            Очередь: {{ .Labels.queue_name }}{{ end }}
+            {{- if .Labels.mountpoint }}
+            Раздел: {{ .Labels.mountpoint }}{{ end }}
             Инцидент устранён
             {{- end }}
             {{ end }}
@@ -54,14 +64,24 @@ contactPoints:
           message: |
             {{ range .Alerts -}}
             {{ if eq .Status "firing" -}}
-            🔴 [FIRING] {{ .Labels.alertname }}
+            {{ .Annotations.emoji }} 🟡 [FIRING] {{ .Labels.alertname }}
             {{ .Annotations.summary }}
             {{ .Annotations.description }}
+            {{- if .Labels.name }}
+            Контейнер: {{ .Labels.name }}{{ end }}
+            {{- if .Labels.queue_name }}
+            Очередь: {{ .Labels.queue_name }}{{ end }}
+            {{- if .Labels.mountpoint }}
+            Раздел: {{ .Labels.mountpoint }}{{ end }}
             {{- else -}}
-            ✅ [RESOLVED] {{ .Labels.alertname }}
+            {{ .Annotations.emoji }} ✅ [RESOLVED] {{ .Labels.alertname }}
             {{ .Annotations.summary }}
-            {{ if .Labels.name }}Контейнер: {{ .Labels.name }}
-            {{ end -}}
+            {{- if .Labels.name }}
+            Контейнер: {{ .Labels.name }}{{ end }}
+            {{- if .Labels.queue_name }}
+            Очередь: {{ .Labels.queue_name }}{{ end }}
+            {{- if .Labels.mountpoint }}
+            Раздел: {{ .Labels.mountpoint }}{{ end }}
             Инцидент устранён
             {{- end }}
             {{ end }}

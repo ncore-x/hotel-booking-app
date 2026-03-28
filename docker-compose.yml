@@ -68,8 +68,8 @@ services:
     networks:
       - myNetwork
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=${GF_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD:?GF_ADMIN_PASSWORD is required}
       - GF_UNIFIED_ALERTING_ENABLED=true
       - GF_ALERTING_ENABLED=false
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
@@ -80,6 +80,7 @@ services:
       - GF_SMTP_PASSWORD=${SMTP_PASSWORD:-}
       - GF_SMTP_FROM_ADDRESS=${SMTP_FROM:-noreply@hotelbooking.example}
       - GF_SMTP_FROM_NAME=Hotel Booking Alerts
+      - ALERT_EMAIL=${ALERT_EMAIL}
     volumes:
       - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
@@ -142,6 +143,36 @@ services:
     environment:
       DATA_SOURCE_NAME: "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable"
 
+  redis_exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis_exporter
+    restart: unless-stopped
+    ports:
+      - "9121:9121"
+    networks:
+      - myNetwork
+    environment:
+      REDIS_ADDR: "redis://booking_cache:6379"
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    networks:
+      - myNetwork
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    pid: host
+
   booking_back_service:
     build:
       context: .
@@ -168,7 +199,7 @@ services:
       - .env
     volumes:
       - imagesdata:/app/src/static/images
-    command: 'uv run celery --app=src.tasks.celery_app:celery_instance worker -l INFO --max-tasks-per-child=50 --max-memory-per-child=400000'
+    command: 'uv run celery --app=src.tasks.celery_app:celery_instance worker -l INFO --concurrency=2 --max-tasks-per-child=50 --max-memory-per-child=400000'
 
   booking_celery_beat_service:
     build:
