@@ -33,6 +33,17 @@ REQUESTS_IN_PROGRESS = Gauge(
 )
 
 
+BOOKINGS_CREATED = Counter(
+    "hotel_booking_bookings_created_total",
+    "Total number of bookings successfully created.",
+    ["app_name"],
+)
+BOOKINGS_CANCELLED = Counter(
+    "hotel_booking_bookings_cancelled_total",
+    "Total number of bookings cancelled.",
+    ["app_name"],
+)
+
 EXCLUDED_PATHS = {"/metrics"}
 
 

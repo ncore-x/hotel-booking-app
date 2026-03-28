@@ -2,6 +2,40 @@ apiVersion: 1
 
 contactPoints:
   - orgId: 1
+    name: Telegram Watchdog
+    receivers:
+      - uid: watchdog_telegram
+        type: telegram
+        settings:
+          bottoken: "${TELEGRAM_BOT_TOKEN}"
+          chatid: "1097986020"
+          message: |
+            🟢 Watchdog: alerting pipeline работает нормально
+        disableResolveMessage: true
+
+  - orgId: 1
+    name: Email Critical
+    receivers:
+      - uid: email_critical
+        type: email
+        settings:
+          addresses: "${ALERT_EMAIL}"
+          singleEmail: true
+          message: |
+            {{ range .Alerts -}}
+            {{ if eq .Status "firing" -}}
+            [CRITICAL FIRING] {{ .Labels.alertname }}
+            {{ .Annotations.summary }}
+            {{ .Annotations.description }}
+            {{- else -}}
+            [RESOLVED] {{ .Labels.alertname }}
+            {{ .Annotations.summary }}
+            Инцидент устранён
+            {{- end }}
+            {{ end }}
+        disableResolveMessage: false
+
+  - orgId: 1
     name: Telegram
     receivers:
       - uid: afhd40ntpeoe8a

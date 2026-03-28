@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Query, Request, Response, status
 
+from src.middleware.prometheus import BOOKINGS_CANCELLED, BOOKINGS_CREATED
 from src.services.bookings import BookingService
 from src.exceptions import (
     AllRoomsAreBookedException,
@@ -55,6 +56,7 @@ async def add_booking(
         raise RoomNotFoundHTTPException()
     except AllRoomsAreBookedException:
         raise AllRoomsAreBookedHTTPException()
+    BOOKINGS_CREATED.labels(app_name="hotel_booking").inc()
     response.headers["Location"] = str(request.url_for("get_my_bookings"))
     return booking
 
@@ -81,3 +83,4 @@ async def cancel_booking(booking_id: int, user_id: UserIdDep, db: DBDep):
         await BookingService(db).cancel_booking(user_id, booking_id)
     except ObjectNotFoundException:
         raise ObjectNotFoundHTTPException()
+    BOOKINGS_CANCELLED.labels(app_name="hotel_booking").inc()

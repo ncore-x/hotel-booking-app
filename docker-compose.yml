@@ -74,6 +74,12 @@ services:
       - GF_ALERTING_ENABLED=false
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - GF_SMTP_ENABLED=${GF_SMTP_ENABLED:-false}
+      - GF_SMTP_HOST=${SMTP_HOST:-localhost}:${SMTP_PORT:-587}
+      - GF_SMTP_USER=${SMTP_USER:-}
+      - GF_SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - GF_SMTP_FROM_ADDRESS=${SMTP_FROM:-noreply@hotelbooking.example}
+      - GF_SMTP_FROM_NAME=Hotel Booking Alerts
     volumes:
       - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
@@ -92,6 +98,18 @@ services:
       - .env
     environment:
       - CE_BROKER_URL=redis://${REDIS_HOST}:${REDIS_PORT}
+
+  blackbox_exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox_exporter
+    restart: unless-stopped
+    ports:
+      - "9115:9115"
+    networks:
+      - myNetwork
+    volumes:
+      - ./blackbox.yml:/etc/blackbox_exporter/config.yml
+    command: --config.file=/etc/blackbox_exporter/config.yml
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
