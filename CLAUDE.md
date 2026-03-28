@@ -251,12 +251,15 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - Grafana dashboard (`grafana/example-dashboard.json`) — 10 панелей: Total Requests, Requests Count, Requests Average Duration, Total Exceptions, Percent of 2xx, Percent of 5xx, PR99 Duration, Request In Process, Request Per Sec, Log Level Rate, Log of All FastAPI App
 - Grafana datasources (`grafana/datasources.yaml`) — Prometheus (`uid: PBFA97CFB590B2093`) + Loki (`uid: P8E80F9AEF21F6940`); UIDs захардкожены чтобы совпадать с dashboard JSON
 - Loki + Promtail — Docker SD (`docker_sd_configs`), pipeline stage `output: log` разворачивает Docker JSON-обёртку; в Loki хранится чистый plain text лог; label `container_name` доступен для фильтрации
-- Prometheus scrape config (`prometheus.yml`) — `job_name: hotel_booking`, target `booking_back_service:8000`, `scrape_interval: 3s`
+- Prometheus scrape config (`prometheus.yml`) — `job_name: hotel_booking`, target `booking_back_service:8000`, `scrape_interval: 15s` (было 3s — слишком агрессивно для prod, создавало лишнюю нагрузку на Redis через celery-exporter)
 - `GET /facilities` кэш: `@cache(expire=300)` вместо 10с; `FastAPICache.clear()` после `POST /facilities` (с `try/except AssertionError` для тестовой среды где кэш не инициализирован)
 - `GET /health` использует `engine_null_pool` (не `engine`) — требование CLAUDE.md; pool-based engine нельзя использовать в health check из-за event loop mismatch в тестах
 - **Grafana alerting (добавлено 2026-03-28, file-provisioning 2026-03-28):** 4 alert rules + contact point Telegram + notification policy — всё через file provisioning (`grafana/alerting/`). Alert rules: High 5xx Rate (>1%, 2m, critical), High p99 Latency (>500ms, 2m, warning), Service Health Degraded (/health 503, 1m, critical), Service Down (absent metrics, 5m, critical). contact-points.yaml: `chatid` захардкожен как строка `"1097986020"` (Grafana не принимает числа из env var через YAML). `TELEGRAM_BOT_TOKEN` — env var, передаётся через `environment` в docker-compose. Grafana dashboard provisioning: `grafana/provisioning/dashboards/` монтируется в `/etc/grafana/provisioning/dashboards`.
 - **`/metrics` защита:** Bearer token (`METRICS_TOKEN` в `.env`, `metrics_token` файл для Prometheus `credentials_file`); без токена — 401. `metrics_token` в `.gitignore`. `Settings` имеет `extra="ignore"` для совместимости с TELEGRAM_* переменными в `.env`.
 - **Celery метрики:** `danihodovic/celery-exporter` в docker-compose (без `platform: linux/amd64` — auto-detect); Prometheus scrape job `celery` на `celery_exporter:9808`; метрики: `celery_worker_up`, `celery_queue_length`, `celery_active_worker_count`, `celery_worker_tasks_active`.
+- **docker-compose:** `restart: unless-stopped` на всех сервисах — автовосстановление после краша или перезагрузки хоста.
+- **Tempo retention:** `compactor.compaction.block_retention: 168h` (7 дней) в `tempo.yaml`.
+- **Loki:** мигрировал с `boltdb-shipper + schema v11` на `tsdb + schema v13`; compactor с `retention_enabled: true`, `retention_period: 168h`; `lokidata` named volume добавлен в docker-compose для персистентности данных.
 - **Celery alert rules** (`grafana/alerting/alert-rules.yaml`): Celery Worker Down (absent metrics, for: 2m, critical, noDataState: Alerting), Celery Queue High (queue_length > 50, for: 5m, warning).
 - **Celery dashboard panels** (`grafana/provisioning/dashboards/hotel-booking.json`): 3 новые панели в строке y=30 — Celery Workers (stat, `celery_worker_up` + `celery_active_worker_count`), Celery Queue Length (timeseries, by queue_name), Celery Active Tasks (timeseries, by hostname). Итого 14 панелей.
 - **Trace sampling:** `OTEL_SAMPLE_RATE: float = 1.0` в `config.py`; `ParentBased(TraceIdRatioBased(settings.OTEL_SAMPLE_RATE))` сэмплер в `tracing.py`; в `.env` — `OTEL_SAMPLE_RATE=0.1` (10% трейсов в prod).
@@ -275,4 +278,4 @@ None.
 ## Known missing features
 
 - **S3/MinIO для изображений** — изображения на локальном диске; ломается при нескольких инстансах API.
-- **Prometheus долгосрочное хранилище** — retention 90 дней; нет VictoriaMetrics/Thanos для историческх данных старше 90 дней.
+- **Prometheus долгосрочное хранилище** — retention 90 дней; нет VictoriaMetrics/Thanos для исторических данных старше 90 дней.

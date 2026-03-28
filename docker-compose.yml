@@ -2,6 +2,7 @@ services:
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
+    restart: unless-stopped
     ports:
       - "9080:9080"
     networks:
@@ -16,16 +17,19 @@ services:
   loki:
     image: grafana/loki:latest
     container_name: loki
+    restart: unless-stopped
     ports:
       - "3100:3100"
     networks:
       - myNetwork
     volumes:
       - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - lokidata:/loki
 
   tempo:
     image: grafana/tempo:2.6.1
     container_name: tempo
+    restart: unless-stopped
     ports:
       - "3200:3200"
       - "4317:4317"
@@ -40,6 +44,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    restart: unless-stopped
     ports:
       - "9090:9090"
     networks:
@@ -57,6 +62,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    restart: unless-stopped
     ports:
       - "3000:3000"
     networks:
@@ -77,6 +83,7 @@ services:
   celery_exporter:
     image: danihodovic/celery-exporter:latest
     container_name: celery_exporter
+    restart: unless-stopped
     ports:
       - "9808:9808"
     networks:
@@ -90,6 +97,7 @@ services:
     build:
       context: .
     container_name: 'booking_back'
+    restart: unless-stopped
     ports:
       - '7777:8000'
     networks:
@@ -102,6 +110,7 @@ services:
     build:
       context: .
     container_name: 'booking_celery_worker'
+    restart: unless-stopped
     networks:
       - myNetwork
     env_file:
@@ -112,6 +121,7 @@ services:
     build:
       context: .
     container_name: 'booking_celery_beat'
+    restart: unless-stopped
     networks:
       - myNetwork
     env_file:
@@ -126,3 +136,4 @@ volumes:
   prometheusdata:
   grafanadata:
   tempodata:
+  lokidata:
