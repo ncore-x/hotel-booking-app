@@ -167,6 +167,102 @@ groups:
                   reducer: {params: [], type: last}
                   type: query
 
+      - uid: bghd45mn12rs3t
+        title: High Container Memory
+        condition: threshold
+        for: 5m
+        noDataState: OK
+        execErrState: Error
+        labels:
+          severity: warning
+        annotations:
+          summary: Высокое потребление памяти контейнером
+          description: "Контейнер {{$labels.name}} потребляет более 500MB RSS на протяжении 5 минут"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'container_memory_rss{name=~"booking_back|booking_celery_worker|booking_celery_beat"}'
+              refId: A
+              instant: true
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: classic_conditions
+              conditions:
+                - evaluator: {params: [524288000], type: gt}
+                  operator: {type: and}
+                  query: {params: [A]}
+                  reducer: {params: [], type: last}
+                  type: query
+
+      - uid: cghd46no23st4u
+        title: High Container CPU
+        condition: threshold
+        for: 5m
+        noDataState: OK
+        execErrState: Error
+        labels:
+          severity: warning
+        annotations:
+          summary: Высокое потребление CPU контейнером
+          description: "Контейнер {{$labels.name}} использует более 80% CPU на протяжении 5 минут"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'rate(container_cpu_usage_seconds_total{name=~"booking_back|booking_celery_worker|booking_celery_beat"}[5m])'
+              refId: A
+              instant: true
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: classic_conditions
+              conditions:
+                - evaluator: {params: [0.8], type: gt}
+                  operator: {type: and}
+                  query: {params: [A]}
+                  reducer: {params: [], type: last}
+                  type: query
+
+      - uid: dghd47op34tu5v
+        title: Slow DB Query
+        condition: threshold
+        for: 1m
+        noDataState: OK
+        execErrState: Error
+        labels:
+          severity: warning
+        annotations:
+          summary: Медленный запрос к БД
+          description: Активная транзакция в PostgreSQL выполняется более 30 секунд — возможен медленный запрос или блокировка
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'pg_stat_activity_max_tx_duration{state="active",datname!~"template.*|postgres"}'
+              refId: A
+              instant: true
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: classic_conditions
+              conditions:
+                - evaluator: {params: [30], type: gt}
+                  operator: {type: and}
+                  query: {params: [A]}
+                  reducer: {params: [], type: last}
+                  type: query
+
       - uid: afhd42ync7f28f
         title: Service Down
         condition: threshold
