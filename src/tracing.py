@@ -25,7 +25,7 @@ def setup_tracing(app, engine, engine_null_pool) -> None:
 
     trace.set_tracer_provider(provider)
 
-    FastAPIInstrumentor.instrument_app(app)
+    FastAPIInstrumentor.instrument_app(app, excluded_urls="/metrics")
     # AsyncEngine требует .sync_engine для инструментации
     SQLAlchemyInstrumentor().instrument(engine=engine.sync_engine, enable_commenter=True)
     SQLAlchemyInstrumentor().instrument(engine=engine_null_pool.sync_engine, enable_commenter=True)
