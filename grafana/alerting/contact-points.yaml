@@ -14,25 +14,33 @@ contactPoints:
         disableResolveMessage: true
 
   - orgId: 1
-    name: Email Critical
+    name: Critical
     receivers:
-      - uid: email_critical
+      - uid: critical_telegram
+        type: telegram
+        settings:
+          bottoken: "${TELEGRAM_BOT_TOKEN}"
+          chatid: "1097986020"
+          message: |
+            {{ range .Alerts -}}
+            {{ if eq .Status "firing" -}}
+            🔴 [FIRING] {{ .Labels.alertname }}
+            {{ .Annotations.summary }}
+            {{ .Annotations.description }}
+            {{- else -}}
+            ✅ [RESOLVED] {{ .Labels.alertname }}
+            {{ .Annotations.summary }}
+            {{ if .Labels.name }}Контейнер: {{ .Labels.name }}
+            {{ end -}}
+            Инцидент устранён
+            {{- end }}
+            {{ end }}
+        disableResolveMessage: false
+      - uid: critical_email
         type: email
         settings:
           addresses: "${ALERT_EMAIL}"
           singleEmail: true
-          message: |
-            {{ range .Alerts -}}
-            {{ if eq .Status "firing" -}}
-            [CRITICAL FIRING] {{ .Labels.alertname }}
-            {{ .Annotations.summary }}
-            {{ .Annotations.description }}
-            {{- else -}}
-            [RESOLVED] {{ .Labels.alertname }}
-            {{ .Annotations.summary }}
-            Инцидент устранён
-            {{- end }}
-            {{ end }}
         disableResolveMessage: false
 
   - orgId: 1
