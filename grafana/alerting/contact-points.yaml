@@ -10,7 +10,15 @@ contactPoints:
           bottoken: "${TELEGRAM_BOT_TOKEN}"
           chatid: "1097986020"
           message: |
-            {{ range .Alerts }}[{{ .Status | toUpper }}] {{ .Labels.alertname }}
+            {{ range .Alerts -}}
+            {{ if eq .Status "firing" -}}
+            🔴 [FIRING] {{ .Labels.alertname }}
             {{ .Annotations.summary }}
-            {{ .Annotations.description }}{{ end }}
+            {{ .Annotations.description }}
+            {{- else -}}
+            ✅ [RESOLVED] {{ .Labels.alertname }}
+            {{ .Annotations.summary }}
+            Инцидент устранён
+            {{- end }}
+            {{ end }}
         disableResolveMessage: false

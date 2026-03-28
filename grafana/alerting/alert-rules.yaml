@@ -169,7 +169,7 @@ groups:
 
       - uid: bghd45mn12rs3t
         title: High Container Memory
-        condition: threshold
+        condition: C
         for: 5m
         noDataState: OK
         execErrState: Error
@@ -177,7 +177,7 @@ groups:
           severity: warning
         annotations:
           summary: Высокое потребление памяти контейнером
-          description: "Контейнер {{$labels.name}} потребляет более 500MB RSS на протяжении 5 минут"
+          description: "Контейнер {{ $labels.name }} потребляет более 500MB RSS на протяжении 5 минут"
         data:
           - refId: A
             relativeTimeRange: {from: 300, to: 0}
@@ -185,23 +185,30 @@ groups:
             model:
               expr: 'container_memory_rss{name=~"booking_back|booking_celery_worker|booking_celery_beat"}'
               refId: A
-              instant: true
-          - refId: threshold
+              instant: false
+          - refId: B
             relativeTimeRange: {from: 0, to: 0}
             datasourceUid: "-100"
             model:
-              refId: threshold
-              type: classic_conditions
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings:
+                mode: ""
+          - refId: C
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: C
+              type: threshold
+              expression: B
               conditions:
                 - evaluator: {params: [524288000], type: gt}
-                  operator: {type: and}
-                  query: {params: [A]}
-                  reducer: {params: [], type: last}
-                  type: query
 
       - uid: cghd46no23st4u
         title: High Container CPU
-        condition: threshold
+        condition: C
         for: 5m
         noDataState: OK
         execErrState: Error
@@ -209,7 +216,7 @@ groups:
           severity: warning
         annotations:
           summary: Высокое потребление CPU контейнером
-          description: "Контейнер {{$labels.name}} использует более 80% CPU на протяжении 5 минут"
+          description: "Контейнер {{ $labels.name }} использует более 80% CPU на протяжении 5 минут"
         data:
           - refId: A
             relativeTimeRange: {from: 300, to: 0}
@@ -217,19 +224,26 @@ groups:
             model:
               expr: 'rate(container_cpu_usage_seconds_total{name=~"booking_back|booking_celery_worker|booking_celery_beat"}[5m])'
               refId: A
-              instant: true
-          - refId: threshold
+              instant: false
+          - refId: B
             relativeTimeRange: {from: 0, to: 0}
             datasourceUid: "-100"
             model:
-              refId: threshold
-              type: classic_conditions
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings:
+                mode: ""
+          - refId: C
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: C
+              type: threshold
+              expression: B
               conditions:
                 - evaluator: {params: [0.8], type: gt}
-                  operator: {type: and}
-                  query: {params: [A]}
-                  reducer: {params: [], type: last}
-                  type: query
 
       - uid: dghd47op34tu5v
         title: Slow DB Query
