@@ -33,6 +33,9 @@ REQUESTS_IN_PROGRESS = Gauge(
 )
 
 
+EXCLUDED_PATHS = {"/metrics"}
+
+
 class PrometheusMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, app_name: str = "fastapi") -> None:
         super().__init__(app)
@@ -41,6 +44,9 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         method = request.method
         path = self._get_path(request)
+
+        if path in EXCLUDED_PATHS:
+            return await call_next(request)
 
         REQUESTS_IN_PROGRESS.labels(app_name=self.app_name, method=method, path=path).inc()
         REQUESTS.labels(app_name=self.app_name, method=method, path=path).inc()

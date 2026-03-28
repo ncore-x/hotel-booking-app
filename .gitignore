@@ -21,3 +21,4 @@ src/static/images/
 backups/
 CLAUDE.md
 metrics_token
+grafana/alerting/contact-points.yaml.example
