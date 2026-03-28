@@ -67,6 +67,7 @@ class Settings(BaseSettings):
     OTEL_ENABLED: bool = False
     OTEL_ENDPOINT: str = "http://tempo:4317"  # gRPC endpoint
     OTEL_SERVICE_NAME: str = "hotel_booking"
+    OTEL_SAMPLE_RATE: float = 1.0  # 1.0 = все трейсы; 0.1 = 10% в продакшне
 
     @property
     def REDIS_URL(self) -> str:

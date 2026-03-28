@@ -196,7 +196,7 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 
 ---
 
-## Project status (as of 2026-03-28, updated after alerting)
+## Project status (as of 2026-03-28, updated after P2 observability)
 
 ### What was implemented
 
@@ -255,7 +255,11 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - `GET /health` использует `engine_null_pool` (не `engine`) — требование CLAUDE.md; pool-based engine нельзя использовать в health check из-за event loop mismatch в тестах
 - **Grafana alerting (добавлено 2026-03-28, file-provisioning 2026-03-28):** 4 alert rules + contact point Telegram + notification policy — всё через file provisioning (`grafana/alerting/`). Alert rules: High 5xx Rate (>1%, 2m, critical), High p99 Latency (>500ms, 2m, warning), Service Health Degraded (/health 503, 1m, critical), Service Down (absent metrics, 5m, critical). contact-points.yaml: `chatid` захардкожен как строка `"1097986020"` (Grafana не принимает числа из env var через YAML). `TELEGRAM_BOT_TOKEN` — env var, передаётся через `environment` в docker-compose. Grafana dashboard provisioning: `grafana/provisioning/dashboards/` монтируется в `/etc/grafana/provisioning/dashboards`.
 - **`/metrics` защита:** Bearer token (`METRICS_TOKEN` в `.env`, `metrics_token` файл для Prometheus `credentials_file`); без токена — 401. `metrics_token` в `.gitignore`. `Settings` имеет `extra="ignore"` для совместимости с TELEGRAM_* переменными в `.env`.
-- **Celery метрики:** `danihodovic/celery-exporter` в docker-compose (`platform: linux/amd64`); Prometheus scrape job `celery` на `celery_exporter:9808`; метрики: `celery_worker_up`, `celery_queue_length`, `celery_active_worker_count`, `celery_worker_tasks_active`.
+- **Celery метрики:** `danihodovic/celery-exporter` в docker-compose (без `platform: linux/amd64` — auto-detect); Prometheus scrape job `celery` на `celery_exporter:9808`; метрики: `celery_worker_up`, `celery_queue_length`, `celery_active_worker_count`, `celery_worker_tasks_active`.
+- **Celery alert rules** (`grafana/alerting/alert-rules.yaml`): Celery Worker Down (absent metrics, for: 2m, critical, noDataState: Alerting), Celery Queue High (queue_length > 50, for: 5m, warning).
+- **Celery dashboard panels** (`grafana/provisioning/dashboards/hotel-booking.json`): 3 новые панели в строке y=30 — Celery Workers (stat, `celery_worker_up` + `celery_active_worker_count`), Celery Queue Length (timeseries, by queue_name), Celery Active Tasks (timeseries, by hostname). Итого 14 панелей.
+- **Trace sampling:** `OTEL_SAMPLE_RATE: float = 1.0` в `config.py`; `ParentBased(TraceIdRatioBased(settings.OTEL_SAMPLE_RATE))` сэмплер в `tracing.py`; в `.env` — `OTEL_SAMPLE_RATE=0.1` (10% трейсов в prod).
+- **Prometheus retention:** `--storage.tsdb.retention.time=90d` + `--web.enable-lifecycle` в docker-compose command.
 
 **Tests:** 163 passed — `tests/integration_tests/test_metrics.py`: 6 тестов (200, content-type, fastapi_* метрики, app_name label, auth-required 401, путь не под /api/v1/); тесты передают Bearer-токен через `_auth_headers()` хелпер.
 
@@ -269,7 +273,5 @@ None.
 
 ## Known missing features
 
-- **`celery_exporter` платформа** — убрана директива `platform: linux/amd64`; Docker подбирает архитектуру автоматически. На Linux AMD64 работает нативно. На Apple Silicon — Rosetta (предупреждение в логах, функционально без ограничений).
-- **S3/MinIO для изображений** — изображения на локальном диске; ломается при нескольких инстансах API. P2.
-- **Distributed tracing (добавлено 2026-03-28):** OpenTelemetry SDK + Grafana Tempo 2.6.1. `src/tracing.py` инициализирует `TracerProvider` + `OTLPSpanExporter` (gRPC → `tempo:4317`); `FastAPIInstrumentor` авто-инструментирует все роуты; `SQLAlchemyInstrumentor` инструментирует `engine.sync_engine` + `engine_null_pool.sync_engine`. `OTEL_ENABLED: bool = False` по умолчанию (включается в `.env`), `OTEL_ENABLED=false` в `.env-test`. `_JSONFormatter` в `logging_config.py` добавляет `trace_id` в каждый JSON-лог если есть активный span. Grafana Tempo datasource (uid=tempo) + Loki derivedFields для перехода лог→трейс по `trace_id`. Tempo: `grafana/tempo:2.6.1` (latest требует Kafka).
-- **Prometheus retention** — дефолт 15 дней, нет долгосрочного хранилища (VictoriaMetrics/Thanos). P2.
+- **S3/MinIO для изображений** — изображения на локальном диске; ломается при нескольких инстансах API.
+- **Prometheus долгосрочное хранилище** — retention 90 дней; нет VictoriaMetrics/Thanos для историческх данных старше 90 дней.

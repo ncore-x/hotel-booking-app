@@ -103,6 +103,70 @@ groups:
                   reducer: {params: [], type: last}
                   type: query
 
+      - uid: cfhd43ab12cd3e
+        title: Celery Worker Down
+        condition: threshold
+        for: 2m
+        noDataState: Alerting
+        execErrState: Alerting
+        labels:
+          severity: critical
+        annotations:
+          summary: Celery воркер недоступен
+          description: Prometheus не получает метрики от celery-exporter более 2 минут — воркеры могут быть остановлены
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'absent(celery_worker_up) or sum(celery_worker_up) == 0'
+              refId: A
+              instant: true
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: classic_conditions
+              conditions:
+                - evaluator: {params: [0], type: gt}
+                  operator: {type: and}
+                  query: {params: [A]}
+                  reducer: {params: [], type: last}
+                  type: query
+
+      - uid: cfhd44ef56gh7i
+        title: Celery Queue High
+        condition: threshold
+        for: 5m
+        noDataState: OK
+        execErrState: Error
+        labels:
+          severity: warning
+        annotations:
+          summary: Очередь Celery переполнена
+          description: В очереди celery более 50 задач на протяжении 5 минут — воркеры не справляются
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'sum(celery_queue_length) by (queue_name)'
+              refId: A
+              instant: true
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: classic_conditions
+              conditions:
+                - evaluator: {params: [50], type: gt}
+                  operator: {type: and}
+                  query: {params: [A]}
+                  reducer: {params: [], type: last}
+                  type: query
+
       - uid: afhd42ync7f28f
         title: Service Down
         condition: threshold

@@ -48,6 +48,11 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - ./metrics_token:/etc/prometheus/metrics_token:ro
       - prometheusdata:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=90d"
+      - "--web.enable-lifecycle"
 
   grafana:
     image: grafana/grafana:latest
