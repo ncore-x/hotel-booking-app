@@ -132,6 +132,8 @@ services:
       - myNetwork
     env_file:
       - .env
+    volumes:
+      - imagesdata:/app/src/static/images
     command: 'sh -c "uv run alembic upgrade head && uv run uvicorn src.main:app --host 0.0.0.0 --port 8000"'
 
   booking_celery_worker_service:
@@ -143,6 +145,8 @@ services:
       - myNetwork
     env_file:
       - .env
+    volumes:
+      - imagesdata:/app/src/static/images
     command: 'uv run celery --app=src.tasks.celery_app:celery_instance worker -l INFO'
 
   booking_celery_beat_service:
@@ -165,3 +169,4 @@ volumes:
   grafanadata:
   tempodata:
   lokidata:
+  imagesdata:

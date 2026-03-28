@@ -132,8 +132,8 @@ class AuthService(BaseService):
         if self._blacklist:
             await self._blacklist.add(refresh_token, payload)
 
-    async def refresh_access_token(self, refresh_token: str) -> str:
-        """Проверяет refresh токен и выдаёт новый access токен."""
+    async def refresh_access_token(self, refresh_token: str) -> tuple[str, str]:
+        """Проверяет refresh токен, выдаёт новый access токен и ротирует refresh токен."""
         try:
             payload = self.decode_token(refresh_token)
         except (ExpiredTokenException, IncorrectTokenException):
@@ -149,7 +149,16 @@ class AuthService(BaseService):
         if not user_id:
             raise InvalidRefreshTokenException()
 
-        return self.create_access_token({"user_id": user_id})
+        user = await self.db.users.get_one_or_none(id=user_id)
+        if user is None:
+            raise InvalidRefreshTokenException()
+
+        if self._blacklist:
+            await self._blacklist.add(refresh_token, payload)
+
+        new_access_token = self.create_access_token({"user_id": user_id, "is_admin": user.is_admin})
+        new_refresh_token = self.create_refresh_token({"user_id": user_id})
+        return new_access_token, new_refresh_token
 
     async def get_one_or_none_user(self, user_id: int):
         return await self.db.users.get_one_or_none(id=user_id)

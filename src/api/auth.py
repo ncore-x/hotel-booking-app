@@ -122,11 +122,14 @@ async def refresh_token(
     if not token:
         raise InvalidRefreshTokenHTTPException()
     try:
-        access_token = await AuthService(db, blacklist=blacklist).refresh_access_token(token)
+        access_token, new_refresh_token = await AuthService(
+            db, blacklist=blacklist
+        ).refresh_access_token(token)
     except InvalidRefreshTokenException:
         raise InvalidRefreshTokenHTTPException()
     response.set_cookie(value=access_token, **_COOKIE_KWARGS)
-    return LoginResponse(access_token=access_token, refresh_token=token)
+    response.set_cookie(value=new_refresh_token, **_REFRESH_COOKIE_KWARGS)
+    return LoginResponse(access_token=access_token, refresh_token=new_refresh_token)
 
 
 @router.post("/logout", summary="Выход из системы", status_code=status.HTTP_204_NO_CONTENT)
