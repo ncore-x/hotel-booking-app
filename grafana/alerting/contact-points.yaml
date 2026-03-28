@@ -18,6 +18,8 @@ contactPoints:
             {{- else -}}
             ✅ [RESOLVED] {{ .Labels.alertname }}
             {{ .Annotations.summary }}
+            {{ if .Labels.name }}Контейнер: {{ .Labels.name }}
+            {{ end -}}
             Инцидент устранён
             {{- end }}
             {{ end }}
