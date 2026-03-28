@@ -63,6 +63,11 @@ class Settings(BaseSettings):
     METRICS_ENABLED: bool = True
     METRICS_TOKEN: str | None = None  # если задан — /metrics требует Authorization: Bearer <token>
 
+    # Tracing (OpenTelemetry → Tempo)
+    OTEL_ENABLED: bool = False
+    OTEL_ENDPOINT: str = "http://tempo:4317"  # gRPC endpoint
+    OTEL_SERVICE_NAME: str = "hotel_booking"
+
     @property
     def REDIS_URL(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"

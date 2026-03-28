@@ -3,6 +3,20 @@ import logging
 from datetime import datetime, timezone
 
 
+def _get_trace_id() -> str | None:
+    """Возвращает текущий trace_id из OpenTelemetry span, если tracing активен."""
+    try:
+        from opentelemetry import trace
+
+        span = trace.get_current_span()
+        ctx = span.get_span_context()
+        if ctx.is_valid:
+            return format(ctx.trace_id, "032x")
+    except Exception:
+        pass
+    return None
+
+
 class _JSONFormatter(logging.Formatter):
     """Выводит каждую запись лога как JSON-строку."""
 
@@ -13,6 +27,9 @@ class _JSONFormatter(logging.Formatter):
             "logger": record.name,
             "msg": record.getMessage(),
         }
+        trace_id = _get_trace_id()
+        if trace_id:
+            entry["trace_id"] = trace_id
         if record.exc_info:
             entry["exc"] = self.formatException(record.exc_info)
         if record.stack_info:

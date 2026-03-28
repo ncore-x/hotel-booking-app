@@ -23,6 +23,20 @@ services:
     volumes:
       - ./loki-config.yaml:/etc/loki/local-config.yaml
 
+  tempo:
+    image: grafana/tempo:2.6.1
+    container_name: tempo
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - myNetwork
+    volumes:
+      - ./tempo.yaml:/etc/tempo/tempo.yaml
+      - tempodata:/var/tempo
+    command: -config.file=/etc/tempo/tempo.yaml
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -57,7 +71,6 @@ services:
 
   celery_exporter:
     image: danihodovic/celery-exporter:latest
-    platform: linux/amd64
     container_name: celery_exporter
     ports:
       - "9808:9808"
@@ -107,3 +120,4 @@ networks:
 volumes:
   prometheusdata:
   grafanadata:
+  tempodata:

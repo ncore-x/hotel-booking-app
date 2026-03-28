@@ -15,3 +15,26 @@ datasources:
     access: proxy
     url: http://loki:3100
     editable: true
+    jsonData:
+      derivedFields:
+        - name: TraceID
+          matcherRegex: '"trace_id":\s*"([a-f0-9]{32})"'
+          url: "${__value.raw}"
+          datasourceUid: tempo
+          urlDisplayLabel: "View Trace"
+
+  - name: Tempo
+    type: tempo
+    uid: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: true
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: P8E80F9AEF21F6940
+        filterByTraceID: true
+        filterBySpanID: false
+      serviceMap:
+        datasourceUid: PBFA97CFB590B2093
+      search:
+        hide: false

@@ -269,9 +269,7 @@ None.
 
 ## Known missing features
 
-- **`/metrics` Celery-экспортёр** — `celery_exporter` использует образ `linux/amd64` (Rosetta на Apple Silicon). На Linux-сервере работает нативно. P2.
-- **`/metrics` не защищён** — endpoint публичный, нет IP whitelist или basic auth. P1.
-- **Celery метрики** — нет данных о queue depth, task failure rate, task duration. P1.
-- **S3/MinIO для изображений** — изображения на локальном диске; ломается при нескольких инстансах API.
-- **Distributed tracing** — нет OpenTelemetry/Tempo; `X-Request-ID` есть, но span-ов нет. P2.
+- **`celery_exporter` платформа** — убрана директива `platform: linux/amd64`; Docker подбирает архитектуру автоматически. На Linux AMD64 работает нативно. На Apple Silicon — Rosetta (предупреждение в логах, функционально без ограничений).
+- **S3/MinIO для изображений** — изображения на локальном диске; ломается при нескольких инстансах API. P2.
+- **Distributed tracing (добавлено 2026-03-28):** OpenTelemetry SDK + Grafana Tempo 2.6.1. `src/tracing.py` инициализирует `TracerProvider` + `OTLPSpanExporter` (gRPC → `tempo:4317`); `FastAPIInstrumentor` авто-инструментирует все роуты; `SQLAlchemyInstrumentor` инструментирует `engine.sync_engine` + `engine_null_pool.sync_engine`. `OTEL_ENABLED: bool = False` по умолчанию (включается в `.env`), `OTEL_ENABLED=false` в `.env-test`. `_JSONFormatter` в `logging_config.py` добавляет `trace_id` в каждый JSON-лог если есть активный span. Grafana Tempo datasource (uid=tempo) + Loki derivedFields для перехода лог→трейс по `trace_id`. Tempo: `grafana/tempo:2.6.1` (latest требует Kafka).
 - **Prometheus retention** — дефолт 15 дней, нет долгосрочного хранилища (VictoriaMetrics/Thanos). P2.

@@ -19,6 +19,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from src.middleware.prometheus import PrometheusMiddleware
+from src.tracing import setup_tracing
 
 from src.api.auth import router as router_auth
 from src.api.bookings import router as router_bookings
@@ -118,6 +119,11 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(JSONErrorHandlerMiddleware)
 app.add_middleware(RequestIDMiddleware)
+
+if settings.OTEL_ENABLED:
+    from src.database import engine, engine_null_pool
+
+    setup_tracing(app, engine, engine_null_pool)
 
 if settings.METRICS_ENABLED:
     app.add_middleware(PrometheusMiddleware, app_name="hotel_booking")
