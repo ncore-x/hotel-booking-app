@@ -107,7 +107,7 @@ groups:
         title: Celery Worker Down
         condition: threshold
         for: 2m
-        noDataState: Alerting
+        noDataState: OK
         execErrState: Alerting
         labels:
           severity: critical
@@ -267,7 +267,7 @@ groups:
         title: Service Down
         condition: threshold
         for: 5m
-        noDataState: Alerting
+        noDataState: OK
         execErrState: Alerting
         labels:
           severity: critical
