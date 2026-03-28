@@ -15,13 +15,12 @@ COPY . .
 RUN echo '#!/bin/sh\n\
 set -e\n\
 \n\
-# Выполняем миграции если alembic настроен\n\
-if [ -f "alembic.ini" ] && [ -d "src/migrations" ]; then\n\
+# Выполняем миграции только если есть конфиг и переменные окружения БД\n\
+if [ -f "alembic.ini" ] && [ -d "src/migrations" ] && [ -n "$DB_HOST" ]; then\n\
     echo "Applying database migrations..."\n\
     uv run alembic upgrade head\n\
 else\n\
-    echo "Alembic configuration not found, skipping migrations"\n\
-    echo "Available directories:" && ls -la\n\
+    echo "Skipping migrations (no DB_HOST or alembic config not found)"\n\
 fi\n\
 \n\
 echo "Starting application..."\n\
