@@ -308,6 +308,8 @@ services:
   booking_back_service:
     build:
       context: .
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-dev}
     container_name: 'booking_back'
     restart: unless-stopped
     ports:
@@ -338,6 +340,8 @@ services:
   booking_celery_worker_service:
     build:
       context: .
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-dev}
     container_name: 'booking_celery_worker'
     restart: unless-stopped
     networks:
@@ -360,6 +364,8 @@ services:
   booking_celery_beat_service:
     build:
       context: .
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-dev}
     container_name: 'booking_celery_beat'
     restart: unless-stopped
     networks:

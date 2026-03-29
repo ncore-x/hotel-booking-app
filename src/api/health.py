@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
+from src.config import settings
 from src.database import engine_null_pool as _engine
 
 router = APIRouter(prefix="/health", tags=["System"])
@@ -46,5 +47,5 @@ async def health():
 
     return JSONResponse(
         status_code=http_status,
-        content={"status": status, "db": db_ok, "redis": redis_ok},
+        content={"status": status, "db": db_ok, "redis": redis_ok, "version": settings.APP_VERSION},
     )

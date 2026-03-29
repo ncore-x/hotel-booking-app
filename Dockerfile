@@ -8,6 +8,11 @@ COPY pyproject.toml uv.lock ./
 
 RUN uv sync --frozen
 
+# Версия сборки — передаётся через --build-arg BUILD_VERSION=$(git rev-parse --short HEAD)
+# Читается приложением через settings.APP_VERSION (env var APP_VERSION)
+ARG BUILD_VERSION=dev
+ENV APP_VERSION=${BUILD_VERSION}
+
 # Копируем все файлы проекта
 COPY . .
 

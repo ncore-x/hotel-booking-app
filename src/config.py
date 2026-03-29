@@ -59,6 +59,9 @@ class Settings(BaseSettings):
     BACKUP_DIR: Path = Path("backups")
     BACKUP_RETAIN_DAYS: int = 7
 
+    # App version (задаётся через BUILD_VERSION build arg в Dockerfile или APP_VERSION в .env)
+    APP_VERSION: str = "dev"
+
     # Metrics
     METRICS_ENABLED: bool = True
     METRICS_TOKEN: str | None = None  # если задан — /metrics требует Authorization: Bearer <token>

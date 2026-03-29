@@ -282,6 +282,13 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - **Prometheus retention:** `--storage.tsdb.retention.time=90d` + `--web.enable-lifecycle` в docker-compose command.
 - **Prometheus bind-mount VirtioFS (Docker Desktop Mac):** изменения `prometheus.yml` на хосте могут не попадать в контейнер из-за VirtioFS sync delay. Не использовать `cat >` для записи в файл внутри контейнера — это очищает файл при ошибке перенаправления. Правильный способ применить изменения: `docker rm -f prometheus && docker compose up -d prometheus` (не `docker restart` — не перечитывает bind-mount).
 
+**Observability polish (добавлено 2026-03-29):**
+- **Blackbox: body validation** — `http_2xx_body` модуль в `blackbox.yml` с `fail_if_body_not_matches_regexp: ['"status"']`; `blackbox` scrape job переключён на этот модуль для `/health`.
+- **Blackbox: probe /hotels** — новый scrape job `blackbox_hotels` в `prometheus.yml` пробирует `/api/v1/hotels` (read path) через стандартный `http_2xx`.
+- **Health endpoint version** — `GET /health` возвращает `"version": settings.APP_VERSION`; `APP_VERSION: str = "dev"` в `Settings`; Dockerfile принимает `ARG BUILD_VERSION=dev` → `ENV APP_VERSION`; docker-compose пробрасывает `BUILD_VERSION: ${BUILD_VERSION:-dev}` во все три сервиса. Сборка с версией: `BUILD_VERSION=$(git rev-parse --short HEAD) docker compose build`.
+- **Notification policy: mute_time_intervals** — warning-алерты подавляются 22:00–08:00 UTC (будни) и весь день в выходные; явный route `severity=warning` с `repeat_interval: 4h`; critical и watchdog не затронуты.
+- **Grafana dashboard v3** — 3 новые панели (y=50): SLO Status (stat, availability 5m, green≥99%/yellow≥95%/red<95%), Error Budget Remaining (gauge, 30d window, SLO 99%), Latency Percentiles p50/p95/p99 (timeseries). Deploy annotation layer (тег "deploy", синий маркер) — маркирует деплои на всех графиках.
+
 **Observability hardening (добавлено 2026-03-29):**
 - **Prometheus query safeguards:** `--query.max-samples=10000000`, `--query.timeout=1m`, `--query.max-concurrency=10` в docker-compose command — предотвращают OOM от тяжёлых Grafana-запросов.
 - **Prometheus scrape_timeout:** `scrape_timeout: 10s` global в prometheus.yml — явный timeout на каждый scrape (ранее не было).
@@ -312,3 +319,4 @@ None.
 - **Inhibition rules** — Grafana unified alerting не поддерживает inhibition в file provisioning; alert storm при каскадном падении смягчён только через `group_by + group_wait`.
 - **Runbooks** — нет документации по каждому critical alert (что делать дежурному).
 - **On-call escalation** — алерты идут только в Telegram/Email; нет PagerDuty/Opsgenie для unacknowledged escalation.
+- **Deploy annotations (ручные)** — аннотация слой "Deploys" настроен (тег "deploy"), но маркеры создаются вручную через Grafana UI или API при каждом деплое.
