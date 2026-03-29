@@ -1,5 +1,7 @@
 import time
 
+from opentelemetry import trace
+from opentelemetry.trace import StatusCode
 from prometheus_client import Counter, Gauge, Histogram
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
@@ -45,7 +47,7 @@ BOOKINGS_CANCELLED = Counter(
     ["app_name"],
 )
 
-EXCLUDED_PATHS = {"/metrics"}
+EXCLUDED_PATHS = {"/metrics", "/api/v1/health/live"}
 
 
 class PrometheusMiddleware(BaseHTTPMiddleware):
@@ -75,6 +77,10 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
                 path=path,
                 exception_type=type(exc).__name__,
             ).inc()
+            span = trace.get_current_span()
+            if span.is_recording():
+                span.record_exception(exc)
+                span.set_status(StatusCode.ERROR, description=type(exc).__name__)
             raise
         finally:
             duration = time.perf_counter() - start

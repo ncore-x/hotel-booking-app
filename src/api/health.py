@@ -34,11 +34,25 @@ async def _check_redis() -> bool:
         return False
 
 
-@router.get("", summary="Health check", include_in_schema=False)
+@router.get("/live", summary="Liveness probe", include_in_schema=False)
+async def liveness():
+    """
+    Liveness probe: процесс жив и отвечает.
+    Не проверяет внешние зависимости — только то, что приложение запущено.
+    Используется Docker healthcheck и K8s livenessProbe.
+    """
+    return JSONResponse(
+        status_code=200,
+        content={"status": "live", "version": settings.APP_VERSION},
+    )
+
+
+@router.get("", summary="Readiness check", include_in_schema=False)
 async def health():
     """
-    Проверяет доступность базы данных и Redis.
-    Используется load balancer'ом и системами мониторинга.
+    Readiness probe: проверяет доступность базы данных и Redis.
+    Возвращает 503 если хотя бы одна зависимость недоступна.
+    Используется мониторингом и K8s readinessProbe.
     """
     db_ok, redis_ok = await asyncio.gather(_check_db(), _check_redis())
 

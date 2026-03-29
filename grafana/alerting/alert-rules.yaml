@@ -404,6 +404,46 @@ groups:
               conditions:
                 - evaluator: {params: [0], type: gt}
 
+      - uid: blackbox000003
+        title: Hotels Probe Failed
+        condition: C
+        for: 1m
+        noDataState: OK
+        execErrState: Error
+        labels:
+          severity: critical
+        annotations:
+          emoji: "🏨"
+          summary: HTTP-проба /hotels провалилась
+          description: "HTTP-проба на /api/v1/hotels провалилась — read path недоступен, пользователи не могут искать отели"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'probe_success{job="blackbox_hotels"}'
+              refId: A
+              instant: false
+          - refId: B
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings:
+                mode: ""
+          - refId: C
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [1], type: lt}
+
       - uid: sloburn0000002
         title: SLO Slow Burn
         condition: threshold

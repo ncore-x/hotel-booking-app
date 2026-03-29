@@ -322,9 +322,9 @@ services:
       - imagesdata:/app/src/static/images
     command: 'sh -c "uv run alembic upgrade head && uv run uvicorn src.main:app --host 0.0.0.0 --port 8000"'
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --tries=1 -O- http://localhost:8000/api/v1/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q --tries=1 -O- http://localhost:8000/api/v1/health/live || exit 1"]
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
       start_period: 60s
     logging:
