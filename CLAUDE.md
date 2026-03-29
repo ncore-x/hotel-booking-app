@@ -196,7 +196,7 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 
 ---
 
-## Project status (as of 2026-03-29, updated after alerting fixes)
+## Project status (as of 2026-03-29, updated after observability hardening)
 
 ### What was implemented
 
@@ -282,6 +282,18 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - **Prometheus retention:** `--storage.tsdb.retention.time=90d` + `--web.enable-lifecycle` в docker-compose command.
 - **Prometheus bind-mount VirtioFS (Docker Desktop Mac):** изменения `prometheus.yml` на хосте могут не попадать в контейнер из-за VirtioFS sync delay. Не использовать `cat >` для записи в файл внутри контейнера — это очищает файл при ошибке перенаправления. Правильный способ применить изменения: `docker rm -f prometheus && docker compose up -d prometheus` (не `docker restart` — не перечитывает bind-mount).
 
+**Observability hardening (добавлено 2026-03-29):**
+- **Prometheus query safeguards:** `--query.max-samples=10000000`, `--query.timeout=1m`, `--query.max-concurrency=10` в docker-compose command — предотвращают OOM от тяжёлых Grafana-запросов.
+- **Prometheus scrape_timeout:** `scrape_timeout: 10s` global в prometheus.yml — явный timeout на каждый scrape (ранее не было).
+- **Histogram buckets tuned:** `REQUESTS_DURATION` в `src/middleware/prometheus.py` — кастомные buckets `(0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0)` вместо дефолтных Prometheus; убраны бессмысленные для API бакеты 7.5s и 10s; +Inf добавляется автоматически.
+- **Promtail log level extraction:** pipeline stage `json {source: output}` → `labels {level:}` парсит структурированные JSON-логи FastAPI и создаёт Loki-label `level` для фильтрации по ERROR/WARNING/INFO.
+- **Loki ingestion rate limits:** `ingestion_rate_mb: 16`, `ingestion_burst_size_mb: 32`, `per_stream_rate_limit: 5MB`, `per_stream_rate_limit_burst: 10MB` в `limits_config` — защита от OOM при всплесках логов.
+- **Tempo ingestion rate limits:** `overrides.defaults.ingestion` — `rate_limit_bytes: 15000000`, `burst_size_bytes: 20000000`, `max_traces_per_user: 100000` — защита от OOM при всплесках трейсов. `search.enabled: true` явно включён.
+- **SLO Slow Burn alert** (`sloburn0000002`): >0.5% 5xx за 30m окно, `for: 5m`, `severity: warning` — дополняет Fast Burn (5% за 5m). Два уровня SLO: быстрый (критичный инцидент) и медленный (деградация).
+- **Docker healthchecks:** добавлены на prometheus (`/-/healthy`), grafana (`/api/health`), loki (`/ready`), tempo (`/ready`), blackbox_exporter (`/`), booking_back_service (`/api/v1/health`) — Docker теперь знает о реальном состоянии сервисов.
+- **Docker resource limits:** `deploy.resources.limits.memory` на все сервисы: prometheus 2g, grafana 512m, loki 512m, tempo 512m, cadvisor 512m, booking_back 1g, celery_worker 1g, celery_beat 256m, exporters 64–128m.
+- **Docker log rotation:** `logging.driver: json-file` + `max-size/max-file` на все сервисы (100m×5 для основных, 50m×3 для exporters) — предотвращает неограниченный рост логов на диске.
+
 **Tests:** 163 passed — `tests/integration_tests/test_metrics.py`: 6 тестов (200, content-type, fastapi_* метрики, app_name label, auth-required 401, путь не под /api/v1/); тесты передают Bearer-токен через `_auth_headers()` хелпер.
 
 **CI/CD (GitLab pipeline):** build → lint_format → migrations → test → deploy. Pipeline стабильный: Dockerfile пропускает миграции для `pytest`/`ruff` командами через `case "$*"` в entrypoint; `AUTH_RATE_LIMIT=1000/minute` добавлен в CI переменные GitLab.
@@ -296,3 +308,7 @@ None.
 
 - **S3/MinIO для изображений** — изображения на локальном диске; ломается при нескольких инстансах API.
 - **Prometheus долгосрочное хранилище** — retention 90 дней; нет VictoriaMetrics/Thanos для исторических данных старше 90 дней.
+- **Prometheus HA** — single instance; нет резервирования. При падении Prometheus алерты молчат до восстановления.
+- **Inhibition rules** — Grafana unified alerting не поддерживает inhibition в file provisioning; alert storm при каскадном падении смягчён только через `group_by + group_wait`.
+- **Runbooks** — нет документации по каждому critical alert (что делать дежурному).
+- **On-call escalation** — алерты идут только в Telegram/Email; нет PagerDuty/Opsgenie для unacknowledged escalation.

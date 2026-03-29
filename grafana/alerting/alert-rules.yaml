@@ -404,6 +404,39 @@ groups:
               conditions:
                 - evaluator: {params: [0], type: gt}
 
+      - uid: sloburn0000002
+        title: SLO Slow Burn
+        condition: threshold
+        for: 5m
+        noDataState: OK
+        execErrState: Error
+        labels:
+          severity: warning
+        annotations:
+          emoji: "🕯️"
+          summary: Медленное сжигание бюджета ошибок
+          description: Более 0.5% запросов завершаются ошибками 5xx за последние 30 минут — бюджет ошибок постепенно сгорает
+        data:
+          - refId: A
+            relativeTimeRange: {from: 1800, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'sum(rate(fastapi_responses_total{app_name="hotel_booking", status_code=~"5.."}[30m])) / (sum(rate(fastapi_responses_total{app_name="hotel_booking"}[30m])) > 0)'
+              refId: A
+              instant: true
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: classic_conditions
+              conditions:
+                - evaluator: {params: [0.005], type: gt}
+                  operator: {type: and}
+                  query: {params: [A]}
+                  reducer: {params: [], type: last}
+                  type: query
+
       - uid: sloburn0000001
         title: SLO Fast Burn
         condition: threshold

@@ -13,6 +13,15 @@ services:
       - ./promtail-config.yaml:/etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
     privileged: true
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 256m
 
   loki:
     image: grafana/loki:latest
@@ -25,6 +34,21 @@ services:
     volumes:
       - ./loki-config.yaml:/etc/loki/local-config.yaml
       - lokidata:/loki
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 -O- http://localhost:3100/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   tempo:
     image: grafana/tempo:2.6.1
@@ -40,6 +64,21 @@ services:
       - ./tempo.yaml:/etc/tempo/tempo.yaml
       - tempodata:/var/tempo
     command: -config.file=/etc/tempo/tempo.yaml
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 -O- http://localhost:3200/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   prometheus:
     image: prom/prometheus:latest
@@ -58,6 +97,24 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=90d"
       - "--web.enable-lifecycle"
+      - "--query.max-samples=10000000"
+      - "--query.timeout=1m"
+      - "--query.max-concurrency=10"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 -O- http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          memory: 2g
 
   grafana:
     image: grafana/grafana:latest
@@ -86,6 +143,21 @@ services:
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/alerting:/etc/grafana/provisioning/alerting
       - grafanadata:/var/lib/grafana
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 -O- http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   celery_exporter:
     image: danihodovic/celery-exporter:latest
@@ -99,6 +171,15 @@ services:
       - .env
     environment:
       - CE_BROKER_URL=redis://${REDIS_HOST}:${REDIS_PORT}
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 128m
 
   blackbox_exporter:
     image: prom/blackbox-exporter:latest
@@ -111,6 +192,21 @@ services:
     volumes:
       - ./blackbox.yml:/etc/blackbox_exporter/config.yml
     command: --config.file=/etc/blackbox_exporter/config.yml
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 -O- http://localhost:9115 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 64m
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -129,6 +225,15 @@ services:
     command:
       - "--docker_only=true"
     privileged: true
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   postgres_exporter:
     image: prometheuscommunity/postgres-exporter:latest
@@ -142,6 +247,15 @@ services:
       - .env
     environment:
       DATA_SOURCE_NAME: "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable"
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 128m
 
   redis_exporter:
     image: oliver006/redis_exporter:latest
@@ -153,6 +267,15 @@ services:
       - myNetwork
     environment:
       REDIS_ADDR: "redis://booking_cache:6379"
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 64m
 
   node_exporter:
     image: prom/node-exporter:latest
@@ -172,6 +295,15 @@ services:
       - "--path.rootfs=/rootfs"
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     pid: host
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 128m
 
   booking_back_service:
     build:
@@ -187,6 +319,21 @@ services:
     volumes:
       - imagesdata:/app/src/static/images
     command: 'sh -c "uv run alembic upgrade head && uv run uvicorn src.main:app --host 0.0.0.0 --port 8000"'
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 -O- http://localhost:8000/api/v1/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          memory: 1g
 
   booking_celery_worker_service:
     build:
@@ -200,6 +347,15 @@ services:
     volumes:
       - imagesdata:/app/src/static/images
     command: 'uv run celery --app=src.tasks.celery_app:celery_instance worker -l INFO --concurrency=2 --max-tasks-per-child=50 --max-memory-per-child=400000'
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          memory: 1g
 
   booking_celery_beat_service:
     build:
@@ -211,6 +367,15 @@ services:
     env_file:
       - .env
     command: 'uv run celery --app=src.tasks.celery_app:celery_instance beat -l INFO'
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 256m
 
 networks:
   myNetwork:

@@ -21,3 +21,15 @@ storage:
       path: /var/tempo/blocks
     wal:
       path: /var/tempo/wal
+
+# Ingestion rate limits — защита от OOM при всплесках трейсов
+overrides:
+  defaults:
+    ingestion:
+      rate_limit_bytes: 15000000   # 15 MB/s на tenant
+      burst_size_bytes: 20000000   # 20 MB burst
+      max_traces_per_user: 100000
+
+# Поиск трейсов через Tempo HTTP API
+search:
+  enabled: true

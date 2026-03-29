@@ -37,3 +37,11 @@ scrape_configs:
             stream: stream
       - output:
           source: output
+      # Разбираем JSON внутри log-строки (структурированные логи FastAPI)
+      # и извлекаем level как Loki-label для фильтрации
+      - json:
+          expressions:
+            level: level
+          source: output
+      - labels:
+          level:

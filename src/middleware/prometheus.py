@@ -20,6 +20,7 @@ REQUESTS_DURATION = Histogram(
     "fastapi_requests_duration_seconds",
     "Histogram of request duration by method and path (in seconds).",
     ["app_name", "method", "path"],
+    buckets=(0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0),
 )
 EXCEPTIONS = Counter(
     "fastapi_exceptions_total",
