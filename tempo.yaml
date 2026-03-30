@@ -30,6 +30,3 @@ overrides:
       burst_size_bytes: 20000000   # 20 MB burst
       max_traces_per_user: 100000
 
-# Поиск трейсов через Tempo HTTP API
-search:
-  enabled: true
