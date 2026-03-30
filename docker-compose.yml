@@ -161,12 +161,10 @@ services:
       - "9808:9808"
     networks:
       - myNetwork
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     env_file:
       - .env
     environment:
-      - CE_BROKER_URL=redis://${REDIS_HOST}:${REDIS_PORT}
+      - CE_BROKER_URL=redis://booking_cache:6379
     logging:
       driver: json-file
       options:
