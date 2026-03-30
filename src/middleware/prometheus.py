@@ -46,6 +46,16 @@ BOOKINGS_CANCELLED = Counter(
     "Total number of bookings cancelled.",
     ["app_name"],
 )
+BOOKINGS_FAILED = Counter(
+    "hotel_booking_booking_failed_total",
+    "Total number of failed booking attempts",
+    ["app_name"],
+)
+SEARCH_REQUESTS = Counter(
+    "hotel_booking_search_requests_total",
+    "Total number of hotel search requests",
+    ["app_name"],
+)
 
 EXCLUDED_PATHS = {"/metrics", "/api/v1/health/live"}
 

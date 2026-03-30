@@ -17,6 +17,7 @@ from src.exceptions import (
     ObjectAlreadyExistsHTTPException,
 )
 from src.api.dependencies import PaginationDep, DBDep, AdminDep
+from src.middleware.prometheus import SEARCH_REQUESTS
 from src.schemas.common import PaginatedResponse
 from src.schemas.hotels import HotelPatch, HotelAdd, Hotel
 
@@ -35,6 +36,7 @@ async def get_hotels(
     sort_by: Literal["id", "title", "location"] = Query("id", description="Поле сортировки"),
     order: Literal["asc", "desc"] = Query("asc", description="Направление сортировки"),
 ):
+    SEARCH_REQUESTS.labels(app_name="hotel_booking").inc()
     try:
         return await HotelService(db).get_filtered_by_time(
             pagination,

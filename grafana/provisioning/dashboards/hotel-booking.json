@@ -1485,7 +1485,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "1 - (sum(rate(fastapi_responses_total{app_name=\"hotel_booking\", status_code=~\"5..\"}[5m])) / sum(rate(fastapi_responses_total{app_name=\"hotel_booking\"}[5m])))",
+          "expr": "1 - ((sum(rate(fastapi_responses_total{app_name=\"hotel_booking\", status_code=~\"5..\"}[5m])) or vector(0)) / sum(rate(fastapi_responses_total{app_name=\"hotel_booking\"}[5m])))",
           "legendFormat": "Availability",
           "refId": "A"
         }
@@ -1533,7 +1533,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "clamp_min((0.01 - clamp_min(sum(rate(fastapi_responses_total{app_name=\"hotel_booking\", status_code=~\"5..\"}[30d])) / sum(rate(fastapi_responses_total{app_name=\"hotel_booking\"}[30d])), 0)) / 0.01 * 100, 0)",
+          "expr": "clamp_min((0.01 - clamp_min((sum(rate(fastapi_responses_total{app_name=\"hotel_booking\", status_code=~\"5..\"}[30d])) or vector(0)) / sum(rate(fastapi_responses_total{app_name=\"hotel_booking\"}[30d])), 0)) / 0.01 * 100, 0)",
           "legendFormat": "Budget remaining %",
           "refId": "A"
         }
