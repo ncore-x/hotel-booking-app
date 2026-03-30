@@ -1,7 +1,7 @@
 apiVersion: 1
 
 # Периоды тишины: warning-алерты не приходят ночью и в выходные
-mute_time_intervals:
+time_intervals:
   - name: outside-business-hours
     time_intervals:
       # Будни 22:00–08:00 UTC
