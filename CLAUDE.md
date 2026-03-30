@@ -263,7 +263,7 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - **Critical contact point** — объединяет Telegram + Email в одном receivers-блоке: `critical_telegram` (шаблон с 🔴/✅ и resolved-текстом) + `critical_email` (`addresses: "${ALERT_EMAIL}"`, `singleEmail: true`). SMTP-переменные передаются в grafana-контейнер через `GF_SMTP_*` env vars в docker-compose. `ALERT_EMAIL` — отдельная env var.
 - **Оперативное замечание:** после изменений `docker-compose.yml` (env vars, volumes) использовать `docker compose up -d --no-deps grafana`, а не `docker restart grafana` — `restart` не перечитывает compose-файл и новые переменные не попадают в контейнер.
 - **`/metrics` защита:** Bearer token (`METRICS_TOKEN` в `.env`, `metrics_token` файл для Prometheus `credentials_file`); без токена — 401. `metrics_token` в `.gitignore`. `Settings` имеет `extra="ignore"` для совместимости с TELEGRAM_* переменными в `.env`.
-- **Business metrics:** `hotel_booking_bookings_created_total` и `hotel_booking_bookings_cancelled_total` — Prometheus Counter в `src/middleware/prometheus.py`. Инкрементируются в `src/api/bookings.py` после успешного создания/отмены бронирования.
+- **Business metrics:** `hotel_booking_bookings_created_total`, `hotel_booking_bookings_cancelled_total`, `hotel_booking_booking_failed_total`, `hotel_booking_search_requests_total` — Prometheus Counter в `src/middleware/prometheus.py`. `booking_failed` инкрементируется при `RoomNotFoundException` и `AllRoomsAreBookedException` в `src/api/bookings.py`; `search_requests` — при каждом `GET /hotels` в `src/api/hotels.py`.
 - **Celery worker memory limits:** `--concurrency=2 --max-tasks-per-child=50 --max-memory-per-child=400000` в команде воркера. `--concurrency=2` — критично на многоядерных хостах: без него дефолт = кол-во CPU (10 на prod-NAS) × 400MB = потенциально 4GB RSS. `--max-tasks-per-child=50` рециклирует воркер после 50 задач, `--max-memory-per-child=400000` (400MB) — по RSS.
 - **Celery метрики:** `danihodovic/celery-exporter` в docker-compose (без `platform: linux/amd64` — auto-detect); Prometheus scrape job `celery` на `celery_exporter:9808`; метрики: `celery_worker_up`, `celery_queue_length`, `celery_active_worker_count`, `celery_worker_tasks_active`.
 - **docker-compose:** `restart: unless-stopped` на всех сервисах — автовосстановление после краша или перезагрузки хоста. Применяется при `docker compose up -d`.
@@ -311,6 +311,9 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - **`grafana/loki:latest` (v3.x) — полностью distroless:** нет ни `/bin/sh`, ни `wget`, ни `curl`. `CMD-SHELL` и `CMD` healthcheck невозможны — убирать healthcheck блок из docker-compose.yml.
 - **`grafana/tempo:2.6.1`:** top-level ключ `search:` удалён в Tempo 2.x — поиск включён по умолчанию. Наличие этого ключа в `tempo.yaml` вызывает `failed parsing config`.
 - **Доступ к мониторингу:** порты Grafana (3000), Prometheus (9090) и других внутренних сервисов **не открываются** на роутере. Разработчики подключаются через SSH tunnel: `ssh -L 3000:localhost:3000 <server-ip>`. Порт API (7777) — единственный публичный.
+- **SSH tunnel aliases:** `~/.ssh/config` содержит `Host nas` с `LocalForward 15432 localhost:5432`, `LocalForward 16379 localhost:6379`, `LocalForward 13000 localhost:3000` — подключение одной командой `ssh nas`. DBeaver использует localhost:15432 через SSH tunnel (не прямое соединение).
+- **SLO/Error Budget "No data" на сервере:** если нет ни одного 5xx-ответа, `sum(rate(...{status_code=~"5.."}[...]))` возвращает пустую серию → деление падает. Решение: `or vector(0)` в числителе. Запросы в dashboard используют `(sum(...5xx...) or vector(0)) / sum(...total...)`.
+- **cAdvisor на Linux — дублирование метрик:** на multi-core хосте `container_cpu_usage_seconds_total` имеет серию на каждый CPU-core. В PromQL всегда использовать `sum(...) by (name)` для Memory и CPU панелей — иначе N серий вместо 1 на контейнер.
 
 ---
 
@@ -318,9 +321,23 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 
 None.
 
+## Production readiness (оценка 2026-03-30)
+
+| Направление | Оценка | Статус |
+|-------------|--------|--------|
+| Безопасность | 8/10 | JWT blacklist, RBAC, rate limiting, cookie hardening — нет HTTPS/reverse proxy |
+| Надёжность | 6/10 | restart policies, healthchecks, Celery retry — нет HA (single Postgres, Redis, Prometheus) |
+| Observability | 9/10 | Метрики + логи + трейсы + алерты + SLO — нет runbooks |
+| Производительность | 7/10 | Async, Redis cache, GZip, indexes — нет CDN, изображения на диске |
+| Операционная зрелость | 7/10 | CI/CD, Alembic, Sentry — нет staging, нет on-call escalation |
+| **Итог** | **7.4/10** | Готово для MVP/pet-project; для коммерческого prod нужны HTTPS + HA DB + staging |
+
 ## Known missing features
 
+- **HTTPS / reverse proxy** — порт 7777 открыт напрямую без TLS. Нужен nginx/caddy перед API.
 - **S3/MinIO для изображений** — изображения на локальном диске; ломается при нескольких инстансах API.
+- **HA PostgreSQL** — single instance; нет реплики. При падении DB — полный даунтайм.
+- **Staging окружение** — нет промежуточного окружения между локалью и production.
 - **Prometheus долгосрочное хранилище** — retention 90 дней; нет VictoriaMetrics/Thanos для исторических данных старше 90 дней.
 - **Prometheus HA** — single instance; нет резервирования. При падении Prometheus алерты молчат до восстановления.
 - **Inhibition rules** — Grafana unified alerting не поддерживает inhibition в file provisioning; alert storm при каскадном падении смягчён только через `group_by + group_wait`.
