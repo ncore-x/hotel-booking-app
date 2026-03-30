@@ -196,7 +196,7 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 
 ---
 
-## Project status (as of 2026-03-29, updated after observability hardening)
+## Project status (as of 2026-03-30, updated after production deployment fixes)
 
 ### What was implemented
 
@@ -304,6 +304,13 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 **Tests:** 163 passed — `tests/integration_tests/test_metrics.py`: 6 тестов (200, content-type, fastapi_* метрики, app_name label, auth-required 401, путь не под /api/v1/); тесты передают Bearer-токен через `_auth_headers()` хелпер.
 
 **CI/CD (GitLab pipeline):** build → lint_format → migrations → test → deploy. Pipeline стабильный: Dockerfile пропускает миграции для `pytest`/`ruff` командами через `case "$*"` в entrypoint; `AUTH_RATE_LIMIT=1000/minute` добавлен в CI переменные GitLab.
+
+**Production deployment (добавлено 2026-03-30):**
+- **`host.docker.internal` на Linux:** на macOS Docker Desktop резолвится автоматически, на Linux — нет. Все сервисы, обращающиеся к хосту (booking_back, celery_worker, celery_beat), должны иметь `extra_hosts: ["host.docker.internal:host-gateway"]` в docker-compose.yml.
+- **Grafana 12 file provisioning:** mute time intervals определяются через ключ `muteTimes:` (camelCase) с обязательным `orgId: 1`. `muteTimes` и `policies` **должны быть в разных файлах** — Grafana валидирует policies до загрузки muteTimes из того же файла. Конвенция: `1-mute-timings.yaml` (алфавитно раньше `notification-policy.yaml`). Ссылка в routes: `mute_time_intervals:` — не менялась.
+- **`grafana/loki:latest` (v3.x) — полностью distroless:** нет ни `/bin/sh`, ни `wget`, ни `curl`. `CMD-SHELL` и `CMD` healthcheck невозможны — убирать healthcheck блок из docker-compose.yml.
+- **`grafana/tempo:2.6.1`:** top-level ключ `search:` удалён в Tempo 2.x — поиск включён по умолчанию. Наличие этого ключа в `tempo.yaml` вызывает `failed parsing config`.
+- **Доступ к мониторингу:** порты Grafana (3000), Prometheus (9090) и других внутренних сервисов **не открываются** на роутере. Разработчики подключаются через SSH tunnel: `ssh -L 3000:localhost:3000 <server-ip>`. Порт API (7777) — единственный публичный.
 
 ---
 

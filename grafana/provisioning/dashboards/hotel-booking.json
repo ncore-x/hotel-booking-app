@@ -1261,7 +1261,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "container_memory_rss{name=~\"booking_back|booking_celery_worker|booking_celery_beat\"}",
+          "expr": "sum(container_memory_rss{name=~\"booking_back|booking_celery_worker|booking_celery_beat\"}) by (name)",
           "legendFormat": "{{name}}",
           "refId": "A"
         }
@@ -1326,7 +1326,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "rate(container_cpu_usage_seconds_total{name=~\"booking_back|booking_celery_worker|booking_celery_beat\"}[5m])",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\"booking_back|booking_celery_worker|booking_celery_beat\"}[5m])) by (name)",
           "legendFormat": "{{name}}",
           "refId": "A"
         }
