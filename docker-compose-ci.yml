@@ -4,27 +4,59 @@ services:
     image: booking-api-image:latest
     networks:
       - myNetwork
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     env_file:
       - .env
-    command: 'sh -c "uv run alembic upgrade head && uv run uvicorn src.main:app --host 0.0.0.0 --port 8000"'
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 -O- http://localhost:8000/api/v1/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
 
   booking_celery_worker_service:
     container_name: 'booking_celery_worker'
     image: booking-api-image:latest
+    depends_on:
+      booking_back_service:
+        condition: service_healthy
     networks:
       - myNetwork
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     env_file:
       - .env
     command: 'uv run celery --app=src.tasks.celery_app:celery_instance worker -l INFO'
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
 
   booking_celery_beat_service:
     container_name: 'booking_celery_beat'
     image: booking-api-image:latest
+    depends_on:
+      booking_back_service:
+        condition: service_healthy
     networks:
       - myNetwork
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     env_file:
       - .env
     command: 'uv run celery --app=src.tasks.celery_app:celery_instance beat -l INFO'
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
 
 networks:
   myNetwork:

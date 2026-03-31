@@ -13,34 +13,42 @@ build-job:
   script:
     - docker build -t booking-api-image .
 
-Lint:
+lint-job:
   stage: lint_format
   script:
-    - docker run --rm --network myNetwork booking-api-image uv run ruff check
+    - docker run --rm booking-api-image uv run ruff check
 
-Format:
+format-job:
   stage: lint_format
   script:
-    - docker run --rm --network myNetwork booking-api-image uv run ruff format --check
+    - docker run --rm booking-api-image uv run ruff format --check
 
-Migrations:
+migrations-job:
   stage: migrations
   before_script:
     - cp ${ENV} .env
   script:
     - docker run --rm --network myNetwork --env-file .env booking-api-image uv run alembic upgrade head
 
-Tests:
+test-job:
   stage: test
   before_script:
     - cp ${TEST_ENV} .env-test
   script:
-    - docker run --rm --network myNetwork --env-file .env-test booking-api-image uv run pytest -s -v
+    - docker run --rm --network myNetwork --env-file .env-test booking-api-image uv run pytest -s -v --tb=short
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+    expire_in: 7 days
 
 deploy-job:
   stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
   before_script:
     - cp ${ENV} .env
   script:
+    - docker compose -f docker-compose-ci.yml down --remove-orphans --timeout 30
     - docker compose -f docker-compose-ci.yml up -d
     - docker exec booking_nginx nginx -s reload
