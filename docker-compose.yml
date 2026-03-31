@@ -327,7 +327,7 @@ services:
     volumes:
       - imagesdata:/app/src/static/images
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --tries=1 -O- http://localhost:8000/api/v1/health/live || exit 1"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health/live')"]
       interval: 30s
       timeout: 5s
       retries: 3
