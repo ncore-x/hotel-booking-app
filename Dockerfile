@@ -13,7 +13,8 @@ ARG BUILD_VERSION=dev
 ENV APP_VERSION=${BUILD_VERSION}
 
 COPY src/ src/
-COPY alembic.ini ./
+COPY tests/ tests/
+COPY alembic.ini pytest.ini ./
 
 RUN chown -R app:app /app
 USER app

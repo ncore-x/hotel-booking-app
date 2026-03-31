@@ -36,11 +36,6 @@ test-job:
     - cp ${TEST_ENV} .env-test
   script:
     - docker run --rm --network myNetwork --env-file .env-test booking-api-image uv run pytest -s -v --tb=short
-  artifacts:
-    when: always
-    reports:
-      junit: report.xml
-    expire_in: 7 days
 
 deploy-job:
   stage: deploy

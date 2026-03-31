@@ -35,9 +35,8 @@ blackbox.yml
 docker-compose*.yml
 nginx.conf
 
-# Tests (not needed in production image)
-tests/
-pytest.ini
+# pytest.ini is in pyproject.toml, but pytest.ini needed for env_files
+# tests/ kept in image — used by CI test stage
 
 # Runtime data
 src/static/images/
