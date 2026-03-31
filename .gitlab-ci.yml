@@ -44,6 +44,5 @@ deploy-job:
   before_script:
     - cp ${ENV} .env
   script:
-    - docker compose -f docker-compose-ci.yml down --remove-orphans --timeout 30
-    - docker compose -f docker-compose-ci.yml up -d
+    - docker compose -f docker-compose-ci.yml up -d --force-recreate
     - docker exec booking_nginx nginx -s reload
