@@ -301,9 +301,23 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - **Docker resource limits:** `deploy.resources.limits.memory` на все сервисы: prometheus 2g, grafana 512m, loki 512m, tempo 512m, cadvisor 512m, booking_back 1g, celery_worker 1g, celery_beat 256m, exporters 64–128m.
 - **Docker log rotation:** `logging.driver: json-file` + `max-size/max-file` на все сервисы (100m×5 для основных, 50m×3 для exporters) — предотвращает неограниченный рост логов на диске.
 
-**Tests:** 163 passed — `tests/integration_tests/test_metrics.py`: 6 тестов (200, content-type, fastapi_* метрики, app_name label, auth-required 401, путь не под /api/v1/); тесты передают Bearer-токен через `_auth_headers()` хелпер.
+**Tests:** 164 passed — `tests/integration_tests/test_metrics.py`: 6 тестов (200, content-type, fastapi_* метрики, app_name label, auth-required 401, путь не под /api/v1/); тесты передают Bearer-токен через `_auth_headers()` хелпер.
 
-**CI/CD (GitLab pipeline):** build → lint_format → migrations → test → deploy. Pipeline стабильный: Dockerfile пропускает миграции для `pytest`/`ruff` командами через `case "$*"` в entrypoint; `AUTH_RATE_LIMIT=1000/minute` добавлен в CI переменные GitLab.
+**CI/CD (GitLab pipeline, обновлено 2026-03-31):** build → lint_format → migrations → test → deploy. Pipeline стабильный.
+- **Job naming:** kebab-case (`build-job`, `lint-job`, `format-job`, `migrations-job`, `test-job`, `deploy-job`).
+- **Deploy restricted to main:** `rules: if: $CI_COMMIT_BRANCH == "main"` — deploy-job не запускается на feature-ветках.
+- **Lint/Format без сети:** `docker run --rm booking-api-image uv run ruff ...` — `--network myNetwork` убран, ruff не нужна сеть.
+- **Deploy без down:** `docker compose up -d --force-recreate` вместо `down --remove-orphans` — `--remove-orphans` убивал мониторинг-стек (grafana, prometheus, loki и т.д.), воспринимая их как orphans из-за общей сети `myNetwork`.
+- **Миграции в entrypoint:** Dockerfile содержит inline `ENTRYPOINT` с `case "$*"` — пропускает миграции для `pytest`/`ruff`, запускает для обычного старта.
+- `AUTH_RATE_LIMIT=1000/minute` в CI-переменных GitLab.
+
+**Docker & Build hardening (добавлено 2026-03-31):**
+- **Dockerfile:** `python:3.12-slim` (~150MB вместо ~1GB full image). Non-root user: `groupadd -r app && useradd -r -g app`, `USER app`. Inline entrypoint (без отдельного скрипта). Explicit COPY: `src/`, `tests/`, `alembic.ini`, `pytest.ini` — не `COPY . .`.
+- **`.dockerignore`:** исключает `.git`, `.venv`, `__pycache__`, `.env*`, IDE-файлы, `docs/`, `grafana/`, мониторинг-конфиги, runtime data (`images/`, `backups/`), tooling (`.serena`, `.claude`, `.ruff_cache`).
+- **`.env.example`:** шаблон со всеми переменными окружения и командами генерации секретов (`python -c "import secrets; print(secrets.token_hex(32))"`).
+- **`docker-compose-ci.yml`:** healthcheck, `depends_on` с conditions, `extra_hosts`, log rotation. Только 3 app-сервиса — мониторинг-стек управляется отдельным `docker-compose.yml`.
+- **Healthcheck для slim-образа:** `python:3.12-slim` не содержит `wget`/`curl`. Healthcheck `booking_back_service` использует `python -c "import urllib.request; urllib.request.urlopen(...)"` вместо `wget`. Образы Grafana/Prometheus/blackbox содержат wget — их healthcheck не менялся.
+- **nginx:** HSTS, CSP, Referrer-Policy, Permissions-Policy, блокировка `/metrics`, `/docs`, `/redoc`, `/openapi.json`, proxy timeouts, `client_max_body_size 6m`, `server_tokens off`.
 
 **Production deployment (добавлено 2026-03-30):**
 - **`host.docker.internal` на Linux:** на macOS Docker Desktop резолвится автоматически, на Linux — нет. Все сервисы, обращающиеся к хосту (booking_back, celery_worker, celery_beat), должны иметь `extra_hosts: ["host.docker.internal:host-gateway"]` в docker-compose.yml.
@@ -321,20 +335,20 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 
 None.
 
-## Production readiness (оценка 2026-03-30)
+## Production readiness (оценка 2026-03-31)
 
 | Направление | Оценка | Статус |
 |-------------|--------|--------|
-| Безопасность | 8/10 | JWT blacklist, RBAC, rate limiting, cookie hardening — нет HTTPS/reverse proxy |
-| Надёжность | 6/10 | restart policies, healthchecks, Celery retry — нет HA (single Postgres, Redis, Prometheus) |
-| Observability | 9/10 | Метрики + логи + трейсы + алерты + SLO — нет runbooks |
-| Производительность | 7/10 | Async, Redis cache, GZip, indexes — нет CDN, изображения на диске |
-| Операционная зрелость | 7/10 | CI/CD, Alembic, Sentry — нет staging, нет on-call escalation |
-| **Итог** | **7.4/10** | Готово для MVP/pet-project; для коммерческого prod нужны HTTPS + HA DB + staging |
+| Безопасность | 9/10 | JWT blacklist, RBAC, rate limiting, cookie hardening, HTTPS (Let's Encrypt), nginx security headers (HSTS, CSP), non-root Docker user, блокировка /metrics /docs снаружи — нет WAF |
+| Надёжность | 6/10 | restart policies, healthchecks, Celery retry, depends_on ordering — нет HA (single Postgres, Redis, Prometheus) |
+| Observability | 9/10 | Метрики + логи + трейсы + алерты + SLO + business metrics — нет runbooks |
+| Производительность | 7/10 | Async, Redis cache, GZip, indexes, slim Docker image — нет CDN, изображения на диске |
+| CI/CD | 8/10 | GitLab pipeline (build→lint→migrations→test→deploy), deploy только на main, ruff format/check — нет staging, нет canary |
+| Операционная зрелость | 7/10 | CI/CD, Alembic, Sentry, .env.example, DEVELOPER_GUIDE.md — нет staging, нет on-call escalation |
+| **Итог** | **7.9/10** | Готово для MVP/pet-project; для коммерческого prod нужны HA DB + staging + WAF |
 
 ## Known missing features
 
-- **HTTPS / reverse proxy** — порт 7777 открыт напрямую без TLS. Нужен nginx/caddy перед API.
 - **S3/MinIO для изображений** — изображения на локальном диске; ломается при нескольких инстансах API.
 - **HA PostgreSQL** — single instance; нет реплики. При падении DB — полный даунтайм.
 - **Staging окружение** — нет промежуточного окружения между локалью и production.
