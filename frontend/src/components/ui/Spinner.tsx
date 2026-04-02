@@ -1,0 +1,22 @@
+import { cn } from "../../lib/cn";
+
+interface SpinnerProps {
+  size?: "sm" | "md" | "lg";
+  className?: string;
+}
+
+export function Spinner({ size = "md", className }: SpinnerProps) {
+  return (
+    <div
+      className={cn(
+        "animate-spin rounded-full border-4 border-gray-300 border-t-blue-600",
+        {
+          "h-5 w-5": size === "sm",
+          "h-8 w-8": size === "md",
+          "h-12 w-12": size === "lg",
+        },
+        className,
+      )}
+    />
+  );
+}

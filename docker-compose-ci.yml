@@ -58,6 +58,30 @@ services:
         max-size: "50m"
         max-file: "3"
 
+  booking_frontend_service:
+    container_name: 'booking_frontend'
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      booking_back_service:
+        condition: service_healthy
+    networks:
+      - myNetwork
+    ports:
+      - "3001:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
 networks:
   myNetwork:
     external: true
