@@ -371,6 +371,33 @@ services:
         limits:
           memory: 1g
 
+  booking_frontend_service:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: 'booking_frontend'
+    restart: unless-stopped
+    depends_on:
+      booking_back_service:
+        condition: service_healthy
+    networks:
+      - myNetwork
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+
   booking_celery_beat_service:
     build:
       context: .
