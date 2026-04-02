@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
+import { motion, AnimatePresence } from "framer-motion";
 import { useBookingStore } from "../stores/bookingStore";
 import { useAuthStore } from "../stores/authStore";
 import { roomsApi } from "../api/rooms";
@@ -8,7 +9,6 @@ import { bookingsApi } from "../api/bookings";
 import { BookingSummary } from "../components/booking/BookingSummary";
 import { Spinner } from "../components/ui/Spinner";
 import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
 import { ApiError } from "../api/client";
 import type { Room } from "../types/room";
 import type { Hotel } from "../types/hotel";
@@ -52,6 +52,12 @@ export function BookingConfirmPage() {
       .finally(() => setLoading(false));
   }, [hId, rId, dateFrom, dateTo, user, navigate, hotelId]);
 
+  useEffect(() => {
+    if (!success) return;
+    const timer = setTimeout(() => navigate("/bookings"), 2000);
+    return () => clearTimeout(timer);
+  }, [success, navigate]);
+
   const handleConfirm = async () => {
     setSubmitting(true);
     setError(null);
@@ -81,29 +87,42 @@ export function BookingConfirmPage() {
 
   if (success) {
     return (
-      <div className="mx-auto max-w-md pt-12 text-center">
-        <Card>
-          <div className="space-y-4 py-4">
-            <svg className="mx-auto h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Бронирование подтверждено!
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400">
-              Вы успешно забронировали номер
-            </p>
-            <div className="flex justify-center gap-3 pt-2">
-              <Button variant="secondary" onClick={() => navigate("/bookings")}>
-                Мои бронирования
-              </Button>
-              <Button onClick={() => navigate("/")}>
-                На главную
-              </Button>
-            </div>
-          </div>
-        </Card>
-      </div>
+      <AnimatePresence>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="flex flex-col items-center gap-3"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.15, type: "spring", stiffness: 250, damping: 15 }}
+              className="flex h-24 w-24 items-center justify-center rounded-full bg-green-500 shadow-lg"
+            >
+              <svg className="h-14 w-14 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <motion.path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ delay: 0.3, duration: 0.4 }}
+                />
+              </svg>
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-lg font-semibold text-white"
+            >
+              Забронировано!
+            </motion.p>
+          </motion.div>
+        </div>
+      </AnimatePresence>
     );
   }
 

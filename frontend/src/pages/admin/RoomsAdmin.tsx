@@ -83,13 +83,27 @@ export function RoomsAdmin() {
   };
 
   const handleSave = async () => {
+    if (!formTitle.trim()) {
+      setFormError("Введите название номера");
+      return;
+    }
+    const price = Number(formPrice);
+    const quantity = Number(formQuantity);
+    if (!price || price <= 0) {
+      setFormError("Цена должна быть больше нуля");
+      return;
+    }
+    if (!quantity || quantity <= 0 || !Number.isInteger(quantity)) {
+      setFormError("Количество должно быть целым числом больше нуля");
+      return;
+    }
     setSaving(true);
     setFormError(null);
     const data: RoomAddRequest = {
-      title: formTitle,
-      description: formDescription || undefined,
-      price: Number(formPrice),
-      quantity: Number(formQuantity),
+      title: formTitle.trim(),
+      description: formDescription.trim() || undefined,
+      price,
+      quantity,
       facilities_ids: formFacilities,
     };
     try {
@@ -108,6 +122,7 @@ export function RoomsAdmin() {
   };
 
   const handleDelete = async (roomId: number) => {
+    if (!window.confirm("Удалить номер? Это действие нельзя отменить.")) return;
     try {
       await roomsApi.delete(hId, roomId);
       await fetchData();

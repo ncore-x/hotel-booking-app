@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { SearchBar } from "../components/search/SearchBar";
 import { SortControls } from "../components/search/SortControls";
 import { HotelGrid } from "../components/hotel/HotelGrid";
@@ -26,11 +26,13 @@ export function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const search = useCallback(async () => {
+  useEffect(() => {
+    let cancelled = false;
     setLoading(true);
     setError(null);
-    try {
-      const res = await hotelsApi.search({
+
+    hotelsApi
+      .search({
         date_from: dateFrom,
         date_to: dateTo,
         location: location || undefined,
@@ -39,23 +41,25 @@ export function HomePage() {
         order,
         page,
         per_page: perPage,
+      })
+      .then((res) => {
+        if (cancelled) return;
+        setResult({
+          items: res.items,
+          pages: res.pages,
+          has_next: res.has_next,
+          has_prev: res.has_prev,
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setError("Не удалось загрузить отели");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
-      setResult({
-        items: res.items,
-        pages: res.pages,
-        has_next: res.has_next,
-        has_prev: res.has_prev,
-      });
-    } catch {
-      setError("Не удалось загрузить отели");
-    } finally {
-      setLoading(false);
-    }
-  }, [dateFrom, dateTo, location, title, sortBy, order, page, perPage]);
 
-  useEffect(() => {
-    search();
-  }, [search]);
+    return () => { cancelled = true; };
+  }, [dateFrom, dateTo, location, title, sortBy, order, page, perPage]);
 
   return (
     <div className="space-y-6">
@@ -68,7 +72,7 @@ export function HomePage() {
         </p>
       </div>
 
-      <SearchBar onSearch={search} />
+      <SearchBar />
       <SortControls />
 
       {loading ? (

@@ -40,6 +40,9 @@ export function HotelDetailPage() {
       return;
     }
 
+    if (!dateFrom || !dateTo || dateTo <= dateFrom) return;
+
+    let cancelled = false;
     setLoading(true);
     setError(null);
 
@@ -49,12 +52,19 @@ export function HotelDetailPage() {
       imagesApi.getByHotel(id),
     ])
       .then(([hotelData, roomsData, imagesData]) => {
+        if (cancelled) return;
         setHotel(hotelData);
         setRooms(roomsData.items);
         setImages(imagesData);
       })
-      .catch(() => setError("Не удалось загрузить данные отеля"))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (!cancelled) setError("Не удалось загрузить данные отеля");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => { cancelled = true; };
   }, [id, dateFrom, dateTo]);
 
   const handleBook = (roomId: number) => {

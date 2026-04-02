@@ -19,6 +19,7 @@ export function MyBookingsPage() {
   const [hasPrev, setHasPrev] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -47,22 +48,30 @@ export function MyBookingsPage() {
   }, [user, fetchBookings]);
 
   const handleCancel = async (id: number) => {
+    if (actionLoading !== null) return;
+    setActionLoading(id);
     try {
       await bookingsApi.cancel(id);
       await fetchBookings();
     } catch (e) {
       const msg = e instanceof ApiError ? e.detail : "Не удалось отменить бронирование";
       setError(msg);
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleUpdate = async (id: number, dateFrom: string, dateTo: string) => {
+    if (actionLoading !== null) return;
+    setActionLoading(id);
     try {
       await bookingsApi.patch(id, { date_from: dateFrom, date_to: dateTo });
       await fetchBookings();
     } catch (e) {
       const msg = e instanceof ApiError ? e.detail : "Не удалось изменить даты";
       setError(msg);
+    } finally {
+      setActionLoading(null);
     }
   };
 

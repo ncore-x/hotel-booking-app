@@ -4,11 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-**Package manager:** `uv` (not pip/poetry).
+**Package manager (backend):** `uv` (not pip/poetry). **Package manager (frontend):** `npm`.
 
 ```bash
-# Run dev server
+# Backend dev server
 uv run uvicorn src.main:app --reload
+
+# Frontend dev server (Vite, port 5173, proxies /api → localhost:7777)
+cd frontend && npm run dev
+
+# Frontend production build
+cd frontend && npm run build
 
 # Run all tests
 uv run pytest tests/
@@ -184,7 +190,60 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - `PATCH /bookings/{id}` — updates dates. Atomically deletes old booking + re-books with new dates in one transaction; rolls back if new dates unavailable.
 - `DELETE /bookings/{id}` — cancels booking.
 
-## Key conventions
+---
+
+## Frontend
+
+**Stack:** React 19 + TypeScript 5.9 + Vite 8 + Tailwind CSS v4 + Zustand v5 + Framer Motion v12
+
+**Location:** `frontend/` — standalone Vite app, separate from backend.
+
+### Structure
+
+```
+frontend/src/
+├── api/          # fetch wrapper (client.ts) + per-resource modules
+├── stores/       # Zustand: authStore, searchStore, bookingStore, themeStore
+├── pages/        # route-level components
+│   └── admin/    # CRUD panels (hotels, rooms, facilities, images)
+├── components/
+│   ├── ui/       # Button, Input, Card, Modal, Spinner
+│   ├── layout/   # Header, Footer, PageLayout, AdminLayout
+│   ├── hotel/    # HotelCard, HotelGrid, ImageGallery
+│   ├── room/     # RoomCard, FacilityBadge
+│   ├── booking/  # BookingCard, BookingSummary
+│   └── search/   # SearchBar, SortControls
+├── hooks/        # useDebounce
+├── lib/          # cn.ts, dates.ts, currency.ts, queryString.ts
+└── types/        # TypeScript interfaces mirroring backend Pydantic schemas
+```
+
+### Auth
+
+HTTPOnly cookie auth — `credentials: "include"` on every fetch. Auto-refresh on 401: `client.ts` calls `POST /auth/refresh` once (deduped with `isRefreshing` flag), then retries the original request. Never stores tokens in JS.
+
+### Key conventions
+
+- **Imports from `"react-router"`** — not `"react-router-dom"` (v7).
+- **Tailwind v4** — uses `@import "tailwindcss"` in CSS, `@tailwindcss/vite` plugin (no `tailwind.config.ts` required).
+- **`verbatimModuleSyntax: true`** — type-only imports must use `import type`.
+- **`erasableSyntaxOnly: true`** — no `public`/`private` constructor parameter properties; declare fields explicitly.
+- **Search is reactive** — `HomePage` runs `useEffect` on param changes with a `cancelled` flag to prevent race conditions. No manual "Search" button needed.
+- **Date guards** — all `useEffect` fetches that require dates check `!dateFrom || !dateTo || dateTo <= dateFrom` before firing.
+- **`buildQuery()`** in `lib/queryString.ts` — shared URL param builder; call with spread `buildQuery({ ...params })` because TS interfaces don't satisfy index signatures.
+- **Admin RBAC** — `AdminLayout` checks `user.is_admin` on the frontend; backend enforces it via `AdminDep`. Frontend check is UX-only, not security.
+
+### Running with Docker
+
+```bash
+# App stack only (CI mode)
+docker compose -f docker-compose-ci.yml up -d
+# Frontend available at http://localhost:3001
+```
+
+---
+
+## Key conventions (backend)
 
 - All new settings go in `src/config.py` as `Settings` fields — never hardcode paths or limits.
 - Alembic migrations live in `src/migrations/versions/`. The `env.py` reads `DB_URL` from `settings` and imports all models via `src/models/__init__.py` for autogenerate to work. New models must be added to `src/models/__init__.py`.
@@ -196,7 +255,7 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 
 ---
 
-## Project status (as of 2026-03-30, updated after production deployment fixes)
+## Project status (as of 2026-04-02)
 
 ### What was implemented
 
@@ -301,6 +360,18 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 - **Docker resource limits:** `deploy.resources.limits.memory` на все сервисы: prometheus 2g, grafana 512m, loki 512m, tempo 512m, cadvisor 512m, booking_back 1g, celery_worker 1g, celery_beat 256m, exporters 64–128m.
 - **Docker log rotation:** `logging.driver: json-file` + `max-size/max-file` на все сервисы (100m×5 для основных, 50m×3 для exporters) — предотвращает неограниченный рост логов на диске.
 
+**Frontend SPA (добавлено 2026-04-02):**
+- React 19 + TypeScript 5.9 + Vite 8 + Tailwind CSS v4 + Zustand v5 + Framer Motion v12
+- Страницы: поиск отелей (реактивный, debounce 400ms), детали отеля, подтверждение бронирования (success overlay с анимированной галочкой → редирект через 2с), мои бронирования, профиль, логин/регистрация
+- Админ-панель: CRUD отелей, номеров (с удобствами), удобств, изображений (upload)
+- ImageGallery: grid-layout с лайтбоксом (Escape/стрелки/клик по фону)
+- Auth: HTTPOnly cookies, auto-refresh на 401, хранение состояния в Zustand
+- Тёмная/светлая тема (persist в localStorage)
+- Multi-stage Docker: `node:22-alpine` build → `nginx:alpine` serve (порт 80)
+- `docker-compose-ci.yml` — сервис `booking_frontend` на порту 3001
+- `nginx.conf` (корень) — split routing: `/api/` + `/static/` → бэкенд, `/` → фронтенд SPA
+- Исправлено в ходе QA: Rules of Hooks violation в BookingConfirmPage, race conditions (cancelled flag), валидация дат, подтверждение удаления, scroll lock в модалках, защита от двойного клика
+
 **Tests:** 164 passed — `tests/integration_tests/test_metrics.py`: 6 тестов (200, content-type, fastapi_* метрики, app_name label, auth-required 401, путь не под /api/v1/); тесты передают Bearer-токен через `_auth_headers()` хелпер.
 
 **CI/CD (GitLab pipeline, обновлено 2026-03-31):** build → lint_format → migrations → test → deploy. Pipeline стабильный.
@@ -335,7 +406,7 @@ Access and refresh tokens are both JWTs signed with `JWT_SECRET_KEY`. They are d
 
 None.
 
-## Production readiness (оценка 2026-03-31)
+## Production readiness (оценка 2026-04-02)
 
 | Направление | Оценка | Статус |
 |-------------|--------|--------|
@@ -345,7 +416,8 @@ None.
 | Производительность | 7/10 | Async, Redis cache, GZip, indexes, slim Docker image — нет CDN, изображения на диске |
 | CI/CD | 8/10 | GitLab pipeline (build→lint→migrations→test→deploy), deploy только на main, ruff format/check — нет staging, нет canary |
 | Операционная зрелость | 7/10 | CI/CD, Alembic, Sentry, .env.example, DEVELOPER_GUIDE.md — нет staging, нет on-call escalation |
-| **Итог** | **7.9/10** | Готово для MVP/pet-project; для коммерческого prod нужны HA DB + staging + WAF |
+| Frontend | 8/10 | React SPA, полный CRUD, auth, admin, Docker — нет E2E-тестов, нет SSR |
+| **Итог** | **8/10** | Полноценное fullstack приложение; для коммерческого prod нужны HA DB + staging + WAF |
 
 ## Known missing features
 
@@ -358,3 +430,6 @@ None.
 - **Runbooks** — нет документации по каждому critical alert (что делать дежурному).
 - **On-call escalation** — алерты идут только в Telegram/Email; нет PagerDuty/Opsgenie для unacknowledged escalation.
 - **Deploy annotations (ручные)** — аннотация слой "Deploys" настроен (тег "deploy"), но маркеры создаются вручную через Grafana UI или API при каждом деплое.
+- **Frontend E2E тесты** — нет Playwright/Cypress тестов; покрытие только ручным тестированием.
+- **Frontend изображения в карточках** — HotelCard показывает placeholder; изображения грузятся только на странице деталей.
+- **Поиск по датам не валидируется на SearchBar** — можно выбрать dateFrom > dateTo через ручной ввод (min-атрибут не обязателен в браузере).

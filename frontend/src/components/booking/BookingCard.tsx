@@ -3,7 +3,7 @@ import type { Booking } from "../../types/booking";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
-import { formatDisplayDate, nightsBetween } from "../../lib/dates";
+import { formatDisplayDate, nightsBetween, getDefaultDateFrom } from "../../lib/dates";
 import { formatPrice } from "../../lib/currency";
 
 interface BookingCardProps {
@@ -11,6 +11,8 @@ interface BookingCardProps {
   onCancel: (id: number) => Promise<void>;
   onUpdate: (id: number, dateFrom: string, dateTo: string) => Promise<void>;
 }
+
+const today = getDefaultDateFrom();
 
 export function BookingCard({ booking, onCancel, onUpdate }: BookingCardProps) {
   const [editing, setEditing] = useState(false);
@@ -30,6 +32,7 @@ export function BookingCard({ booking, onCancel, onUpdate }: BookingCardProps) {
   };
 
   const handleUpdate = async () => {
+    if (!newDateFrom || !newDateTo || newDateTo <= newDateFrom) return;
     setLoading(true);
     try {
       await onUpdate(booking.id, newDateFrom, newDateTo);
@@ -63,6 +66,7 @@ export function BookingCard({ booking, onCancel, onUpdate }: BookingCardProps) {
                 label="Заезд"
                 type="date"
                 value={newDateFrom}
+                min={today}
                 onChange={(e) => setNewDateFrom(e.target.value)}
               />
               <Input

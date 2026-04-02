@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { HotelImage } from "../../types/image";
 
@@ -8,6 +8,21 @@ interface ImageGalleryProps {
 
 export function ImageGallery({ images }: ImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedIndex(null);
+      if (e.key === "ArrowLeft") setSelectedIndex((i) => i !== null ? (i - 1 + images.length) % images.length : null);
+      if (e.key === "ArrowRight") setSelectedIndex((i) => i !== null ? (i + 1) % images.length : null);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handler);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handler);
+    };
+  }, [selectedIndex, images.length]);
 
   if (images.length === 0) {
     return (

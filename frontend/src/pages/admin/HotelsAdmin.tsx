@@ -69,9 +69,13 @@ export function HotelsAdmin() {
   };
 
   const handleSave = async () => {
+    if (!formTitle.trim() || !formLocation.trim()) {
+      setFormError("Заполните все поля");
+      return;
+    }
     setSaving(true);
     setFormError(null);
-    const data: HotelAddRequest = { title: formTitle, location: formLocation };
+    const data: HotelAddRequest = { title: formTitle.trim(), location: formLocation.trim() };
     try {
       if (editingHotel) {
         await hotelsApi.update(editingHotel.id, data);
@@ -88,6 +92,7 @@ export function HotelsAdmin() {
   };
 
   const handleDelete = async (id: number) => {
+    if (!window.confirm("Удалить отель? Это действие нельзя отменить.")) return;
     try {
       await hotelsApi.delete(id);
       await fetchHotels();
