@@ -89,6 +89,10 @@ async def lifespan(app: FastAPI):
     await redis_manager.close()
 
 
+_docs_url = None if settings.MODE == "PROD" else "/docs"
+_redoc_url = None if settings.MODE == "PROD" else "/redoc"
+_openapi_url = None if settings.MODE == "PROD" else "/openapi.json"
+
 app = FastAPI(
     lifespan=lifespan,
     generate_unique_id_function=generate_unique_id,
@@ -103,6 +107,9 @@ app = FastAPI(
     contact={"name": "Support", "email": "support@hotelbooking.example"},
     license_info={"name": "MIT"},
     openapi_tags=openapi_tags,
+    docs_url=_docs_url,
+    redoc_url=_redoc_url,
+    openapi_url=_openapi_url,
 )
 
 # Rate limiting

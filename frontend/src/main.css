@@ -1,1 +1,103 @@
 @import "tailwindcss";
+
+/* Switch dark mode from media-query to class-based (controlled by themeStore) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Design tokens ─────────────────────────────────────────────── */
+:root {
+  --font-display: 'Montserrat', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Light theme */
+  --color-bg:            #F8FAFC;
+  --color-bg-card:       #FFFFFF;
+  --color-bg-secondary:  #F1F5F9;
+  --color-bg-warm:       #F1F5F9;
+  --color-text:          #0F172A;
+  --color-text-muted:    #475569;
+  --color-text-light:    #94A3B8;
+  --color-border:        #E2E8F0;
+
+  --color-primary:       #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-primary-active:#1E40AF;
+  --color-on-primary:    #FFFFFF;
+
+  --color-accent:        #F59E0B;
+  --color-accent-hover:  #D97706;
+
+  --color-success:       #16A34A;
+  --color-error:         #DC2626;
+  --color-warning:       #F59E0B;
+}
+
+.dark {
+  /* Dark theme — глубокий серо-синий */
+  --color-bg:            #0B1220;
+  --color-bg-card:       #1F2937;
+  --color-bg-secondary:  #111827;
+  --color-bg-warm:       #111827;
+  --color-text:          #E5E7EB;
+  --color-text-muted:    #9CA3AF;
+  --color-text-light:    #6B7280;
+  --color-border:        #374151;
+
+  --color-primary:       #3B82F6;
+  --color-primary-hover: #2563EB;
+  --color-primary-active:#1D4ED8;
+  --color-on-primary:    #FFFFFF;
+
+  --color-accent:        #FBBF24;
+  --color-accent-hover:  #F59E0B;
+
+  --color-success:       #22C55E;
+  --color-error:         #EF4444;
+  --color-warning:       #F59E0B;
+}
+
+/* ── Tailwind utilities ────────────────────────────────────────── */
+@theme inline {
+  /* Surfaces */
+  --color-surface:    var(--color-bg);
+  --color-card:       var(--color-bg-card);
+  --color-warm:       var(--color-bg-warm);
+  --color-secondary:  var(--color-bg-secondary);
+
+  /* Text */
+  --color-ink:        var(--color-text);
+  --color-muted:      var(--color-text-muted);
+  --color-subtle:     var(--color-text-light);
+
+  /* Borders */
+  --color-divider:    var(--color-border);
+
+  /* Brand */
+  --color-brand:      var(--color-primary);
+  --color-brand-hv:   var(--color-primary-hover);
+  --color-on-brand:   var(--color-on-primary);
+
+  /* Accent */
+  --color-highlight:  var(--color-accent);
+  --color-highlight-hv: var(--color-accent-hover);
+
+  /* States */
+  --color-ok:         var(--color-success);
+  --color-fail:       var(--color-error);
+  --color-warn:       var(--color-warning);
+}
+
+/* ── Base ──────────────────────────────────────────────────────── */
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* ── Scrollbar hidden for horizontal scroll sections ───────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

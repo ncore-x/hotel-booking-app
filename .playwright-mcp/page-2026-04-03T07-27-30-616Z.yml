@@ -1,0 +1,545 @@
+- generic [ref=e1]:
+  - generic [ref=e16]:
+    - navigation [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - link [ref=e320] [cursor=pointer]:
+            - /url: /
+            - img [ref=e321]
+          - link [ref=e322] [cursor=pointer]:
+            - /url: /
+            - img [ref=e24]
+          - link [ref=e323] [cursor=pointer]:
+            - /url: /illustrations
+            - img [ref=e27]
+        - generic [ref=e29]:
+          - button [ref=e324] [cursor=pointer]:
+            - img [ref=e31]
+          - link [ref=e325] [cursor=pointer]:
+            - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Forientation%3Dlandscape
+            - img [ref=e34]
+          - link [ref=e326] [cursor=pointer]:
+            - /url: /login?referrer=%2Fdownloads
+            - img [ref=e37]
+        - link [ref=e327] [cursor=pointer]:
+          - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Forientation%3Dlandscape
+          - img [ref=e41]
+      - generic [ref=e43]:
+        - link [ref=e328] [cursor=pointer]:
+          - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Forientation%3Dlandscape
+          - img [ref=e45]
+        - button [ref=e329] [cursor=pointer]:
+          - img [ref=e48]
+        - button [ref=e330] [cursor=pointer]:
+          - img [ref=e51]
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - navigation [ref=e55]:
+          - search [ref=e331]:
+            - button [ref=e332] [cursor=pointer]:
+              - img [ref=e59]
+            - combobox [ref=e61]:
+              - searchbox [ref=e333]: luxury villa pool night
+            - button [ref=e334] [cursor=pointer]:
+              - img [ref=e64]
+            - button [ref=e335] [cursor=pointer]:
+              - img [ref=e68]
+          - generic [ref=e70]:
+            - link [ref=e336] [cursor=pointer]:
+              - /url: /plus
+              - text: Get Unsplash+
+            - link [ref=e337] [cursor=pointer]:
+              - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Forientation%3Dlandscape
+              - text: Log in
+          - button [ref=e338] [cursor=pointer]: Submit an image
+        - generic [ref=e75]:
+          - generic [ref=e81]:
+            - list [ref=e82]:
+              - listitem [ref=e83]:
+                - link:
+                  - /url: /s/photos/luxury-villa-pool-night?orientation=landscape
+                  - img
+                  - text: Photos
+                  - generic: "452"
+              - listitem [ref=e84]:
+                - link [ref=e339] [cursor=pointer]:
+                  - /url: /s/illustrations/luxury-villa-pool-night?orientation=landscape
+                  - img [ref=e86]
+                  - text: Illustrations
+                  - generic [ref=e88]: "3"
+              - listitem [ref=e89]:
+                - button [ref=e340] [cursor=pointer]: More
+            - button [ref=e341] [cursor=pointer]:
+              - img [ref=e94]
+              - text: Filters
+          - generic [ref=e96]:
+            - heading [level=1] [ref=e342]: Luxury villa pool night
+            - generic [ref=e100]:
+              - button [ref=e343] [cursor=pointer]:
+                - img [ref=e103]
+              - generic [ref=e106]:
+                - link [ref=e344] [cursor=pointer]:
+                  - /url: /s/photos/night?orientation=landscape
+                  - text: night
+                - link [ref=e345] [cursor=pointer]:
+                  - /url: /s/photos/luxury?orientation=landscape
+                  - text: luxury
+                - link [ref=e346] [cursor=pointer]:
+                  - /url: /s/photos/architecture?orientation=landscape
+                  - text: architecture
+                - link [ref=e347] [cursor=pointer]:
+                  - /url: /s/photos/villa?orientation=landscape
+                  - text: villa
+                - link [ref=e348] [cursor=pointer]:
+                  - /url: /s/photos/real-estate?orientation=landscape
+                  - text: real estate
+                - link [ref=e349] [cursor=pointer]:
+                  - /url: /s/photos/property?orientation=landscape
+                  - text: property
+                - link [ref=e350] [cursor=pointer]:
+                  - /url: /s/photos/swimming-pool?orientation=landscape
+                  - text: swimming pool
+                - link [ref=e351] [cursor=pointer]:
+                  - /url: /s/photos/resort?orientation=landscape
+                  - text: resort
+                - link [ref=e352] [cursor=pointer]:
+                  - /url: /s/photos/modern?orientation=landscape
+                  - text: modern
+                - link [ref=e353] [cursor=pointer]:
+                  - /url: /s/photos/modern-architecture?orientation=landscape
+                  - text: modern architecture
+                - link [ref=e354] [cursor=pointer]:
+                  - /url: /s/photos/vacation-home?orientation=landscape
+                  - text: vacation home
+                - link [ref=e355] [cursor=pointer]:
+                  - /url: /s/photos/relaxation?orientation=landscape
+                  - text: relaxation
+          - generic [ref=e132]:
+            - generic [ref=e136]:
+              - generic [ref=e137]:
+                - figure [ref=e138]:
+                  - generic [ref=e140]:
+                    - link [ref=e356]:
+                      - /url: /photos/a-large-house-with-a-pool-in-front-of-it-D1pL3-24Ny0
+                      - img [ref=e357]
+                    - link [ref=e143] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fa-large-house-with-a-pool-in-front-of-it-D1pL3-24Ny0
+                      - img [ref=e144]
+                - generic [ref=e146]:
+                  - heading [level=4] [ref=e358]:
+                    - generic [ref=e148]: Sponsored images
+                    - link [ref=e149] [cursor=pointer]:
+                      - /url: https://www.istockphoto.com/search/2/image?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3Aad8aa4f5-1f3d-4e32-a04d-47f95909c4e1&phrase=luxury+villa+pool+night&alloweduse=availableforalluses&excludenudity=true&sort=best&mediatype=photography
+                      - img [ref=e150]
+                  - generic [ref=e152]:
+                    - link [ref=e359] [cursor=pointer]:
+                      - /url: https://www.istockphoto.com/photo/modern-luxury-villa-with-swimming-pool-surrounded-gm2262160388-674958461?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3Ac7ee093b-9f82-4020-beb4-efc7b72f720d
+                      - img [ref=e360]
+                    - link [ref=e361] [cursor=pointer]:
+                      - /url: https://www.istockphoto.com/photo/luxury-tropical-pool-villa-at-dusk-gm2110310187-566928395?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3Aa157ad93-7fd7-4b27-b7dd-44055f3dda9e
+                      - img [ref=e362]
+                    - link [ref=e363] [cursor=pointer]:
+                      - /url: https://www.istockphoto.com/photo/illuminated-swimming-pool-gm2233382079-648878388?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3A7c3f8c7b-bd8f-4490-905a-9a143a4693ae
+                      - img [ref=e364]
+                    - link [ref=e365] [cursor=pointer]:
+                      - /url: https://www.istockphoto.com/photo/luxury-villa-exterior-design-with-beautiful-sunset-at-the-infinity-pool-gm1389409003-446716432?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3A3b4aa226-9d6c-4167-b18f-f66734a0b17f
+                      - img [ref=e366]
+                  - link [ref=e367] [cursor=pointer]:
+                    - /url: https://www.istockphoto.com/search/2/image?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3Aad8aa4f5-1f3d-4e32-a04d-47f95909c4e1&phrase=luxury+villa+pool+night&alloweduse=availableforalluses&excludenudity=true&sort=best&mediatype=photography
+                    - text: Get 20% off with code UNSPLASH20
+                - figure [ref=e162]:
+                  - link [ref=e368]:
+                    - /url: /photos/luxury-villa-with-illuminated-pool-at-night-GZezxeKOznc
+                    - img [ref=e369]
+                - figure [ref=e167]:
+                  - generic [ref=e169]:
+                    - link [ref=e370]:
+                      - /url: /photos/luxurious-resort-at-night-with-a-pool-XLLIYCMVN5I
+                      - img [ref=e371]
+                    - link [ref=e172] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fluxurious-resort-at-night-with-a-pool-XLLIYCMVN5I
+                      - img [ref=e173]
+                - figure [ref=e175]:
+                  - generic [ref=e177]:
+                    - link [ref=e372]:
+                      - /url: /photos/a-modern-house-is-illuminated-next-to-a-pool-FRmxEx1owZE
+                      - img [ref=e373]
+                    - link [ref=e180] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fa-modern-house-is-illuminated-next-to-a-pool-FRmxEx1owZE
+                      - img [ref=e181]
+                - figure [ref=e183]:
+                  - link [ref=e374]:
+                    - /url: /photos/white-and-blue-building-during-night-time-rtdt9IkLFu0
+                    - img [ref=e375]
+                - figure [ref=e188]:
+                  - link [ref=e376]:
+                    - /url: /photos/pool-at-night-JXpqTBq-CFk
+                    - img [ref=e377]
+              - generic [ref=e193]:
+                - figure [ref=e194]:
+                  - link [ref=e378]:
+                    - /url: /photos/modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A
+                    - img [ref=e379]
+                - figure [ref=e199]:
+                  - link [ref=e380]:
+                    - /url: /photos/a-modern-house-illuminated-at-night-with-outdoor-lighting-znZMBM024cc
+                    - img [ref=e381]
+                - figure [ref=e204]:
+                  - link [ref=e382]:
+                    - /url: /photos/luxury-pool-and-patio-area-at-night-N1pQon2QBKw
+                    - img [ref=e383]
+                - figure [ref=e209]:
+                  - link [ref=e384]:
+                    - /url: /photos/luxury-resort-pool-area-at-night-with-ambient-lighting-ZVJqmMpqPiY
+                    - img [ref=e385]
+                - figure [ref=e214]:
+                  - link [ref=e386]:
+                    - /url: /photos/a-house-with-a-pool-in-front-of-it-at-night-4fufhw9JyUM
+                    - img [ref=e387]
+                - figure [ref=e219]:
+                  - link [ref=e388]:
+                    - /url: /photos/reflection-of-blue-light-crossing-above-pool-near-house-during-nighttime-_aN6zIDRLfQ
+                    - img [ref=e389]
+                - figure [ref=e224]:
+                  - link [ref=e390]:
+                    - /url: /photos/a-house-with-a-swimming-pool-at-night-hnFmQgrmLt4
+                    - img [ref=e391]
+                - figure [ref=e229]:
+                  - link [ref=e392]:
+                    - /url: /photos/a-large-swimming-pool-next-to-a-beach-_o7mUH009ns
+                    - img [ref=e393]
+              - generic [ref=e234]:
+                - link [ref=e394] [cursor=pointer]:
+                  - /url: https://e-10457.adzerk.net/r?e=eyJ2IjoiMS4xNCIsImF2Ijo4MTA3NTIsImF0Ijo1LCJidCI6MCwiY20iOjE1Nzk5OTMsImNoIjo0NTE2MywiY2siOnt9LCJjciI6ODk1MzYzNTAyLCJkaSI6ImE3Mzg2ZGY1MjBiZDQ5YzRhZTU4MmZlYTE0MjA2MGI2IiwiZGoiOjAsImlpIjoiZjhjM2RkMGI1NTU3NDFjMTg5NzlkZjA2OWVlZDU1YTciLCJkbSI6MywiZmMiOjEwNjk5Nzk1MjgsImZsIjo4NjI0OTYwNzAsImlwIjoiMTAzLjExMi4xNzEuMTY0IiwibnciOjEwNDU3LCJwYyI6Mywib3AiOjMsIm1wIjozLCJlYyI6MywiZ20iOjAsImVwIjpudWxsLCJwciI6MjIzNjYwLCJydCI6MiwicnMiOjUwMCwic2EiOiI5NiIsInNiIjoiaS0wZTUxZDZlOTE3OWI1ZGIxZiIsInNwIjozMTA2ODksInN0IjoxMTIxOTU0LCJ1ayI6IjAwMTM0ZTdlLWI5ZjMtNDQyZi1hOTAyLWJhY2EzOTVjMDgzMyIsInpuIjoyNDEzNDgsInptIjpbMjQxMzQ4XSwidHMiOjE3NzUyMDExNzkzMzcsInBuIjoic2VhcmNoLWluLWZlZWQiLCJnciI6dHJ1ZSwiZ2MiOnRydWUsImdDIjp0cnVlLCJnaSI6dHJ1ZSwiZ3MiOiJyZXEiLCJ0eiI6IkFtZXJpY2EvTmV3X1lvcmsiLCJ1ciI6Imh0dHBzOi8vYWQuZG91YmxlY2xpY2submV0L2RkbS90cmFja2Nsay9ONzE4Njc5LjMyODY4OTNVTlNQTEFTSC9CMjkwOTAwMDkuMzg4MDk2MTcwO2RjX3Rya19haWQ9NTc5MjQ1MDYyO2RjX3Rya19jaWQ9MjA2NTY0Mzg2O2RjX2xhdD07ZGNfcmRpZD07dGFnX2Zvcl9jaGlsZF9kaXJlY3RlZF90cmVhdG1lbnQ9O3RmdWE9O2x0ZD07ZGNfdGR2PTEifQ&s=CKs4yP9epOIwUDOF3f2WaSjBn-M
+                  - generic [ref=e238]:
+                    - img [ref=e240]
+                    - contentinfo [ref=e241]:
+                      - generic [ref=e242]:
+                        - img [ref=e244]
+                        - generic [ref=e248]: Manage and sell your services
+                      - generic [ref=e249]: Start A Free Trial
+                - figure [ref=e250]:
+                  - generic [ref=e252]:
+                    - link [ref=e395]:
+                      - /url: /photos/luxury-villa-with-swimming-pool-and-patio-furnitures-at-night-rHoMQ87hvIY
+                      - img [ref=e396]
+                    - link [ref=e255] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fluxury-villa-with-swimming-pool-and-patio-furnitures-at-night-rHoMQ87hvIY
+                      - img [ref=e256]
+                - figure [ref=e258]:
+                  - link [ref=e397]:
+                    - /url: /photos/lit-up-pool-reflects-a-beautiful-building-at-night-G-yzDWHe2ic
+                    - img [ref=e398]
+                - figure [ref=e263]:
+                  - link [ref=e399]:
+                    - /url: /photos/a-swimming-pool-surrounded-by-palm-trees-in-front-of-a-building-puGBv2fsl-c
+                    - img [ref=e400]
+                - figure [ref=e268]:
+                  - link [ref=e401]:
+                    - /url: /photos/luxurious-swimming-pool-at-night-with-palm-trees-pnGdu6T0Z-M
+                    - img [ref=e402]
+                - figure [ref=e273]:
+                  - generic [ref=e275]:
+                    - link [ref=e403]:
+                      - /url: /photos/contemporary-house-equipped-with-solar-panels-and-an-energy-storage-wall-battery-during-dusk-4J03Lg3f6UQ
+                      - img [ref=e404]
+                    - link [ref=e278] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fcontemporary-house-equipped-with-solar-panels-and-an-energy-storage-wall-battery-during-dusk-4J03Lg3f6UQ
+                      - img [ref=e279]
+                - figure [ref=e281]:
+                  - link [ref=e405]:
+                    - /url: /photos/a-house-with-a-swimming-pool-in-the-middle-of-it-Sz70Y1kzvO0
+                    - img [ref=e406]
+            - generic [ref=e288]:
+              - heading [level=2] [ref=e407]:
+                - text: Browse premium images on iStock
+                - generic [ref=e290]: "| Claim your discount now"
+              - generic [ref=e292]:
+                - link [ref=e408] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/photo/3d-rendering-of-two-story-house-with-concrete-facade-in-night-gm2217479261-634065663?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3Ac1ba25f5-a0e6-4cd6-a86a-682ad1ffbbfe
+                  - img [ref=e409]
+                - link [ref=e410] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/photo/pool-with-lounge-chairs-at-night-gm130407925-24375031?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3Ab6b2f614-7704-4c52-86d6-2c8f829b13f5
+                  - img [ref=e411]
+                - link [ref=e412] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/photo/maldives-beach-villa-bungalow-with-pool-at-luxury-island-resort-at-night-time-dusk-gm2167389167-587449948?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3A0860972d-df6e-41ce-a134-1e4d10cf5777
+                  - img [ref=e413]
+                - link [ref=e414] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/photo/beautiful-sleek-modern-house-with-pool-and-garden-in-the-evening-gm1806197028-548906755?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3A0f8bcca3-3288-48d2-bde0-f1b3fccf9ebf
+                  - img [ref=e415]
+                - link [ref=e416] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/photo/modern-luxury-villa-at-dusk-with-illuminated-outdoor-spaces-and-pool-gm2196986472-614972665?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3A6c7e5367-153b-4ddc-ba60-870c09525521
+                  - img [ref=e417]
+                - link [ref=e418] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/photo/sunset-view-luxury-tropical-pool-villa-gm1412643214-461991122?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3Ad250af9e-2036-45fd-917f-1c54a4520d48
+                  - img [ref=e419]
+                - link [ref=e420] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/photo/luxurious-house-with-arches-and-a-large-swimming-pool-it-is-night-and-it-is-summer-gm2172616411-592392477?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3A98e2ad9b-aa81-4fe6-84ad-76a95f02eac1
+                  - img [ref=e421]
+                - generic [ref=e307]:
+                  - link [ref=e422] [cursor=pointer]:
+                    - /url: https://www.istockphoto.com/photo/luxurious-modern-house-with-swimming-pool-at-dusk-gm2175964525-595482096?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3A1f7005d1-888d-4300-874c-deca31c432e9
+                    - img [ref=e423]
+                  - link [ref=e424] [cursor=pointer]:
+                    - /url: https://www.istockphoto.com/search/2/image?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=luxury+villa+pool+night%3A%3A%3A%3A807a5f0c-1679-450a-930d-2fbcc2180d4f&phrase=luxury+villa+pool+night&alloweduse=availableforalluses&excludenudity=true&sort=best&mediatype=photography
+                    - text: View more on iStock ↗
+            - button [ref=e425] [cursor=pointer]: Load more
+            - generic [ref=e315]:
+              - link [ref=e316] [cursor=pointer]:
+                - /url: /
+                - img [ref=e317]
+              - paragraph [ref=e319]: Make something awesome
+      - generic:
+        - region "Notifications"
+  - generic:
+    - dialog:
+      - button [active] [ref=e430] [cursor=pointer]:
+        - img [ref=e431]
+      - link "Previous" [ref=e433] [cursor=pointer]:
+        - /url: /photos/a-large-house-with-a-pool-in-front-of-it-D1pL3-24Ny0
+        - img [ref=e434]
+      - link "Next" [ref=e436] [cursor=pointer]:
+        - /url: /photos/a-modern-house-illuminated-at-night-with-outdoor-lighting-znZMBM024cc
+        - img [ref=e437]
+      - generic [ref=e440]:
+        - generic [ref=e441]:
+          - banner [ref=e443]:
+            - generic [ref=e445]:
+              - link [ref=e446] [cursor=pointer]:
+                - /url: /@pajorstudio
+              - generic [ref=e449]:
+                - link "Dominik" [ref=e450] [cursor=pointer]:
+                  - /url: /@pajorstudio
+                - link "Available for hire" [ref=e452] [cursor=pointer]:
+                  - /url: /@pajorstudio
+                  - text: Available for hire
+                  - img [ref=e453]
+            - generic [ref=e455]:
+              - button "Bookmark" [ref=e456] [cursor=pointer]:
+                - img [ref=e457]
+              - button "Add to Collection" [ref=e459] [cursor=pointer]:
+                - img [ref=e460]
+              - button "Edit image" [ref=e462] [cursor=pointer]:
+                - text: Edit image
+                - img [ref=e463]
+              - generic [ref=e466]:
+                - link "Download free" [ref=e467] [cursor=pointer]:
+                  - /url: https://unsplash.com/photos/hap-fa_gV1A/download?force=true
+                - button "Choose download size" [ref=e469] [cursor=pointer]:
+                  - img [ref=e470]
+          - button "Zoom in on this image" [ref=e475]:
+            - img "Modern house with pool at dusk near mountain" [ref=e476]
+            - generic:
+              - generic:
+                - img
+          - generic [ref=e477]:
+            - generic [ref=e478]:
+              - generic [ref=e479]:
+                - generic [ref=e480]:
+                  - heading "Views" [level=3] [ref=e481]
+                  - text: 29,267
+                - generic [ref=e482]:
+                  - heading "Downloads" [level=3] [ref=e483]
+                  - text: "606"
+              - generic [ref=e484]:
+                - button "Share this image" [ref=e485] [cursor=pointer]:
+                  - img [ref=e486]
+                  - generic [ref=e488]: Share
+                - button "Stats about this image" [ref=e489] [cursor=pointer]:
+                  - img [ref=e490]
+                  - generic [ref=e492]: Info
+                - button "More Actions" [ref=e493] [cursor=pointer]:
+                  - img [ref=e494]
+            - generic [ref=e498]:
+              - generic [ref=e499]:
+                - img [ref=e500]
+                - generic [ref=e503]:
+                  - text: Published on
+                  - time [ref=e504]: January 9, 2026
+              - generic [ref=e505]:
+                - img [ref=e506]
+                - generic [ref=e508]:
+                  - text: Free to use under the
+                  - link "Unsplash License" [ref=e509] [cursor=pointer]:
+                    - /url: /license
+            - generic [ref=e511]:
+              - link "house" [ref=e512] [cursor=pointer]:
+                - /url: /s/photos/house
+              - link "architecture" [ref=e513] [cursor=pointer]:
+                - /url: /s/photos/architecture
+              - link "night" [ref=e514] [cursor=pointer]:
+                - /url: /s/photos/night
+              - link "luxury" [ref=e515] [cursor=pointer]:
+                - /url: /s/photos/luxury
+              - link "palm tree" [ref=e516] [cursor=pointer]:
+                - /url: /s/photos/palm-tree
+              - link "swimming pool" [ref=e517] [cursor=pointer]:
+                - /url: /s/photos/swimming-pool
+              - link "villa" [ref=e518] [cursor=pointer]:
+                - /url: /s/photos/villa
+              - link "tropical" [ref=e519] [cursor=pointer]:
+                - /url: /s/photos/tropical
+              - link "resort" [ref=e520] [cursor=pointer]:
+                - /url: /s/photos/resort
+              - link "modern architecture" [ref=e521] [cursor=pointer]:
+                - /url: /s/photos/modern-architecture
+              - link "luxury travel" [ref=e522] [cursor=pointer]:
+                - /url: /s/photos/luxury-travel
+              - link "mountain view" [ref=e523] [cursor=pointer]:
+                - /url: /s/photos/mountain-view
+              - link "luxury villa" [ref=e524] [cursor=pointer]:
+                - /url: /s/photos/luxury-villa
+              - link "patio" [ref=e525] [cursor=pointer]:
+                - /url: /s/photos/patio
+              - link "estate" [ref=e526] [cursor=pointer]:
+                - /url: /s/photos/estate
+              - link "terrace" [ref=e527] [cursor=pointer]:
+                - /url: /s/photos/terrace
+              - link "luxury real estate" [ref=e528] [cursor=pointer]:
+                - /url: /s/photos/luxury-real-estate
+              - link "architectural design" [ref=e529] [cursor=pointer]:
+                - /url: /s/photos/architectural-design
+              - link "modern design" [ref=e530] [cursor=pointer]:
+                - /url: /s/photos/modern-design
+              - link "exterior" [ref=e531] [cursor=pointer]:
+                - /url: /s/photos/exterior
+              - link "Free images" [ref=e532] [cursor=pointer]:
+                - /url: /images
+        - generic [ref=e535]:
+          - generic [ref=e536]:
+            - paragraph [ref=e538]: Browse premium related images on iStock | Save 20% with code UNSPLASH20
+            - generic [ref=e540]:
+              - link "Luxury beach house with sea view swimming pool in modern design" [ref=e541] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/luxury-beach-house-with-sea-view-swimming-pool-in-modern-design-gm1019998398-274073597?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=house%3A%3A%3A%3Aa6784580-82fb-4be4-b731-c9e6d9ac8ad0
+                - img "Luxury beach house with sea view swimming pool in modern design" [ref=e542]
+              - link "Evening view of a Mediterranean-style villa" [ref=e543] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/evening-view-of-a-mediterranean-style-villa-gm2236376707-651668226?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=house%3A%3A%3A%3A9c1d7566-dc51-44a6-bdb7-859419a2e1fe
+                - img "Evening view of a Mediterranean-style villa" [ref=e544]
+              - link "Evening view of a Mediterranean-style villa" [ref=e545] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/evening-view-of-a-mediterranean-style-villa-gm2239064530-653969537?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=house%3A%3A%3A%3A56011f11-5f99-46bc-bac9-a96ad589c9c7
+                - img "Evening view of a Mediterranean-style villa" [ref=e546]
+              - link "House and pool" [ref=e547] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/house-and-pool-gm1072194190-286929210?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=house%3A%3A%3A%3Aa9e40b7e-4601-4994-a7e8-b5120ca420e8
+                - img "House and pool" [ref=e548]
+              - link "A blue pool illuminated by the golden color of the setting sun." [ref=e549] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/a-blue-pool-illuminated-by-the-golden-color-of-the-setting-sun-gm2172711642-592469216?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=house%3A%3A%3A%3A574ffcf6-adde-430f-b8b1-16e9a956c5d6
+                - img "A blue pool illuminated by the golden color of the setting sun." [ref=e550]
+              - link "Modern house with swimming pool illuminated at night" [ref=e551] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/modern-house-with-swimming-pool-illuminated-at-night-gm494358507-494358507?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=house%3A%3A%3A%3A42d667da-a975-4bbe-8719-f09a031fcef2
+                - img "Modern house with swimming pool illuminated at night" [ref=e552]
+              - link "Dawn sunlight on Villa" [ref=e553] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/dawn-sunlight-on-villa-gm157476524-9873427?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=house%3A%3A%3A%3Af8452c06-a663-45f3-93e4-c597ddae644f
+                - img "Dawn sunlight on Villa" [ref=e554]
+              - generic [ref=e555]:
+                - link "typlical traditional spanish house with pool in evening light" [ref=e556] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/photo/typlical-traditional-spanish-house-with-pool-in-evening-light-gm578564408-99442111?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=house%3A%3A%3A%3A703b6bd6-ad1f-4604-978f-3aa2696e7b77
+                  - img "typlical traditional spanish house with pool in evening light" [ref=e557]
+                - link "View more on iStock ↗" [ref=e558] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/search/search-by-image?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-villa-pool-night%3Fasset%3D%255B%2522Photos%2522%252C%257B%2522slug%2522%253A%2522modern-house-with-pool-at-dusk-near-mountain-hap-fa_gV1A%2522%257D%255D%26orientation%3Dlandscape&utm_term=house%3A%3A%3A%3Af2100b8c-835c-4eb5-a3bd-448ba7886273&mediatype=photography&imageurl=aHR0cHM6Ly9zMy51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9pbWFnZXMudW5zcGxhc2guY29tL3NtYWxsL3Bob3RvLTE3Njc5NTA0NzAxOTgtYzljZDk3ZjhlZDg3&assettype=image
+          - generic [ref=e559]:
+            - heading "Related images" [level=4] [ref=e561]
+            - generic [ref=e565]:
+              - generic [ref=e566]:
+                - figure [ref=e567]:
+                  - link "A pool overlooks a beautiful dusk mountain view." [ref=e570]:
+                    - /url: /photos/a-pool-overlooks-a-beautiful-dusk-mountain-view-xsAFICgYZIo
+                    - img "A pool overlooks a beautiful dusk mountain view." [ref=e571]
+                - figure [ref=e572]:
+                  - link "a modern house with a pool at night" [ref=e575]:
+                    - /url: /photos/a-modern-house-with-a-pool-at-night-lOGD6SRsBnw
+                    - img "a modern house with a pool at night" [ref=e576]
+                - figure [ref=e577]:
+                  - link "a fire pit sitting next to a swimming pool" [ref=e580]:
+                    - /url: /photos/a-fire-pit-sitting-next-to-a-swimming-pool-Xx1pYni_Rt0
+                    - img "a fire pit sitting next to a swimming pool" [ref=e581]
+                - figure [ref=e582]:
+                  - link "a modern house with a swimming pool at night" [ref=e585]:
+                    - /url: /photos/a-modern-house-with-a-swimming-pool-at-night-4iEuIV8_84k
+                    - img "a modern house with a swimming pool at night" [ref=e586]
+                - figure [ref=e587]:
+                  - link "a swimming pool surrounded by palm trees in front of a building" [ref=e590]:
+                    - /url: /photos/a-swimming-pool-surrounded-by-palm-trees-in-front-of-a-building-puGBv2fsl-c
+                    - img "a swimming pool surrounded by palm trees in front of a building" [ref=e591]
+                - figure [ref=e592]:
+                  - link "a house with a swimming pool in front of it" [ref=e595]:
+                    - /url: /photos/a-house-with-a-swimming-pool-in-front-of-it-CPlvrZlUQqs
+                    - img "a house with a swimming pool in front of it" [ref=e596]
+                - figure [ref=e597]:
+                  - link "a swimming pool in front of a building at night" [ref=e600]:
+                    - /url: /photos/a-swimming-pool-in-front-of-a-building-at-night-1V9TToIkmuI
+                    - img "a swimming pool in front of a building at night" [ref=e601]
+                - figure [ref=e602]:
+                  - link "white and brown house near green trees during daytime" [ref=e605]:
+                    - /url: /photos/white-and-brown-house-near-green-trees-during-daytime-uEqlyGxup5I
+                    - img "white and brown house near green trees during daytime" [ref=e606]
+                - figure [ref=e607]:
+                  - link "a backyard with a pool and patio furniture" [ref=e610]:
+                    - /url: /photos/a-backyard-with-a-pool-and-patio-furniture-Fguf51AkXTo
+                    - img "a backyard with a pool and patio furniture" [ref=e611]
+              - generic [ref=e612]:
+                - figure [ref=e613]:
+                  - link "Luxury resort pool area at night with ambient lighting." [ref=e616]:
+                    - /url: /photos/luxury-resort-pool-area-at-night-with-ambient-lighting-ZVJqmMpqPiY
+                    - img "Luxury resort pool area at night with ambient lighting." [ref=e617]
+                - figure [ref=e618]:
+                  - generic [ref=e620]:
+                    - link "a house with a pool in the middle of it" [ref=e621]:
+                      - /url: /photos/a-house-with-a-pool-in-the-middle-of-it-q8j5EmlOL1k
+                      - img "a house with a pool in the middle of it" [ref=e622]
+                    - link [ref=e623] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fa-house-with-a-pool-in-the-middle-of-it-q8j5EmlOL1k
+                      - img [ref=e624]
+                - figure [ref=e626]:
+                  - link "a house with a mountain in the background" [ref=e629]:
+                    - /url: /photos/a-house-with-a-mountain-in-the-background-WKtlIB8xzd0
+                    - img "a house with a mountain in the background" [ref=e630]
+                - figure [ref=e631]:
+                  - generic [ref=e633]:
+                    - link "a house with a swimming pool and lawn" [ref=e634]:
+                      - /url: /photos/a-house-with-a-swimming-pool-and-lawn-exiSd0n8sAE
+                      - img "a house with a swimming pool and lawn" [ref=e635]
+                    - link [ref=e636] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fa-house-with-a-swimming-pool-and-lawn-exiSd0n8sAE
+                      - img [ref=e637]
+                - figure [ref=e639]:
+                  - link "white concrete house surrounded by trees" [ref=e642]:
+                    - /url: /photos/white-concrete-house-surrounded-by-trees-KtOid0FLjqU
+                    - img "white concrete house surrounded by trees" [ref=e643]
+                - figure [ref=e644]:
+                  - generic [ref=e646]:
+                    - link "a house with a pool in front of it" [ref=e647]:
+                      - /url: /photos/a-house-with-a-pool-in-front-of-it-puk9ju-kWHI
+                      - img "a house with a pool in front of it" [ref=e648]
+                    - link [ref=e649] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fa-house-with-a-pool-in-front-of-it-puk9ju-kWHI
+                      - img [ref=e650]
+                - figure [ref=e652]:
+                  - link "a house with a swimming pool in the middle of it" [ref=e655]:
+                    - /url: /photos/a-house-with-a-swimming-pool-in-the-middle-of-it-Sz70Y1kzvO0
+                    - img "a house with a swimming pool in the middle of it" [ref=e656]
+                - figure [ref=e657]:
+                  - generic [ref=e659]:
+                    - link "A luxury patio with pool and outdoor kitchen." [ref=e660]:
+                      - /url: /photos/a-luxury-patio-with-pool-and-outdoor-kitchen-ICFmeEz2OFw
+                      - img "A luxury patio with pool and outdoor kitchen." [ref=e661]
+                    - link [ref=e662] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fa-luxury-patio-with-pool-and-outdoor-kitchen-ICFmeEz2OFw
+                      - img [ref=e663]
+                - figure [ref=e665]:
+                  - link "a house with a swimming pool in front of it" [ref=e668]:
+                    - /url: /photos/a-house-with-a-swimming-pool-in-front-of-it-3ZQTE0bldGI
+                    - img "a house with a swimming pool in front of it" [ref=e669]
+                - figure [ref=e670]:
+                  - link "a house with a pool in front of it at night" [ref=e673]:
+                    - /url: /photos/a-house-with-a-pool-in-front-of-it-at-night-4fufhw9JyUM
+                    - img "a house with a pool in front of it at night" [ref=e674]
+                - figure [ref=e675]:
+                  - generic [ref=e677]:
+                    - link "A large swimming pool next to a wooden deck" [ref=e678]:
+                      - /url: /photos/a-large-swimming-pool-next-to-a-wooden-deck-SqDVSjN5ArA
+                      - img "A large swimming pool next to a wooden deck" [ref=e679]
+                    - link [ref=e680] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fa-large-swimming-pool-next-to-a-wooden-deck-SqDVSjN5ArA
+                      - img [ref=e681]
+      - generic:
+        - region "Notifications"

@@ -13,8 +13,8 @@ export type HotelSortBy = "id" | "title" | "location";
 export type SortOrder = "asc" | "desc";
 
 export interface HotelSearchParams {
-  date_from: string;
-  date_to: string;
+  date_from?: string;
+  date_to?: string;
   location?: string;
   title?: string;
   page?: number;

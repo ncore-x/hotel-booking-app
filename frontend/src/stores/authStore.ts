@@ -46,12 +46,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ error: null });
     try {
       await authApi.register({ email, password });
-      await get().login(email, password);
     } catch (e) {
       const msg = e instanceof ApiError ? e.detail : "Ошибка регистрации";
       set({ error: msg });
       throw e;
     }
+    await get().login(email, password);
   },
 
   logout: async () => {

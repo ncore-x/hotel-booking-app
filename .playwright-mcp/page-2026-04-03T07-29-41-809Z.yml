@@ -1,0 +1,53 @@
+- generic [ref=e4]:
+  - navigation [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - link "Unsplash Home" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - img "Unsplash Home" [ref=e9]
+        - link "Photos" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - img [ref=e12]
+        - link "Illustrations" [ref=e14] [cursor=pointer]:
+          - /url: /illustrations
+          - img [ref=e15]
+      - generic [ref=e17]:
+        - button "Explore" [ref=e18] [cursor=pointer]:
+          - img [ref=e19]
+        - link "Collections" [ref=e21] [cursor=pointer]:
+          - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape
+          - img [ref=e22]
+        - link "Download History" [ref=e24] [cursor=pointer]:
+          - /url: /login?referrer=%2Fdownloads
+          - img [ref=e25]
+      - link "Bookmarks" [ref=e28] [cursor=pointer]:
+        - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape
+        - img [ref=e29]
+    - generic [ref=e31]:
+      - link "Log in / Sign up" [ref=e32] [cursor=pointer]:
+        - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape
+        - img [ref=e33]
+      - button "Language" [ref=e35] [cursor=pointer]:
+        - img [ref=e36]
+      - button "Menu" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+  - generic [ref=e41]:
+    - navigation [ref=e43]:
+      - search "Find visuals sitewide" [ref=e45]:
+        - button "Search Unsplash" [ref=e46] [cursor=pointer]:
+          - img [ref=e47]
+        - combobox [ref=e49]:
+          - searchbox "Search Unsplash" [ref=e50]: luxury hotel exterior night
+          - listbox
+        - button "Clear" [ref=e51] [cursor=pointer]:
+          - img [ref=e52]
+        - button "Visual search" [ref=e55] [cursor=pointer]:
+          - img [ref=e56]
+      - generic [ref=e58]:
+        - link "Get Unsplash+" [ref=e59] [cursor=pointer]:
+          - /url: /plus
+        - link "Log in" [ref=e60] [cursor=pointer]:
+          - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape
+      - button "Submit an image" [ref=e62] [cursor=pointer]
+    - generic:
+      - region "Notifications"

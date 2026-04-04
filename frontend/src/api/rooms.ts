@@ -6,7 +6,7 @@ import { buildQuery } from "../lib/queryString";
 export const roomsApi = {
   getByHotel: (
     hotelId: number,
-    params: { date_from: string; date_to: string; page?: number; per_page?: number },
+    params: { date_from?: string; date_to?: string; page?: number; per_page?: number },
   ) => get<PaginatedResponse<Room>>(`/hotels/${hotelId}/rooms${buildQuery(params)}`),
 
   getById: (hotelId: number, roomId: number) =>

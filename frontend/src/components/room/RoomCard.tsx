@@ -3,6 +3,7 @@ import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { FacilityBadge } from "./FacilityBadge";
 import { formatPrice } from "../../lib/currency";
+import { useT } from "../../i18n/useT";
 
 interface RoomCardProps {
   room: Room;
@@ -10,15 +11,17 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room, onBook }: RoomCardProps) {
+  const t = useT();
+
   return (
     <Card>
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex-1 space-y-2">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-lg font-semibold text-ink">
             {room.title}
           </h3>
           {room.description && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-muted">
               {room.description}
             </p>
           )}
@@ -29,18 +32,18 @@ export function RoomCard({ room, onBook }: RoomCardProps) {
               ))}
             </div>
           )}
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            {room.quantity} {room.quantity === 1 ? "номер" : "номеров"} всего
+          <p className="text-xs text-subtle">
+            {t.roomCard.quantity(room.quantity)}
           </p>
         </div>
 
         <div className="flex flex-col items-end gap-2">
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+          <p className="text-2xl font-bold text-ink">
             {formatPrice(room.price)}
-            <span className="text-sm font-normal text-gray-500"> / ночь</span>
+            <span className="text-sm font-normal text-muted"> {t.roomCard.perNight}</span>
           </p>
           <Button size="sm" onClick={() => onBook(room.id)}>
-            Забронировать
+            {t.roomCard.book}
           </Button>
         </div>
       </div>

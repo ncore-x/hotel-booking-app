@@ -1,0 +1,7 @@
+[    2523ms] [ERROR] Failed to load resource: net::ERR_SOCKET_NOT_CONNECTED @ https://plus.unsplash.com/premium_photo-1682377521590-bc565126cb4d?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bHV4dXJ5JTIwdmlsbGElMjBwb29sJTIwbmlnaHR8ZW58MHwwfDB8fHww:0
+[    7809ms] [LOG] %cmetric: color:gray {name: TTFB, entries: Array(1), value: 1909, rating: poor, delta: 1909} @ https://unsplash.com/a/en-US/4142.9b883bb0.js:13
+[    7810ms] [LOG] %cusr: color:gray {locale: en-US} @ https://unsplash.com/a/en-US/4142.9b883bb0.js:13
+[    7810ms] [LOG] %croute_data: color:gray Search-Photos @ https://unsplash.com/a/en-US/4142.9b883bb0.js:13
+[   57222ms] [LOG] %cmetric: color:gray {name: LCP, entries: Array(1), value: 4760, rating: poor, delta: 4760} @ https://unsplash.com/a/en-US/4142.9b883bb0.js:13
+[   57222ms] [LOG] %cusr: color:gray {locale: en-US} @ https://unsplash.com/a/en-US/4142.9b883bb0.js:13
+[   57222ms] [LOG] %croute_data: color:gray Search-Photos @ https://unsplash.com/a/en-US/4142.9b883bb0.js:13

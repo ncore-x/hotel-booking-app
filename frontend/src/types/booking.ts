@@ -5,6 +5,7 @@ export interface Booking {
   date_from: string;
   date_to: string;
   price: number;
+  total_cost?: number;
 }
 
 export interface BookingAddRequest {

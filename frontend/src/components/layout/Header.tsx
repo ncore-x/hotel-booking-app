@@ -1,68 +1,185 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { useAuthStore } from "../../stores/authStore";
 import { useThemeStore } from "../../stores/themeStore";
-import { Button } from "../ui/Button";
+import { useLangStore } from "../../stores/langStore";
+import { useT } from "../../i18n/useT";
 
 export function Header() {
   const { user, logout } = useAuthStore();
   const { theme, toggle } = useThemeStore();
+  const { lang, toggle: toggleLang } = useLangStore();
+  const t = useT();
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur dark:border-gray-700 dark:bg-gray-900/80">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+    <header
+      className={`sticky top-0 z-40 bg-card transition-shadow duration-300 ${
+        scrolled ? "shadow-sm" : ""
+      }`}
+    >
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
+        {/* Logo */}
         <Link
           to="/"
-          className="text-xl font-bold text-gray-900 dark:text-white"
+          className="font-display text-xl font-bold tracking-tight text-ink"
+          style={{ fontFamily: "var(--font-display)" }}
         >
-          HotelBooking
+          StaySpring.
         </Link>
 
-        <nav className="flex items-center gap-3">
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-8 md:flex">
+          <Link to="/" className="text-sm font-medium text-muted transition-colors hover:text-ink">
+            {t.nav.home}
+          </Link>
+          {user?.is_admin && (
+            <Link to="/admin/hotels" className="text-sm font-medium text-muted transition-colors hover:text-ink">
+              {t.nav.admin}
+            </Link>
+          )}
+        </nav>
+
+        {/* Controls: lang + theme */}
+        <div className="hidden items-center gap-2 md:flex">
+          {/* Language toggle */}
           <button
-            onClick={toggle}
-            className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-            aria-label="Toggle theme"
+            onClick={toggleLang}
+            aria-label="Toggle language"
+            className="h-11 rounded-full border border-divider px-3 text-xs font-semibold text-muted transition-colors hover:border-brand hover:text-brand"
           >
-            {theme === "light" ? (
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-              </svg>
-            ) : (
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-              </svg>
-            )}
+            {lang === "en" ? "RU" : "EN"}
           </button>
 
+          {/* Theme toggle */}
+          <button
+            onClick={toggle}
+            aria-label="Toggle theme"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-divider text-muted transition-colors hover:border-brand hover:text-brand"
+          >
+          {theme === "dark" ? (
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71m12.73 0-.71-.71M6.34 6.34l-.71-.71M12 7a5 5 0 100 10A5 5 0 0012 7z" />
+            </svg>
+          ) : (
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0118 15.75 9.75 9.75 0 018.25 6a9.72 9.72 0 01.248-2.252 9.75 9.75 0 1013.255 11.254z" />
+            </svg>
+          )}
+          </button>
+
+          {/* Desktop auth */}
           {user ? (
             <>
-              <Link to="/bookings">
-                <Button variant="ghost" size="sm">Мои бронирования</Button>
+              <Link
+                to="/bookings"
+                className="text-sm font-medium text-muted transition-colors hover:text-ink"
+              >
+                {t.nav.myBookings}
               </Link>
-              {user.is_admin && (
-                <Link to="/admin/hotels">
-                  <Button variant="ghost" size="sm">Админ</Button>
-                </Link>
-              )}
-              <Link to="/profile">
-                <Button variant="ghost" size="sm">{user.email}</Button>
+              <Link
+                to="/profile"
+                className="text-sm font-medium text-muted transition-colors hover:text-ink"
+              >
+                {user.email}
               </Link>
-              <Button variant="secondary" size="sm" onClick={logout}>
-                Выйти
-              </Button>
+              <button
+                onClick={logout}
+                className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-on-brand transition-colors hover:bg-brand-hv"
+              >
+                {t.nav.signOut}
+              </button>
             </>
           ) : (
             <>
-              <Link to="/login">
-                <Button variant="ghost" size="sm">Войти</Button>
+              <Link
+                to="/login"
+                className="text-sm font-medium text-muted transition-colors hover:text-ink"
+              >
+                {t.nav.logIn}
               </Link>
-              <Link to="/register">
-                <Button variant="primary" size="sm">Регистрация</Button>
+              <Link
+                to="/register"
+                className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-on-brand transition-colors hover:bg-brand-hv"
+              >
+                {t.nav.signUp}
               </Link>
             </>
           )}
-        </nav>
+        </div>
+
+        {/* Mobile hamburger */}
+        <button
+          className="flex items-center justify-center rounded-lg p-2 text-muted hover:bg-secondary md:hidden"
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-label="Menu"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            {menuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
       </div>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="border-t border-divider bg-surface px-4 py-4 md:hidden">
+          <div className="flex flex-col gap-3">
+            <Link to="/" className="text-sm font-medium text-ink" onClick={() => setMenuOpen(false)}>{t.nav.home}</Link>
+            <button
+              onClick={toggleLang}
+              className="flex items-center gap-2 text-sm font-medium text-muted"
+            >
+              {lang === "en" ? "RU Русский" : "EN English"}
+            </button>
+            <button
+              onClick={toggle}
+              className="flex items-center gap-2 text-sm font-medium text-muted"
+            >
+              {theme === "dark" ? (
+                <>
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71m12.73 0-.71-.71M6.34 6.34l-.71-.71M12 7a5 5 0 100 10A5 5 0 0012 7z" />
+                  </svg>
+                  Light Mode
+                </>
+              ) : (
+                <>
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0118 15.75 9.75 9.75 0 018.25 6a9.72 9.72 0 01.248-2.252 9.75 9.75 0 1013.255 11.254z" />
+                  </svg>
+                  Dark Mode
+                </>
+              )}
+            </button>
+            {user ? (
+              <>
+                <Link to="/bookings" className="text-sm font-medium text-ink" onClick={() => setMenuOpen(false)}>{t.nav.myBookings}</Link>
+                <Link to="/profile" className="text-sm font-medium text-ink" onClick={() => setMenuOpen(false)}>{user.email}</Link>
+                {user.is_admin && (
+                  <Link to="/admin/hotels" className="text-sm font-medium text-ink" onClick={() => setMenuOpen(false)}>{t.nav.admin}</Link>
+                )}
+                <button onClick={() => { logout(); setMenuOpen(false); }} className="text-left text-sm font-medium text-muted">{t.nav.signOut}</button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="text-sm font-medium text-ink" onClick={() => setMenuOpen(false)}>{t.nav.logIn}</Link>
+                <Link to="/register" className="text-sm font-medium text-ink" onClick={() => setMenuOpen(false)}>{t.nav.signUp}</Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }

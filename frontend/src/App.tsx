@@ -32,26 +32,36 @@ export function App() {
 
   return (
     <ErrorBoundary>
-    <BrowserRouter>
-      <PageLayout>
+      <BrowserRouter>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/hotels/:hotelId" element={<HotelDetailPage />} />
-          <Route path="/hotels/:hotelId/book/:roomId" element={<BookingConfirmPage />} />
-          <Route path="/bookings" element={<MyBookingsPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          {/* Auth pages — fullscreen, no header/footer */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="hotels" element={<HotelsAdmin />} />
-            <Route path="hotels/:hotelId/rooms" element={<RoomsAdmin />} />
-            <Route path="hotels/:hotelId/images" element={<ImagesAdmin />} />
-            <Route path="facilities" element={<FacilitiesAdmin />} />
-          </Route>
-          <Route path="*" element={<NotFoundPage />} />
+
+          {/* Main app — with Header + Footer */}
+          <Route
+            path="/*"
+            element={
+              <PageLayout>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/hotels/:hotelId" element={<HotelDetailPage />} />
+                  <Route path="/hotels/:hotelId/book/:roomId" element={<BookingConfirmPage />} />
+                  <Route path="/bookings" element={<MyBookingsPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route path="hotels" element={<HotelsAdmin />} />
+                    <Route path="hotels/:hotelId/rooms" element={<RoomsAdmin />} />
+                    <Route path="hotels/:hotelId/images" element={<ImagesAdmin />} />
+                    <Route path="facilities" element={<FacilitiesAdmin />} />
+                  </Route>
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </PageLayout>
+            }
+          />
         </Routes>
-      </PageLayout>
-    </BrowserRouter>
+      </BrowserRouter>
     </ErrorBoundary>
   );
 }

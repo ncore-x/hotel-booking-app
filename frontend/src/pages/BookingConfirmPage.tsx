@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBookingStore } from "../stores/bookingStore";
 import { useAuthStore } from "../stores/authStore";
@@ -10,14 +10,21 @@ import { BookingSummary } from "../components/booking/BookingSummary";
 import { Spinner } from "../components/ui/Spinner";
 import { Button } from "../components/ui/Button";
 import { ApiError } from "../api/client";
+import { useT } from "../i18n/useT";
 import type { Room } from "../types/room";
 import type { Hotel } from "../types/hotel";
 
 export function BookingConfirmPage() {
   const { hotelId, roomId } = useParams<{ hotelId: string; roomId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const user = useAuthStore((s) => s.user);
-  const { dateFrom, dateTo, reset: resetBooking } = useBookingStore();
+  const { dateFrom: storeDateFrom, dateTo: storeDateTo, reset: resetBooking } = useBookingStore();
+  const t = useT();
+
+  // Prefer URL params (survives refresh); fall back to store (legacy navigation)
+  const dateFrom = searchParams.get("from") ?? storeDateFrom;
+  const dateTo = searchParams.get("to") ?? storeDateTo;
 
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [room, setRoom] = useState<Room | null>(null);
@@ -40,16 +47,19 @@ export function BookingConfirmPage() {
       return;
     }
 
+    let cancelled = false;
     Promise.all([
       hotelsApi.getById(hId),
       roomsApi.getById(hId, rId),
     ])
       .then(([hotelData, roomData]) => {
+        if (cancelled) return;
         setHotel(hotelData);
         setRoom(roomData);
       })
-      .catch(() => setError("Не удалось загрузить данные"))
-      .finally(() => setLoading(false));
+      .catch(() => { if (!cancelled) setError(t.bookingConfirm.loadError); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [hId, rId, dateFrom, dateTo, user, navigate, hotelId]);
 
   useEffect(() => {
@@ -70,7 +80,7 @@ export function BookingConfirmPage() {
       setSuccess(true);
       resetBooking();
     } catch (e) {
-      const msg = e instanceof ApiError ? e.detail : "Не удалось создать бронирование";
+      const msg = e instanceof ApiError ? e.detail : t.bookingConfirm.createError;
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -118,7 +128,7 @@ export function BookingConfirmPage() {
               transition={{ delay: 0.5 }}
               className="text-lg font-semibold text-white"
             >
-              Забронировано!
+              {t.bookingConfirm.booked}
             </motion.p>
           </motion.div>
         </div>
@@ -131,7 +141,7 @@ export function BookingConfirmPage() {
       <div className="py-16 text-center">
         <p className="text-lg text-red-500">{error}</p>
         <Button variant="secondary" className="mt-4" onClick={() => navigate(-1)}>
-          Назад
+          {t.bookingConfirm.cancel}
         </Button>
       </div>
     );
@@ -142,18 +152,18 @@ export function BookingConfirmPage() {
       <div>
         <button
           onClick={() => navigate(`/hotels/${hotelId}`)}
-          className="mb-4 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          className="mb-4 flex items-center gap-1 text-sm text-muted transition-colors hover:text-ink"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
-          Назад к отелю
+          {t.bookingConfirm.backToHotel}
         </button>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Подтверждение бронирования
+        <h1 className="text-2xl font-bold text-ink">
+          {t.bookingConfirm.title}
         </h1>
         {hotel && (
-          <p className="mt-1 text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-muted">
             {hotel.title} — {hotel.location}
           </p>
         )}
@@ -172,10 +182,10 @@ export function BookingConfirmPage() {
           variant="secondary"
           onClick={() => navigate(`/hotels/${hotelId}`)}
         >
-          Отмена
+          {t.bookingConfirm.cancel}
         </Button>
         <Button loading={submitting} onClick={handleConfirm}>
-          Подтвердить бронирование
+          {t.bookingConfirm.confirm}
         </Button>
       </div>
     </div>

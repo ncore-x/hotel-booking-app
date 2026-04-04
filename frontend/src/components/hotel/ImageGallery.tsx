@@ -77,6 +77,7 @@ export function ImageGallery({ images }: ImageGalleryProps) {
             {images.length > 1 && (
               <>
                 <button
+                  aria-label="Previous image"
                   className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-3 text-white backdrop-blur hover:bg-white/30"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -88,6 +89,7 @@ export function ImageGallery({ images }: ImageGalleryProps) {
                   </svg>
                 </button>
                 <button
+                  aria-label="Next image"
                   className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-3 text-white backdrop-blur hover:bg-white/30"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -102,6 +104,7 @@ export function ImageGallery({ images }: ImageGalleryProps) {
             )}
 
             <button
+              aria-label="Close gallery"
               className="absolute right-4 top-4 rounded-full bg-white/20 p-2 text-white backdrop-blur hover:bg-white/30"
               onClick={() => setSelectedIndex(null)}
             >

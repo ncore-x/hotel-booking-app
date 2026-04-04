@@ -1,0 +1,311 @@
+- generic [ref=e4]:
+  - navigation [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - link "Unsplash Home" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - img "Unsplash Home" [ref=e9]
+        - link "Photos" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - img [ref=e12]
+        - link "Illustrations" [ref=e14] [cursor=pointer]:
+          - /url: /illustrations
+          - img [ref=e15]
+      - generic [ref=e17]:
+        - button "Explore" [ref=e18] [cursor=pointer]:
+          - img [ref=e19]
+        - link "Collections" [ref=e21] [cursor=pointer]:
+          - /url: /login?referrer=%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM
+          - img [ref=e22]
+        - link "Download History" [ref=e24] [cursor=pointer]:
+          - /url: /login?referrer=%2Fdownloads
+          - img [ref=e25]
+      - link "Bookmarks" [ref=e28] [cursor=pointer]:
+        - /url: /login?referrer=%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM
+        - img [ref=e29]
+    - generic [ref=e31]:
+      - link "Log in / Sign up" [ref=e32] [cursor=pointer]:
+        - /url: /login?referrer=%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM
+        - img [ref=e33]
+      - button "Language" [ref=e35] [cursor=pointer]:
+        - img [ref=e36]
+      - button "Menu" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+  - generic [ref=e41]:
+    - generic [ref=e42]:
+      - navigation [ref=e43]:
+        - search "Find visuals sitewide" [ref=e45]:
+          - button "Search Unsplash" [ref=e46] [cursor=pointer]:
+            - img [ref=e47]
+          - combobox [ref=e49]:
+            - searchbox "Search Unsplash" [ref=e50]
+            - listbox
+          - button "Visual search" [ref=e51] [cursor=pointer]:
+            - img [ref=e52]
+        - generic [ref=e54]:
+          - link "Get Unsplash+" [ref=e55] [cursor=pointer]:
+            - /url: /plus
+          - link "Log in" [ref=e56] [cursor=pointer]:
+            - /url: /login?referrer=%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM
+        - button "Submit an image" [ref=e58] [cursor=pointer]
+      - generic [ref=e59]:
+        - generic [ref=e60]:
+          - banner [ref=e62]:
+            - generic [ref=e64]:
+              - link [ref=e65] [cursor=pointer]:
+                - /url: /@uns__nstudio
+              - generic [ref=e68]:
+                - link "Unseen Studio" [ref=e69] [cursor=pointer]:
+                  - /url: /@uns__nstudio
+                - link "uns__nstudio" [ref=e71] [cursor=pointer]:
+                  - /url: /@uns__nstudio
+            - generic [ref=e72]:
+              - button "Bookmark" [ref=e73] [cursor=pointer]:
+                - img [ref=e74]
+              - button "Add to Collection" [ref=e76] [cursor=pointer]:
+                - img [ref=e77]
+              - button "Edit image" [ref=e79] [cursor=pointer]:
+                - text: Edit image
+                - img [ref=e80]
+              - generic [ref=e83]:
+                - link "Download free" [ref=e84] [cursor=pointer]:
+                  - /url: https://unsplash.com/photos/s9CC2SKySJM/download?force=true
+                - button "Choose download size" [ref=e86] [cursor=pointer]:
+                  - img [ref=e87]
+          - button "Zoom in on this image" [ref=e92]:
+            - img "person writing on brown wooden table near white ceramic mug" [ref=e93]
+            - generic:
+              - generic:
+                - img
+          - generic [ref=e94]:
+            - generic [ref=e95]:
+              - generic [ref=e96]:
+                - generic [ref=e97]:
+                  - heading "Views" [level=3] [ref=e98]
+                  - text: 406,493,475
+                - generic [ref=e99]:
+                  - heading "Downloads" [level=3] [ref=e100]
+                  - text: 3,200,408
+              - generic [ref=e102]:
+                - heading "Featured in" [level=3] [ref=e103]
+                - generic [ref=e104]:
+                  - link "Photos" [ref=e105] [cursor=pointer]:
+                    - /url: /
+                  - text: ","
+                  - link "Back To School" [ref=e106] [cursor=pointer]:
+                    - /url: /t/back-to-school
+                  - text: ","
+                  - link "Work From Home" [ref=e107] [cursor=pointer]:
+                    - /url: /t/work-from-home
+              - generic [ref=e108]:
+                - button "Share this image" [ref=e109] [cursor=pointer]:
+                  - img [ref=e110]
+                  - generic [ref=e112]: Share
+                - button "Stats about this image" [ref=e113] [cursor=pointer]:
+                  - img [ref=e114]
+                  - generic [ref=e116]: Info
+                - button "More Actions" [ref=e117] [cursor=pointer]:
+                  - img [ref=e118]
+            - generic [ref=e121]:
+              - heading "person writing on brown wooden table near white ceramic mug" [level=1] [ref=e123]
+              - paragraph [ref=e127]: Designer sketching Wireframes
+              - generic [ref=e129]:
+                - generic [ref=e131]:
+                  - img [ref=e132]
+                  - generic [ref=e134]: Green Chameleon, Bristol, UK
+                - generic [ref=e135]:
+                  - img [ref=e136]
+                  - generic [ref=e139]:
+                    - text: Published on
+                    - time [ref=e140]: June 11, 2015
+                - generic [ref=e141]:
+                  - img [ref=e142]
+                  - button "Canon, EOS REBEL T3i" [ref=e145] [cursor=pointer]
+                - generic [ref=e146]:
+                  - img [ref=e147]
+                  - generic [ref=e149]:
+                    - text: Free to use under the
+                    - link "Unsplash License" [ref=e150] [cursor=pointer]:
+                      - /url: /license
+            - generic [ref=e152]:
+              - link "office" [ref=e153] [cursor=pointer]:
+                - /url: /s/photos/office
+              - link "coffee" [ref=e154] [cursor=pointer]:
+                - /url: /s/photos/coffee
+              - link "people" [ref=e155] [cursor=pointer]:
+                - /url: /s/photos/people
+              - link "blue" [ref=e156] [cursor=pointer]:
+                - /url: /s/photos/blue
+              - link "paper" [ref=e157] [cursor=pointer]:
+                - /url: /s/photos/paper
+              - link "work" [ref=e158] [cursor=pointer]:
+                - /url: /s/photos/work
+              - link "design" [ref=e159] [cursor=pointer]:
+                - /url: /s/photos/design
+              - link "grey" [ref=e160] [cursor=pointer]:
+                - /url: /s/photos/grey
+              - link "wood" [ref=e161] [cursor=pointer]:
+                - /url: /s/photos/wood
+              - link "table" [ref=e162] [cursor=pointer]:
+                - /url: /s/photos/table
+              - link "hand" [ref=e163] [cursor=pointer]:
+                - /url: /s/photos/hand
+              - link "creative" [ref=e164] [cursor=pointer]:
+                - /url: /s/photos/creative
+              - link "blur" [ref=e165] [cursor=pointer]:
+                - /url: /s/photos/blur
+              - link "bokeh" [ref=e166] [cursor=pointer]:
+                - /url: /s/photos/bokeh
+              - link "pen" [ref=e167] [cursor=pointer]:
+                - /url: /s/photos/pen
+              - link "cup" [ref=e168] [cursor=pointer]:
+                - /url: /s/photos/cup
+              - link "note" [ref=e169] [cursor=pointer]:
+                - /url: /s/photos/note
+              - link "arm" [ref=e170] [cursor=pointer]:
+                - /url: /s/photos/arm
+              - link "draw" [ref=e171] [cursor=pointer]:
+                - /url: /s/photos/draw
+              - link "bristol" [ref=e172] [cursor=pointer]:
+                - /url: /s/photos/bristol
+              - link "4K images" [ref=e173] [cursor=pointer]:
+                - /url: /images/stock/4k
+        - generic [ref=e176]:
+          - generic [ref=e177]:
+            - paragraph [ref=e179]: Browse premium related images on iStock | Save 20% with code UNSPLASH20
+            - generic [ref=e181]:
+              - link "Female hand writing on schedule book on wooden table in office room" [ref=e182] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/female-hand-writing-on-schedule-book-on-wooden-table-in-office-room-gm1287555681-383729287?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM&utm_term=office%3A%3A%3A%3Afdce2bd9-92a2-4e48-8717-2110baca8e2f
+                - img "Female hand writing on schedule book on wooden table in office room" [ref=e183]
+              - link "Unrecognizable woman taking notes or writing in planner while telecommuting." [ref=e184] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/unrecognizable-woman-taking-notes-or-writing-in-planner-while-telecommuting-gm1061145698-283663829?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM&utm_term=office%3A%3A%3A%3Af8dc17a4-81bd-472a-b395-fd5676f7ae80
+                - img "Unrecognizable woman taking notes or writing in planner while telecommuting." [ref=e185]
+              - link "Cropped Hand Writing On Book At Table" [ref=e186] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/cropped-hand-writing-on-book-at-table-gm2187844534-606401165?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM&utm_term=office%3A%3A%3A%3Aa8f06f4d-cddc-4832-b8bc-d0a20c79ae30
+                - img "Cropped Hand Writing On Book At Table" [ref=e187]
+              - link "Take note of what hard work looks like" [ref=e188] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/take-note-of-what-hard-work-looks-like-gm1391209271-447904536?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM&utm_term=office%3A%3A%3A%3A60da03a0-cdfc-4da7-a31d-9e5deff62a2b
+                - img "Take note of what hard work looks like" [ref=e189]
+              - link "Vertical shot of a female writing something in her notebook with a pen" [ref=e190] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/vertical-shot-of-a-female-writing-something-in-her-notebook-with-a-pen-gm1440026419-480125193?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM&utm_term=office%3A%3A%3A%3A3dd47091-2295-48c4-8abc-243559d33367
+                - img "Vertical shot of a female writing something in her notebook with a pen" [ref=e191]
+              - link "Filing out some forms." [ref=e192] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/filing-out-some-forms-gm1128558389-297830772?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM&utm_term=office%3A%3A%3A%3Aa3091004-73a4-441f-a1d1-f76808b8801a
+                - img "Filing out some forms." [ref=e193]
+              - link "close-up photo of a pen signing a document" [ref=e194] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/close-up-photo-of-a-pen-signing-a-document-gm1331500425-414625077?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM&utm_term=office%3A%3A%3A%3Aeeec4668-28f4-4443-a37c-1e5e9101207b
+                - img "close-up photo of a pen signing a document" [ref=e195]
+              - generic [ref=e196]:
+                - link "woman writes in calendar while working" [ref=e197] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/photo/woman-writes-in-calendar-while-working-gm1150842246-311678922?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM&utm_term=office%3A%3A%3A%3A6cf60d5f-4283-4781-845d-d0e24ba2dbf2
+                  - img "woman writes in calendar while working" [ref=e198]
+                - link "View more on iStock ↗" [ref=e199] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/search/search-by-image?utm_source=unsplash&utm_medium=affiliate&utm_campaign=adp_photos_sponsored&utm_content=https%3A%2F%2Funsplash.com%2Fphotos%2Fperson-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM&utm_term=office%3A%3A%3A%3A9a92f6c5-d5e5-4196-8455-c9ee4137c665&mediatype=photography&imageurl=aHR0cHM6Ly9zMy51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9pbWFnZXMudW5zcGxhc2guY29tL3NtYWxsL3Bob3RvLTE0MzQwMzAyMTY0MTEtMGI3OTNmNGI0MTcz&assettype=image
+          - generic [ref=e200]:
+            - heading "Related images" [level=4] [ref=e202]
+            - generic [ref=e206]:
+              - generic [ref=e207]:
+                - figure [ref=e208]:
+                  - link "a person writing in a notebook on a wooden table" [ref=e211]:
+                    - /url: /photos/a-person-writing-in-a-notebook-on-a-wooden-table-uW2BOR6kZWk
+                    - img "a person writing in a notebook on a wooden table" [ref=e212]
+                - figure [ref=e213]:
+                  - link "a person writing on a notebook with a pencil" [ref=e216]:
+                    - /url: /photos/a-person-writing-on-a-notebook-with-a-pencil-c9NlNPByu_o
+                    - img "a person writing on a notebook with a pencil" [ref=e217]
+                - figure [ref=e218]:
+                  - generic [ref=e220]:
+                    - link "Business woman sitting in café and writing on document. Focus is on hand." [ref=e221]:
+                      - /url: /photos/business-woman-sitting-in-cafe-and-writing-on-document-focus-is-on-hand-jdgUWlWpUsE
+                      - img "Business woman sitting in café and writing on document. Focus is on hand." [ref=e222]
+                    - link [ref=e223] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fbusiness-woman-sitting-in-cafe-and-writing-on-document-focus-is-on-hand-jdgUWlWpUsE
+                      - img [ref=e224]
+                - figure [ref=e226]:
+                  - link "person writing on white notebook" [ref=e229]:
+                    - /url: /photos/person-writing-on-white-notebook-vjUvEpT2xTE
+                    - img "person writing on white notebook" [ref=e230]
+                - figure [ref=e231]:
+                  - link "a person writing on a piece of paper" [ref=e234]:
+                    - /url: /photos/a-person-writing-on-a-piece-of-paper-CXf4pCPh-ko
+                    - img "a person writing on a piece of paper" [ref=e235]
+                - figure [ref=e236]:
+                  - generic [ref=e238]:
+                    - link "Closeup hands writing her diary." [ref=e239]:
+                      - /url: /photos/closeup-hands-writing-her-diary-JRaVK0cySbY
+                      - img "Closeup hands writing her diary." [ref=e240]
+                    - link [ref=e241] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fcloseup-hands-writing-her-diary-JRaVK0cySbY
+                      - img [ref=e242]
+                - figure [ref=e244]:
+                  - link "An open notebook with a pen on a wooden desk." [ref=e247]:
+                    - /url: /photos/an-open-notebook-with-a-pen-on-a-wooden-desk-6e7F96dBlAA
+                    - img "An open notebook with a pen on a wooden desk." [ref=e248]
+              - generic [ref=e249]:
+                - figure [ref=e250]:
+                  - link "a person writing on a piece of paper with a pen" [ref=e253]:
+                    - /url: /photos/a-person-writing-on-a-piece-of-paper-with-a-pen-8eSrC43qdro
+                    - img "a person writing on a piece of paper with a pen" [ref=e254]
+                - figure [ref=e255]:
+                  - link "woman writing using pen" [ref=e258]:
+                    - /url: /photos/woman-writing-using-pen-N9uOrBICcjY
+                    - img "woman writing using pen" [ref=e259]
+                - figure [ref=e260]:
+                  - link "blue click pen on brown wooden table" [ref=e263]:
+                    - /url: /photos/blue-click-pen-on-brown-wooden-table-NItozEcUPrw
+                    - img "blue click pen on brown wooden table" [ref=e264]
+                - figure [ref=e265]:
+                  - link "Desk with calculator, notebook, pencil, and plant." [ref=e268]:
+                    - /url: /photos/desk-with-calculator-notebook-pencil-and-plant-QfQW294I8sQ
+                    - img "Desk with calculator, notebook, pencil, and plant." [ref=e269]
+                - figure [ref=e270]:
+                  - link "a person sitting at a table with a notebook and pen" [ref=e273]:
+                    - /url: /photos/a-person-sitting-at-a-table-with-a-notebook-and-pen-KgWmOWPpQcI
+                    - img "a person sitting at a table with a notebook and pen" [ref=e274]
+                - figure [ref=e275]:
+                  - generic [ref=e277]:
+                    - link "A person sitting at a table writing on a notebook" [ref=e278]:
+                      - /url: /photos/a-person-sitting-at-a-table-writing-on-a-notebook-Z6OcoG1MCiY
+                      - img "A person sitting at a table writing on a notebook" [ref=e279]
+                    - link [ref=e280] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fa-person-sitting-at-a-table-writing-on-a-notebook-Z6OcoG1MCiY
+                      - img [ref=e281]
+              - generic [ref=e283]:
+                - figure [ref=e284]:
+                  - link "a person writing on a piece of paper with a pen" [ref=e287]:
+                    - /url: /photos/a-person-writing-on-a-piece-of-paper-with-a-pen-KptPfNB2Qpc
+                    - img "a person writing on a piece of paper with a pen" [ref=e288]
+                - figure [ref=e289]:
+                  - generic [ref=e291]:
+                    - link "Close up, Businesswoman writing business strategy on notebook at office, blank notebook, holding pen, taking notes, organising agenda" [ref=e292]:
+                      - /url: /photos/close-up-businesswoman-writing-business-strategy-on-notebook-at-office-blank-notebook-holding-pen-taking-notes-organising-agenda-9XA8CoSZyzQ
+                      - img "Close up, Businesswoman writing business strategy on notebook at office, blank notebook, holding pen, taking notes, organising agenda" [ref=e293]
+                    - link [ref=e294] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fclose-up-businesswoman-writing-business-strategy-on-notebook-at-office-blank-notebook-holding-pen-taking-notes-organising-agenda-9XA8CoSZyzQ
+                      - img [ref=e295]
+                - figure [ref=e297]:
+                  - link "A person writing on a notebook with a red pen" [ref=e300]:
+                    - /url: /photos/a-person-writing-on-a-notebook-with-a-red-pen-HpWvPydBT2w
+                    - img "A person writing on a notebook with a red pen" [ref=e301]
+                - figure [ref=e302]:
+                  - link "person holding on red pen while writing on book" [ref=e305]:
+                    - /url: /photos/person-holding-on-red-pen-while-writing-on-book-333oj7zFsdg
+                    - img "person holding on red pen while writing on book" [ref=e306]
+                - figure [ref=e307]:
+                  - generic [ref=e309]:
+                    - link "Close up view of female student hand doing assignment with laptop and notebook in modern library" [ref=e310]:
+                      - /url: /photos/close-up-view-of-female-student-hand-doing-assignment-with-laptop-and-notebook-in-modern-library-ka6LgtnpGMc
+                      - img "Close up view of female student hand doing assignment with laptop and notebook in modern library" [ref=e311]
+                    - link [ref=e312] [cursor=pointer]:
+                      - /url: /plus?referrer=%2Fphotos%2Fclose-up-view-of-female-student-hand-doing-assignment-with-laptop-and-notebook-in-modern-library-ka6LgtnpGMc
+                      - img [ref=e313]
+                - figure [ref=e315]:
+                  - link "black and green pencils" [ref=e318]:
+                    - /url: /photos/black-and-green-pencils-PdfRE-xB--s
+                    - img "black and green pencils" [ref=e319]
+                - figure [ref=e320]:
+                  - link "woman holding pen" [ref=e323]:
+                    - /url: /photos/woman-holding-pen-rCPpZqIm4Ug
+                    - img "woman holding pen" [ref=e324]
+    - generic:
+      - region "Notifications"

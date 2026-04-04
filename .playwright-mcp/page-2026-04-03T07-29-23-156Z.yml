@@ -1,0 +1,277 @@
+- generic [ref=e4]:
+  - navigation [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - link "Unsplash Home" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - img "Unsplash Home" [ref=e9]
+        - link "Photos" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - img [ref=e12]
+        - link "Illustrations" [ref=e14] [cursor=pointer]:
+          - /url: /illustrations
+          - img [ref=e15]
+      - generic [ref=e17]:
+        - button "Explore" [ref=e18] [cursor=pointer]:
+          - img [ref=e19]
+        - link "Collections" [ref=e21] [cursor=pointer]:
+          - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape
+          - img [ref=e22]
+        - link "Download History" [ref=e24] [cursor=pointer]:
+          - /url: /login?referrer=%2Fdownloads
+          - img [ref=e25]
+      - link "Bookmarks" [ref=e28] [cursor=pointer]:
+        - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape
+        - img [ref=e29]
+    - generic [ref=e31]:
+      - link "Log in / Sign up" [ref=e32] [cursor=pointer]:
+        - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape
+        - img [ref=e33]
+      - button "Language" [ref=e35] [cursor=pointer]:
+        - img [ref=e36]
+      - button "Menu" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+  - generic [ref=e41]:
+    - generic [ref=e42]:
+      - navigation [ref=e43]:
+        - search "Find visuals sitewide" [ref=e45]:
+          - button "Search Unsplash" [ref=e46] [cursor=pointer]:
+            - img [ref=e47]
+          - combobox [ref=e49]:
+            - searchbox "Search Unsplash" [ref=e50]: luxury hotel exterior night
+            - listbox
+          - button "Clear" [ref=e51] [cursor=pointer]:
+            - img [ref=e52]
+          - button "Visual search" [ref=e55] [cursor=pointer]:
+            - img [ref=e56]
+        - generic [ref=e58]:
+          - link "Get Unsplash+" [ref=e59] [cursor=pointer]:
+            - /url: /plus
+          - link "Log in" [ref=e60] [cursor=pointer]:
+            - /url: /login?referrer=%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape
+        - button "Submit an image" [ref=e62] [cursor=pointer]
+      - generic [ref=e63]:
+        - generic [ref=e69]:
+          - list [ref=e70]:
+            - listitem [ref=e71]:
+              - link "Photos 5.1k":
+                - /url: /s/photos/luxury-hotel-exterior-night?orientation=landscape
+                - img
+                - text: Photos
+                - generic: 5.1k
+            - listitem [ref=e72]:
+              - link "Illustrations 1" [ref=e73] [cursor=pointer]:
+                - /url: /s/illustrations/luxury-hotel-exterior-night?orientation=landscape
+                - img [ref=e74]
+                - text: Illustrations
+                - generic [ref=e76]: "1"
+            - listitem [ref=e77]:
+              - button "More" [ref=e78] [cursor=pointer]
+          - button "Filters" [ref=e80] [cursor=pointer]:
+            - img [ref=e82]
+            - text: Filters
+        - generic [ref=e84]:
+          - heading "Luxury hotel exterior night" [level=1] [ref=e86]
+          - generic [ref=e88]:
+            - button "scroll list to the right" [ref=e90] [cursor=pointer]:
+              - img [ref=e91]
+            - generic [ref=e94]:
+              - link "travel destination" [ref=e96] [cursor=pointer]:
+                - /url: /s/photos/travel-destination?orientation=landscape
+              - link "tourism" [ref=e98] [cursor=pointer]:
+                - /url: /s/photos/tourism?orientation=landscape
+              - link "luxury hotel" [ref=e100] [cursor=pointer]:
+                - /url: /s/photos/luxury-hotel?orientation=landscape
+              - link "hotel exterior" [ref=e102] [cursor=pointer]:
+                - /url: /s/photos/hotel-exterior?orientation=landscape
+              - link "hospitality" [ref=e104] [cursor=pointer]:
+                - /url: /s/photos/hospitality?orientation=landscape
+              - link "modern architecture" [ref=e106] [cursor=pointer]:
+                - /url: /s/photos/modern-architecture?orientation=landscape
+              - link "night scene" [ref=e108] [cursor=pointer]:
+                - /url: /s/photos/night-scene?orientation=landscape
+              - link "illuminated" [ref=e110] [cursor=pointer]:
+                - /url: /s/photos/illuminated?orientation=landscape
+              - link "evening ambiance" [ref=e112] [cursor=pointer]:
+                - /url: /s/photos/evening-ambiance?orientation=landscape
+              - link "building facade" [ref=e114] [cursor=pointer]:
+                - /url: /s/photos/building-facade?orientation=landscape
+              - link "illuminated building" [ref=e116] [cursor=pointer]:
+                - /url: /s/photos/illuminated-building?orientation=landscape
+              - link "luxury travel" [ref=e118] [cursor=pointer]:
+                - /url: /s/photos/luxury-travel?orientation=landscape
+        - generic [ref=e120]:
+          - generic [ref=e124]:
+            - generic [ref=e125]:
+              - figure [ref=e126]:
+                - generic [ref=e128]:
+                  - link "A building with a lot of windows lit up at night" [ref=e129]:
+                    - /url: /photos/a-building-with-a-lot-of-windows-lit-up-at-night-ikLhg94RWos
+                    - img "A building with a lot of windows lit up at night" [ref=e130]
+                  - link [ref=e131] [cursor=pointer]:
+                    - /url: /plus?referrer=%2Fphotos%2Fa-building-with-a-lot-of-windows-lit-up-at-night-ikLhg94RWos
+                    - img [ref=e132]
+              - generic [ref=e134]:
+                - heading "Sponsored images" [level=4] [ref=e135]:
+                  - generic [ref=e136]: Sponsored images
+                  - link [ref=e137] [cursor=pointer]:
+                    - /url: https://www.istockphoto.com/search/2/image?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3A7b8ee765-725e-4786-b815-3b2e51530d47&phrase=luxury+hotel+exterior+night&alloweduse=availableforalluses&excludenudity=true&sort=best&mediatype=photography
+                    - img [ref=e138]
+                - generic [ref=e140]:
+                  - link "entrance of luxury hotel" [ref=e141] [cursor=pointer]:
+                    - /url: https://www.istockphoto.com/photo/entrance-of-luxury-hotel-gm503016934-82279331?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3A7c72f4be-801b-4de0-8bf5-3f703a0838a7
+                    - img "entrance of luxury hotel" [ref=e142]
+                  - link "Corporate building in financial district" [ref=e143] [cursor=pointer]:
+                    - /url: https://www.istockphoto.com/photo/corporate-building-in-financial-district-gm1340782166-420749537?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3A7c696773-b7c4-4079-9931-0057b8f854bf
+                    - img "Corporate building in financial district" [ref=e144]
+                  - link "Twilight Serenity at Modern Mountain Villa" [ref=e145] [cursor=pointer]:
+                    - /url: https://www.istockphoto.com/photo/twilight-serenity-at-modern-mountain-villa-gm2031316057-562072686?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3Ad6afe2e6-30d3-456a-bcb6-b6f94368202f
+                    - img "Twilight Serenity at Modern Mountain Villa" [ref=e146]
+                  - link "Modern Illuminated Hotel Building at night" [ref=e147] [cursor=pointer]:
+                    - /url: https://www.istockphoto.com/photo/modern-illuminated-hotel-building-at-night-gm173818627-8866646?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3Aed00bad0-8e23-4d22-bf16-3c836264ec36
+                    - img "Modern Illuminated Hotel Building at night" [ref=e148]
+                - link "Get 20% off with code UNSPLASH20" [ref=e149] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/search/2/image?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3A7b8ee765-725e-4786-b815-3b2e51530d47&phrase=luxury+hotel+exterior+night&alloweduse=availableforalluses&excludenudity=true&sort=best&mediatype=photography
+              - figure [ref=e150]:
+                - link "Tall hotel building illuminated at night with cloudy sky" [ref=e153]:
+                  - /url: /photos/tall-hotel-building-illuminated-at-night-with-cloudy-sky-d9ZzUXw6Gs0
+                  - img "Tall hotel building illuminated at night with cloudy sky" [ref=e154]
+              - figure [ref=e155]:
+                - link "Luxurious hotel building illuminated at night" [ref=e158]:
+                  - /url: /photos/luxurious-hotel-building-illuminated-at-night-yGhQI2nqBMk
+                  - img "Luxurious hotel building illuminated at night" [ref=e159]
+              - figure [ref=e160]:
+                - generic [ref=e162]:
+                  - link "Luxury villa with swimming pool and patio furnitures at night." [ref=e163]:
+                    - /url: /photos/luxury-villa-with-swimming-pool-and-patio-furnitures-at-night-rHoMQ87hvIY
+                    - img "Luxury villa with swimming pool and patio furnitures at night." [ref=e164]
+                  - link [ref=e165] [cursor=pointer]:
+                    - /url: /plus?referrer=%2Fphotos%2Fluxury-villa-with-swimming-pool-and-patio-furnitures-at-night-rHoMQ87hvIY
+                    - img [ref=e166]
+              - figure [ref=e168]:
+                - link "A modern, illuminated building at night." [ref=e171]:
+                  - /url: /photos/a-modern-illuminated-building-at-night-DjebNFMx0mQ
+                  - img "A modern, illuminated building at night." [ref=e172]
+              - figure [ref=e173]:
+                - link "A very tall building with a flag on top of it" [ref=e176]:
+                  - /url: /photos/a-very-tall-building-with-a-flag-on-top-of-it-3-gsgAJWYKI
+                  - img "A very tall building with a flag on top of it" [ref=e177]
+            - generic [ref=e178]:
+              - figure [ref=e179]:
+                - link "Wynn hotel building at dusk with city lights" [ref=e182]:
+                  - /url: /photos/wynn-hotel-building-at-dusk-with-city-lights-5EPlfKWqlCk
+                  - img "Wynn hotel building at dusk with city lights" [ref=e183]
+              - figure [ref=e205]:
+                - link "Grand hotel illuminated at night with decorative lights" [ref=e208]:
+                  - /url: /photos/grand-hotel-illuminated-at-night-with-decorative-lights-OE7iJaikYoM
+                  - img "Grand hotel illuminated at night with decorative lights" [ref=e209]
+              - figure [ref=e210]:
+                - link "Ornate hotel building illuminated at night with trees." [ref=e213]:
+                  - /url: /photos/ornate-hotel-building-illuminated-at-night-with-trees-AZ65sCesphw
+                  - img "Ornate hotel building illuminated at night with trees." [ref=e214]
+              - figure [ref=e215]:
+                - link "The nile ritz-carlton hotel illuminated at night" [ref=e218]:
+                  - /url: /photos/the-nile-ritz-carlton-hotel-illuminated-at-night-dnrx9b9j-2I
+                  - img "The nile ritz-carlton hotel illuminated at night" [ref=e219]
+              - figure [ref=e220]:
+                - generic [ref=e222]:
+                  - link "Luxurious resort at night with a pool." [ref=e223]:
+                    - /url: /photos/luxurious-resort-at-night-with-a-pool-XLLIYCMVN5I
+                    - img "Luxurious resort at night with a pool." [ref=e224]
+                  - link [ref=e225] [cursor=pointer]:
+                    - /url: /plus?referrer=%2Fphotos%2Fluxurious-resort-at-night-with-a-pool-XLLIYCMVN5I
+                    - img [ref=e226]
+              - figure [ref=e228]:
+                - link "A modern house illuminated at night with outdoor lighting." [ref=e231]:
+                  - /url: /photos/a-modern-house-illuminated-at-night-with-outdoor-lighting-znZMBM024cc
+                  - img "A modern house illuminated at night with outdoor lighting." [ref=e232]
+              - figure [ref=e233]:
+                - link "a building is lit up at night in the mountains" [ref=e236]:
+                  - /url: /photos/a-building-is-lit-up-at-night-in-the-mountains-_GaU6hdgRFs
+                  - img "a building is lit up at night in the mountains" [ref=e237]
+              - figure [ref=e238]:
+                - link "Illuminated modern building at night." [ref=e241]:
+                  - /url: /photos/illuminated-modern-building-at-night-64pJPPiezzE
+                  - img "Illuminated modern building at night." [ref=e242]
+            - generic [ref=e243]:
+              - link "A website makes it real. Start A Free Trial" [ref=e246] [cursor=pointer]:
+                - /url: https://e-10457.adzerk.net/r?e=eyJ2IjoiMS4xNCIsImF2Ijo4MTA3NTIsImF0Ijo1LCJidCI6MCwiY20iOjE1Nzk5OTMsImNoIjo0NTE2MywiY2siOnt9LCJjciI6ODk1MzYzNTAzLCJkaSI6IjI0ZjQxNjljMTU3NDRkNzNiOWVhNTUyMzRkMTQyNTE2IiwiZGoiOjAsImlpIjoiN2NiMDQ0ODY2YTQ5NDY5MTgxYTkzMTdkYzEyZWQxMWUiLCJkbSI6MywiZmMiOjEwNjk5Nzk1MjksImZsIjo4NjI0OTYwNzAsImlwIjoiMTAzLjExMi4xNzEuMTY0IiwibnciOjEwNDU3LCJwYyI6Mywib3AiOjMsIm1wIjozLCJlYyI6MywiZ20iOjAsImVwIjpudWxsLCJwciI6MjIzNjYwLCJydCI6MiwicnMiOjUwMCwic2EiOiI5NiIsInNiIjoiaS0wN2NhN2M3NTA0YTQ1YzBkYiIsInNwIjo0NzA3MjksInN0IjoxMTIxOTU0LCJ1ayI6IjAwMTM0ZTdlLWI5ZjMtNDQyZi1hOTAyLWJhY2EzOTVjMDgzMyIsInpuIjoyNDEzNDgsInptIjpbMjQxMzQ4XSwidHMiOjE3NzUyMDEzMjQxOTEsInBuIjoic2VhcmNoLWluLWZlZWQiLCJnciI6dHJ1ZSwiZ2MiOnRydWUsImdDIjp0cnVlLCJnaSI6dHJ1ZSwiZ3MiOiJyZXEiLCJ0eiI6IkFtZXJpY2EvTmV3X1lvcmsiLCJ1ciI6Imh0dHBzOi8vYWQuZG91YmxlY2xpY2submV0L2RkbS90cmFja2Nsay9ONzE4Njc5LjMyODY4OTNVTlNQTEFTSC9CMjkwOTAwMDkuMzg1MDM1Mzc4O2RjX3Rya19haWQ9NTc1NzY2MDMyO2RjX3Rya19jaWQ9MjA2NTY0Mzg2O2RjX2xhdD07ZGNfcmRpZD07dGFnX2Zvcl9jaGlsZF9kaXJlY3RlZF90cmVhdG1lbnQ9O3RmdWE9O2x0ZD07ZGNfdGR2PTEifQ&s=_82iwCbfe-wtR8lY3vE_3Zlq2r4
+                - generic [ref=e247]:
+                  - img [ref=e249]
+                  - contentinfo [ref=e250]:
+                    - generic [ref=e251]:
+                      - img [ref=e253]
+                      - generic [ref=e257]: A website makes it real.
+                    - generic [ref=e258]: Start A Free Trial
+              - figure [ref=e259]:
+                - generic [ref=e261]:
+                  - link "Night colorful view of the famous tourist attraction of the city of Dubai - Marina seaport and illuminated skyscrapers. Travel and real estate in United Arab Emirates" [ref=e262]:
+                    - /url: /photos/night-colorful-view-of-the-famous-tourist-attraction-of-the-city-of-dubai-marina-seaport-and-illuminated-skyscrapers-travel-and-real-estate-in-united-arab-emirates-7N8P-hUIHD4
+                    - img "Night colorful view of the famous tourist attraction of the city of Dubai - Marina seaport and illuminated skyscrapers. Travel and real estate in United Arab Emirates" [ref=e263]
+                  - link [ref=e264] [cursor=pointer]:
+                    - /url: /plus?referrer=%2Fphotos%2Fnight-colorful-view-of-the-famous-tourist-attraction-of-the-city-of-dubai-marina-seaport-and-illuminated-skyscrapers-travel-and-real-estate-in-united-arab-emirates-7N8P-hUIHD4
+                    - img [ref=e265]
+              - figure [ref=e267]:
+                - link "Grand hotel illuminated at night with parked cars" [ref=e270]:
+                  - /url: /photos/grand-hotel-illuminated-at-night-with-parked-cars-nV0o5cm9uOg
+                  - img "Grand hotel illuminated at night with parked cars" [ref=e271]
+              - figure [ref=e272]:
+                - link "Dark entrance with glass doors and overhead decoration" [ref=e275]:
+                  - /url: /photos/dark-entrance-with-glass-doors-and-overhead-decoration-3T16TacwYeU
+                  - img "Dark entrance with glass doors and overhead decoration" [ref=e276]
+              - figure [ref=e277]:
+                - link "A tall building with lots of windows lit up at night" [ref=e280]:
+                  - /url: /photos/a-tall-building-with-lots-of-windows-lit-up-at-night-Z39W78pKNtM
+                  - img "A tall building with lots of windows lit up at night" [ref=e281]
+              - figure [ref=e282]:
+                - generic [ref=e284]:
+                  - link "A computer generated image of a building in the desert" [ref=e285]:
+                    - /url: /photos/a-computer-generated-image-of-a-building-in-the-desert-sz7Dxq4XZ0g
+                    - img "A computer generated image of a building in the desert" [ref=e286]
+                  - link [ref=e287] [cursor=pointer]:
+                    - /url: /plus?referrer=%2Fphotos%2Fa-computer-generated-image-of-a-building-in-the-desert-sz7Dxq4XZ0g
+                    - img [ref=e288]
+              - figure [ref=e290]:
+                - link "a tall building with a round top" [ref=e293]:
+                  - /url: /photos/a-tall-building-with-a-round-top-1VVp0asC7qM
+                  - img "a tall building with a round top" [ref=e294]
+          - generic [ref=e297]:
+            - heading "Browse premium images on iStock | Claim your discount now" [level=2] [ref=e298]:
+              - text: Browse premium images on iStock
+              - generic [ref=e299]: "| Claim your discount now"
+            - generic [ref=e301]:
+              - link "Modern Luxury House With Private Infinity Pool In Dusk" [ref=e302] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/modern-luxury-house-with-private-infinity-pool-in-dusk-gm1319453433-406317068?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3A52a3350e-c796-45b3-983f-74c4ccde734e
+                - img "Modern Luxury House With Private Infinity Pool In Dusk" [ref=e303]
+              - link "A luxurious Florida Beach Hotel during sunrise" [ref=e304] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/a-luxurious-florida-beach-hotel-during-sunrise-gm146765403-9825275?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3Aa327b2b0-0a50-41e4-b227-f7a7ec2b442d
+                - img "A luxurious Florida Beach Hotel during sunrise" [ref=e305]
+              - link "Resort Swimming Pool" [ref=e306] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/resort-swimming-pool-gm119926339-15353142?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3Adac8c745-f82a-421c-ae47-f51d9c356613
+                - img "Resort Swimming Pool" [ref=e307]
+              - link "Town Square With Apartments And Stores At Night" [ref=e308] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/town-square-with-apartments-and-stores-at-night-gm1447622263-485381753?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3A654d8cbd-cc25-4490-96c5-094c681c36de
+                - img "Town Square With Apartments And Stores At Night" [ref=e309]
+              - link "Hotel sign" [ref=e310] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/hotel-sign-gm487042276-72699539?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3A8aa5903d-0d8e-42c2-ae44-db70f19179c3
+                - img "Hotel sign" [ref=e311]
+              - link "Young Asian woman enjoying the evening view from her balcony while looking at the urban skyscraper cityscape at night for housing and modern living lifestyle" [ref=e312] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/young-asian-woman-enjoying-the-evening-view-from-her-balcony-while-looking-at-the-gm2055311773-563549657?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3Ab0f18a7b-6ea6-45b9-9543-109b4f9b059c
+                - img "Young Asian woman enjoying the evening view from her balcony while looking at the urban skyscraper cityscape at night for housing and modern living lifestyle" [ref=e313]
+              - link "Modern Luxury Villa at Dusk with Illuminated Outdoor Spaces and Pool" [ref=e314] [cursor=pointer]:
+                - /url: https://www.istockphoto.com/photo/modern-luxury-villa-at-dusk-with-illuminated-outdoor-spaces-and-pool-gm2196986472-614972665?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3A20edc900-7cff-49a6-99ba-14e297c93f51
+                - img "Modern Luxury Villa at Dusk with Illuminated Outdoor Spaces and Pool" [ref=e315]
+              - generic [ref=e316]:
+                - link "Young woman having a night swim in the pool in Malaysia" [ref=e317] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/photo/young-woman-having-a-night-swim-in-the-pool-in-malaysia-gm1067920572-285624017?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3Aba44fe4a-8177-4846-8e7d-0f173ae0d2e1
+                  - img "Young woman having a night swim in the pool in Malaysia" [ref=e318]
+                - link "View more on iStock ↗" [ref=e319] [cursor=pointer]:
+                  - /url: https://www.istockphoto.com/search/2/image?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fluxury-hotel-exterior-night%3Forientation%3Dlandscape&utm_term=luxury+hotel+exterior+night%3A%3A%3A%3A9a43707d-7c02-42f2-a766-6d0daaa3ed60&phrase=luxury+hotel+exterior+night&alloweduse=availableforalluses&excludenudity=true&sort=best&mediatype=photography
+          - button "Load more" [ref=e323] [cursor=pointer]
+          - generic [ref=e324]:
+            - link [ref=e325] [cursor=pointer]:
+              - /url: /
+              - img [ref=e326]
+            - paragraph [ref=e328]: Make something awesome
+    - generic:
+      - region "Notifications"

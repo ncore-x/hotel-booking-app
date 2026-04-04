@@ -29,7 +29,7 @@ let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
 
 async function tryRefresh(): Promise<boolean> {
-  if (isRefreshing) return refreshPromise!;
+  if (isRefreshing && refreshPromise) return refreshPromise;
 
   isRefreshing = true;
   refreshPromise = fetch(`${BASE_URL}/auth/refresh`, {
@@ -37,6 +37,7 @@ async function tryRefresh(): Promise<boolean> {
     credentials: "include",
   })
     .then((r) => r.ok)
+    .catch(() => false)
     .finally(() => {
       isRefreshing = false;
       refreshPromise = null;
@@ -63,7 +64,7 @@ async function request<T>(
 
   let response = await fetch(url, config);
 
-  if (response.status === 401 && !path.includes("/auth/refresh")) {
+  if (response.status === 401 && path !== "/auth/refresh") {
     const refreshed = await tryRefresh();
     if (refreshed) {
       response = await fetch(url, config);

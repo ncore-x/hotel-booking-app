@@ -229,9 +229,29 @@ HTTPOnly cookie auth — `credentials: "include"` on every fetch. Auto-refresh o
 - **`verbatimModuleSyntax: true`** — type-only imports must use `import type`.
 - **`erasableSyntaxOnly: true`** — no `public`/`private` constructor parameter properties; declare fields explicitly.
 - **Search is reactive** — `HomePage` runs `useEffect` on param changes with a `cancelled` flag to prevent race conditions. No manual "Search" button needed.
-- **Date guards** — all `useEffect` fetches that require dates check `!dateFrom || !dateTo || dateTo <= dateFrom` before firing.
+- **Date guards** — all `useEffect` fetches that require dates check `!dateFrom || !dateTo || dateTo <= dateFrom` before firing. When returning early, always call `setLoading(false)` first.
 - **`buildQuery()`** in `lib/queryString.ts` — shared URL param builder; call with spread `buildQuery({ ...params })` because TS interfaces don't satisfy index signatures.
 - **Admin RBAC** — `AdminLayout` checks `user.is_admin` on the frontend; backend enforces it via `AdminDep`. Frontend check is UX-only, not security.
+- **Admin pages must NOT use searchStore dates** — `HotelsAdmin` and `RoomsAdmin` must fetch all records without date filtering. `HotelSearchParams.date_from/date_to` and `roomsApi.getByHotel` params are optional for this reason.
+- **Auth guards** — always check `!isLoading` before redirecting on `!user`. Without this check, redirect fires before `/auth/me` response arrives, breaking direct URL access for logged-in users.
+- **`cancelled` flag in all async effects** — every `useEffect` with `Promise.all` or chained fetches must set `let cancelled = false` and check it before all `setState` calls. Return `() => { cancelled = true; }` as cleanup.
+- **i18n** — all user-visible strings go through `useT()` (returns `translations[lang]`). Language toggled via `useLangStore`. Never hardcode RU/EN strings in components.
+- **Design tokens** — use `text-ink`, `text-muted`, `text-subtle`, `bg-surface`, `bg-card`, `bg-secondary`, `bg-brand`, `text-on-brand`, `border-divider` everywhere. Never use hardcoded `text-gray-*` / `bg-white` / `bg-gray-*` — these break dark mode.
+
+### i18n
+
+`frontend/src/i18n/translations.ts` — typed const with `en` and `ru` keys. `useT()` hook reads `lang` from `useLangStore` (persisted to localStorage). All new UI strings must be added to both `en` and `ru` blocks. Russian pluralization uses mod 10 / mod 100 rules (nights, guests).
+
+### Frontend known issues (pending)
+
+- `BookingSummary.tsx` — all strings hardcoded in Russian, not using i18n
+- `RoomCard.tsx` — uses hardcoded `text-gray-*` classes instead of design tokens
+- `SearchBar.tsx` — icon classes use `text-gray-400` without dark mode equivalent
+- `Spinner.tsx`, `Button.tsx` — hardcoded colors, not using design tokens
+- `ProfilePage.tsx` — success/error messages hardcoded in English
+- `HotelCard` — shows placeholder icon instead of real hotel images
+- Admin: no delete for facilities, no delete for images, no bookings management view
+- `MyBookingsPage` — client-side filter means users with 50+ bookings miss entries in status tabs
 
 ### Running with Docker
 
@@ -405,6 +425,36 @@ docker compose -f docker-compose-ci.yml up -d
 ## Known bugs
 
 None.
+
+## Changes (2026-04-03, backend)
+
+- **Swagger отключён в PROD:** `FastAPI(docs_url=None, redoc_url=None, openapi_url=None)` при `settings.MODE == "PROD"` в `src/main.py`. Локально (`LOCAL`, `DEV`, `TEST`) — доступен как обычно.
+- **`DB_HOST=booking_db`:** в production `.env` на сервере исправлен с `host.docker.internal` на `booking_db` — оба контейнера в одной сети `myNetwork`. **GitLab CI переменная `${ENV}` должна содержать то же значение.**
+- **`MODE=PROD`:** в production `.env` исправлен с `LOCAL` на `PROD`.
+
+## Changes (2026-04-03, frontend audit + bugfixes)
+
+**Audit (убрали):**
+- `HomePage`: секции Deals (fake countdown), Partners (logoipsum), Discover grid (non-functional tiles)
+- `SearchBar`: вкладки Flights/Holidays, кнопка AI Search — всё без backend-поддержки
+- `Header`/`Footer`: ссылка Destinations (дублировала Home); Footer схлопнут до 2 колонок, убраны Social/Privacy
+- `HotelCard`: хардкоженный рейтинг `4.7 ★★★★★`
+
+**Audit (добавили):**
+- `HomePage`: chips "Explore by location" — уникальные локации из `result.items`, клик фильтрует через searchStore
+- `BookingCard`: badge статуса (Upcoming/Active/Completed), total cost = `price × nights`, скрытие Edit/Cancel для завершённых
+- `MyBookingsPage`: реальные вкладки-фильтры (All/Upcoming/Active/Completed) с подсчётом, client-side по датам
+- `BookingConfirmPage`: полностью переведена на i18n (было хардкодировано на русском)
+- `types/booking.ts`: добавлено `total_cost?: number`
+- `HotelSearchParams` и `roomsApi.getByHotel` params: `date_from`/`date_to` → optional (нужно для admin без фильтрации)
+
+**Bugfixes:**
+- `client.ts`: refresh race condition — добавлен `.catch(() => false)`, проверка `isRefreshing && refreshPromise`
+- `BookingConfirmPage.tsx`: добавлен `cancelled` флаг в `Promise.all` — предотвращает setState после unmount
+- `HotelDetailPage.tsx`: `setLoading(false)` при раннем выходе по невалидным датам — устранён вечный спиннер
+- `HotelsAdmin.tsx`: убрана зависимость от `useSearchStore` — admin видел только отели с доступными номерами на даты поиска пользователя
+- `RoomsAdmin.tsx`: аналогично — убрана зависимость от `useSearchStore`
+- `MyBookingsPage.tsx`: auth guard проверяет `!isLoading` перед redirect — устранён преждевременный redirect до ответа `/auth/me`
 
 ## Production readiness (оценка 2026-04-02)
 

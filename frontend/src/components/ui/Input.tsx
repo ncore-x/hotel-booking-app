@@ -12,11 +12,11 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
   const inputId = id || generatedId;
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          className="block text-xs font-semibold uppercase tracking-wider text-muted"
         >
           {label}
         </label>
@@ -24,9 +24,8 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
       <input
         id={inputId}
         className={cn(
-          "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 transition-colors",
-          "focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500",
-          "dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500",
+          "w-full rounded-lg border border-divider bg-card px-3 py-2.5 text-sm text-ink placeholder-subtle transition-colors",
+          "focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand",
           error && "border-red-500 focus:border-red-500 focus:ring-red-500",
           className,
         )}
