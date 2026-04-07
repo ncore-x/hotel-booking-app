@@ -9,6 +9,7 @@ class RoomAddRequest(BaseModel):
     description: Optional[str] = None
     price: int
     quantity: int
+    capacity: int = 2
     facilities_ids: List[int] = []
 
     @model_validator(mode="after")
@@ -27,6 +28,11 @@ class RoomAddRequest(BaseModel):
             errors.append("Поле 'quantity' обязательно для заполнения!")
         elif self.quantity < 0:
             errors.append("Количество должно быть больше или равно 0")
+
+        if self.capacity is None:
+            errors.append("Поле 'capacity' обязательно для заполнения!")
+        elif self.capacity < 1:
+            errors.append("Вместимость должна быть не менее 1 гостя!")
 
         if errors:
             raise ValueError("; ".join(errors))
@@ -55,6 +61,7 @@ class RoomPatchRequest(BaseModel):
     description: str | None = None
     price: int | None = None
     quantity: int | None = None
+    capacity: int | None = None
     facilities_ids: list[int] | None = None
 
     @field_validator("title")
@@ -84,6 +91,15 @@ class RoomPatchRequest(BaseModel):
             raise ValueError("Количество должно быть больше или равно 0!")
         return value
 
+    @field_validator("capacity")
+    @classmethod
+    def capacity_positive(cls, value: int | None) -> int | None:
+        if value is None:
+            return None
+        if value < 1:
+            raise ValueError("Вместимость должна быть не менее 1 гостя!")
+        return value
+
     @field_validator("facilities_ids")
     @classmethod
     def facilities_ids_valid(cls, value: list[int] | None) -> list[int] | None:
@@ -100,6 +116,7 @@ class RoomAdd(BaseModel):
     description: str | None = None
     price: int
     quantity: int
+    capacity: int = 2
 
 
 class Room(RoomAdd):
@@ -117,3 +134,4 @@ class RoomPatch(BaseModel):
     description: str | None = None
     price: int | None = None
     quantity: int | None = None
+    capacity: int | None = None

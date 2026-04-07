@@ -23,7 +23,7 @@ async def test_unauthenticated_hotel_write_returns_401(unauth_ac: AsyncClient):
     """Без cookie — 401, не 403."""
     response = await unauth_ac.post(
         "/api/v1/hotels",
-        json={"title": "Anon Hotel", "location": "Nowhere"},
+        json={"title": "Anon Hotel", "city": "Nowhere"},
     )
     assert response.status_code == 401
 

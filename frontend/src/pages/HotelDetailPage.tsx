@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
+import { addDays } from "date-fns";
 import { hotelsApi } from "../api/hotels";
 import { roomsApi } from "../api/rooms";
 import { imagesApi } from "../api/images";
+import { formatDate } from "../lib/dates";
 import { useSearchStore } from "../stores/searchStore";
 import { useBookingStore } from "../stores/bookingStore";
 import { useAuthStore } from "../stores/authStore";
@@ -131,7 +133,7 @@ export function HotelDetailPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
               </svg>
-              {hotel.location}
+              {hotel.city}{hotel.address ? `, ${hotel.address}` : ""}
             </div>
 
             <h1
@@ -178,13 +180,17 @@ export function HotelDetailPage() {
                   label={t.hotelDetail.checkIn}
                   type="date"
                   value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
+                  onChange={(e) => {
+                    const newFrom = e.target.value;
+                    if (newFrom >= dateTo) setDateTo(formatDate(addDays(new Date(newFrom + "T00:00:00"), 1)));
+                    setDateFrom(newFrom);
+                  }}
                 />
                 <Input
                   label={t.hotelDetail.checkOut}
                   type="date"
                   value={dateTo}
-                  min={dateFrom}
+                  min={formatDate(addDays(new Date(dateFrom + "T00:00:00"), 1))}
                   onChange={(e) => setDateTo(e.target.value)}
                 />
               </div>

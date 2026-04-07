@@ -32,6 +32,7 @@ export function RoomsAdmin() {
   const [formDescription, setFormDescription] = useState("");
   const [formPrice, setFormPrice] = useState("");
   const [formQuantity, setFormQuantity] = useState("");
+  const [formCapacity, setFormCapacity] = useState("2");
   const [formFacilities, setFormFacilities] = useState<number[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -64,6 +65,7 @@ export function RoomsAdmin() {
     setFormDescription("");
     setFormPrice("");
     setFormQuantity("");
+    setFormCapacity("2");
     setFormFacilities([]);
     setFormError(null);
     setShowModal(true);
@@ -75,6 +77,7 @@ export function RoomsAdmin() {
     setFormDescription(room.description || "");
     setFormPrice(String(room.price));
     setFormQuantity(String(room.quantity));
+    setFormCapacity(String(room.capacity));
     setFormFacilities(room.facilities.map((f) => f.id));
     setFormError(null);
     setShowModal(true);
@@ -87,12 +90,17 @@ export function RoomsAdmin() {
     }
     const price = Number(formPrice);
     const quantity = Number(formQuantity);
+    const capacity = Number(formCapacity);
     if (!price || price <= 0) {
       setFormError("Цена должна быть больше нуля");
       return;
     }
     if (!quantity || quantity <= 0 || !Number.isInteger(quantity)) {
       setFormError("Количество должно быть целым числом больше нуля");
+      return;
+    }
+    if (!capacity || capacity < 1 || !Number.isInteger(capacity)) {
+      setFormError("Вместимость должна быть целым числом не менее 1");
       return;
     }
     setSaving(true);
@@ -102,6 +110,7 @@ export function RoomsAdmin() {
       description: formDescription.trim() || undefined,
       price,
       quantity,
+      capacity,
       facilities_ids: formFacilities,
     };
     try {
@@ -181,7 +190,7 @@ export function RoomsAdmin() {
               Номера
             </h1>
             <p className="mt-2 text-sm text-muted">
-              {hotel?.title} · {hotel?.location}
+              {hotel?.title} · {hotel?.city}
             </p>
           </div>
           <Button
@@ -286,6 +295,13 @@ export function RoomsAdmin() {
                       <span className="text-muted">Кол-во:</span>
                       <span className="font-semibold text-ink">
                         {room.quantity}
+                      </span>
+                    </div>
+                    <div className="w-px h-4 bg-divider" />
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted">Вместимость:</span>
+                      <span className="font-semibold text-ink">
+                        {room.capacity} чел.
                       </span>
                     </div>
                   </div>
@@ -394,6 +410,14 @@ export function RoomsAdmin() {
               required
             />
           </div>
+          <Input
+            label="Вместимость (гостей)"
+            type="number"
+            value={formCapacity}
+            onChange={(e) => setFormCapacity(e.target.value)}
+            placeholder="2"
+            required
+          />
 
           {allFacilities.length > 0 && (
             <div>

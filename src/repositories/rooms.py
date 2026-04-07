@@ -21,27 +21,29 @@ class RoomsRepository(BaseRepository):
     async def get_filtered_by_time(
         self,
         hotel_id: int,
-        date_from: date,
-        date_to: date,
+        date_from: date | None,
+        date_to: date | None,
         limit: int | None = None,
         offset: int = 0,
     ):
-        rooms_ids_to_get = self._available_ids_query(hotel_id, date_from, date_to)
-        query = (
-            select(self.model)
-            .options(selectinload(self.model.facilities))
-            .filter(RoomsOrm.id.in_(rooms_ids_to_get))
-            .limit(limit)
-            .offset(offset)
-        )
+        query = select(self.model).options(selectinload(self.model.facilities))
+        if date_from and date_to:
+            rooms_ids_to_get = self._available_ids_query(hotel_id, date_from, date_to)
+            query = query.filter(RoomsOrm.id.in_(rooms_ids_to_get))
+        else:
+            query = query.filter(RoomsOrm.hotel_id == hotel_id)
+        query = query.limit(limit).offset(offset)
         result = await self.session.execute(query)
         return [
             RoomDataWithRelsMapper.map_to_domain_entity(model) for model in result.scalars().all()
         ]
 
-    async def count_filtered_by_time(self, hotel_id: int, date_from: date, date_to: date) -> int:
-        rooms_ids_to_get = self._available_ids_query(hotel_id, date_from, date_to)
-        base = select(self.model).filter(RoomsOrm.id.in_(rooms_ids_to_get))
+    async def count_filtered_by_time(self, hotel_id: int, date_from: date | None, date_to: date | None) -> int:
+        if date_from and date_to:
+            rooms_ids_to_get = self._available_ids_query(hotel_id, date_from, date_to)
+            base = select(self.model).filter(RoomsOrm.id.in_(rooms_ids_to_get))
+        else:
+            base = select(self.model).filter(RoomsOrm.hotel_id == hotel_id)
         count_query = select(func.count()).select_from(base.subquery())
         result = await self.session.execute(count_query)
         return result.scalar_one()

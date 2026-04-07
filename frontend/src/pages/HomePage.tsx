@@ -8,7 +8,6 @@ import { HotelCard } from "../components/hotel/HotelCard";
 import { Pagination } from "../components/Pagination";
 import { Spinner } from "../components/ui/Spinner";
 import { useSearchStore } from "../stores/searchStore";
-import { useDebounce } from "../hooks/useDebounce";
 import { hotelsApi } from "../api/hotels";
 import { useT } from "../i18n/useT";
 import type { Hotel } from "../types/hotel";
@@ -23,12 +22,8 @@ const fadeUp = {
 
 export function HomePage() {
   const tr = useT();
-  const { dateFrom, dateTo, sortBy, order, page, perPage, setPage, setLocation } =
+  const { dateFrom, dateTo, city, title, search, guests, sortBy, order, page, perPage, setPage, setCity } =
     useSearchStore();
-  const rawLocation = useSearchStore((s) => s.location);
-  const rawTitle = useSearchStore((s) => s.title);
-  const location = useDebounce(rawLocation, 400);
-  const title = useDebounce(rawTitle, 400);
 
   const [result, setResult] = useState<{
     items: Hotel[];
@@ -42,6 +37,11 @@ export function HomePage() {
   const trendingRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!dateFrom || !dateTo || dateTo <= dateFrom) {
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -50,8 +50,10 @@ export function HomePage() {
       .search({
         date_from: dateFrom,
         date_to: dateTo,
-        location: location || undefined,
+        city: city || undefined,
         title: title || undefined,
+        search: search || undefined,
+        guests,
         sort_by: sortBy,
         order,
         page,
@@ -76,22 +78,22 @@ export function HomePage() {
     return () => {
       cancelled = true;
     };
-  }, [dateFrom, dateTo, location, title, sortBy, order, page, perPage]);
+  }, [dateFrom, dateTo, city, title, search, guests, sortBy, order, page, perPage]);
 
   const scrollTrending = (dir: "left" | "right") => {
     if (!trendingRef.current) return;
     trendingRef.current.scrollBy({ left: dir === "left" ? -340 : 340, behavior: "smooth" });
   };
 
-  const hasSearch = !!(rawLocation || rawTitle);
+  const hasSearch = !!(city || title || search);
 
   const uniqueLocations = useMemo(() => {
     const seen = new Set<string>();
     const locs: string[] = [];
     for (const hotel of result.items) {
-      if (hotel.location && !seen.has(hotel.location)) {
-        seen.add(hotel.location);
-        locs.push(hotel.location);
+      if (hotel.city && !seen.has(hotel.city)) {
+        seen.add(hotel.city);
+        locs.push(hotel.city);
       }
     }
     return locs;
@@ -176,9 +178,9 @@ export function HomePage() {
               </p>
               <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => setLocation("")}
+                  onClick={() => setCity("")}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                    rawLocation === ""
+                    city === ""
                       ? "bg-brand text-on-brand"
                       : "border border-divider text-muted hover:border-ink hover:text-ink"
                   }`}
@@ -188,9 +190,9 @@ export function HomePage() {
                 {uniqueLocations.map((loc) => (
                   <button
                     key={loc}
-                    onClick={() => setLocation(loc)}
+                    onClick={() => setCity(loc)}
                     className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                      rawLocation === loc
+                      city === loc
                         ? "bg-brand text-on-brand"
                         : "border border-divider text-muted hover:border-ink hover:text-ink"
                     }`}
@@ -306,7 +308,7 @@ export function HomePage() {
                     </div>
                     <div>
                       <p className={`text-sm font-semibold ${i === 1 ? "text-on-brand" : "text-ink"}`}>{item.name}</p>
-                      <p className={`text-xs ${i === 1 ? "opacity-70" : "text-subtle"}`}>{item.location}</p>
+                      <p className={`text-xs ${i === 1 ? "opacity-70" : "text-subtle"}`}>{item.city}</p>
                     </div>
                   </div>
                 </div>

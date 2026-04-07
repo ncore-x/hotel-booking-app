@@ -7,6 +7,8 @@ from src.exceptions import (
     FacilityTitleEmptyHTTPException,
     ObjectAlreadyExistsException,
     ObjectAlreadyExistsHTTPException,
+    ObjectNotFoundException,
+    ObjectNotFoundHTTPException,
 )
 from src.services.facilities import FacilityService
 from src.schemas.common import PaginatedResponse
@@ -49,3 +51,19 @@ async def create_facility(
         pass
     response.headers["Location"] = str(request.url_for("get_facilities"))
     return facility
+
+
+@router.delete(
+    "/{facility_id}",
+    summary="Удалить удобство",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_facility(_: AdminDep, facility_id: int, db: DBDep):
+    try:
+        await FacilityService(db).facility_delete(facility_id)
+    except ObjectNotFoundException:
+        raise ObjectNotFoundHTTPException()
+    try:
+        await FastAPICache.clear()
+    except Exception:
+        pass

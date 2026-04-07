@@ -20,6 +20,17 @@ export const translations = {
       checkIn: "Check In",
       checkOut: "Check Out",
       nights: (n: number) => `${n} ${n === 1 ? "night" : "nights"}`,
+      searchButton: "Search",
+      destination: "Destination",
+      destinationPlaceholder: "City, hotel or area",
+      sections: {
+        regions: "Regions",
+        hotels: "Hotels",
+      },
+      guests: "Guests",
+      guestsLabel: (n: number) => `${n} ${n === 1 ? "guest" : "guests"}`,
+      adults: "Adults",
+      done: "Done",
     },
 
     // HomePage
@@ -39,25 +50,25 @@ export const translations = {
       testimonials: [
         {
           name: "Sofia K.",
-          location: "Berlin, Germany",
+          city: "Berlin, Germany",
           text: "Booked in under two minutes. The room was exactly as pictured — spotless, quiet, and the breakfast was outstanding.",
           rating: 5,
         },
         {
           name: "Marco T.",
-          location: "Milan, Italy",
+          city: "Milan, Italy",
           text: "StaySpring recommended a hotel I'd never have found on my own. Genuinely surprised by the quality for the price.",
           rating: 5,
         },
         {
           name: "Priya N.",
-          location: "Mumbai, India",
+          city: "Mumbai, India",
           text: "The filters are a dream. I found a pet-friendly, sea-view suite in fifteen seconds flat. Will use every trip.",
           rating: 5,
         },
         {
           name: "James L.",
-          location: "London, UK",
+          city: "London, UK",
           text: "Cancelled a booking at midnight, refund landed by morning. Customer service that actually works.",
           rating: 5,
         },
@@ -224,6 +235,7 @@ export const translations = {
       hotelNamePlaceholder: "Grand Hotel…",
       checkIn: "Заезд",
       checkOut: "Выезд",
+      searchButton: "Найти",
       nights: (n: number) => {
         const mod = n % 10;
         const mod100 = n % 100;
@@ -231,6 +243,24 @@ export const translations = {
         if (mod >= 2 && mod <= 4 && (mod100 < 10 || mod100 >= 20)) return `${n} ночи`;
         return `${n} ночей`;
       },
+      destination: "Направление",
+      destinationPlaceholder: "Город, отель или район",
+      sections: {
+        regions: "Регионы",
+        hotels: "Отели",
+      },
+      guests: "Гости",
+      guestsLabel: (n: number) => {
+        const mod = n % 10;
+        const mod100 = n % 100;
+        let word: string;
+        if (mod === 1 && mod100 !== 11) word = "гость";
+        else if (mod >= 2 && mod <= 4 && (mod100 < 10 || mod100 >= 20)) word = "гостя";
+        else word = "гостей";
+        return `${n} ${word}`;
+      },
+      adults: "Взрослые",
+      done: "Готово",
     },
 
     home: {
@@ -249,25 +279,25 @@ export const translations = {
       testimonials: [
         {
           name: "Sophia K.",
-          location: "Берлин, Германия",
+          city: "Берлин, Германия",
           text: "Забронировала за две минуты. Номер в точности как на фото — чистый, тихий, а завтрак превзошёл ожидания.",
           rating: 5,
         },
         {
           name: "Marco T.",
-          location: "Милан, Италия",
+          city: "Милан, Италия",
           text: "StaySpring порекомендовал отель, который я бы сам никогда не нашёл. Качество за эти деньги — настоящий сюрприз.",
           rating: 5,
         },
         {
           name: "Priya N.",
-          location: "Мумбаи, Индия",
+          city: "Мумбаи, Индия",
           text: "Фильтры — мечта. Нашла номер с видом на море, куда можно с питомцем, за пятнадцать секунд. Теперь только так.",
           rating: 5,
         },
         {
           name: "James L.",
-          location: "Лондон, Великобритания",
+          city: "Лондон, Великобритания",
           text: "Отменил бронь в полночь — деньги вернулись к утру. Это и есть настоящий сервис.",
           rating: 5,
         },

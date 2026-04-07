@@ -97,7 +97,7 @@ export function ImagesAdmin() {
               Фотографии
             </h1>
             <p className="mt-2 text-sm text-muted">
-              {hotel?.title} · {hotel?.location}
+              {hotel?.title} · {hotel?.city}
             </p>
           </div>
           <div>

@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router";
 import { hotelsApi } from "../../api/hotels";
+import { imagesApi } from "../../api/images";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Card } from "../../components/ui/Card";
@@ -18,11 +19,15 @@ export function HotelsAdmin() {
   const [hasPrev, setHasPrev] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [uploadingId, setUploadingId] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadTargetId = useRef<number | null>(null);
 
   const [showModal, setShowModal] = useState(false);
   const [editingHotel, setEditingHotel] = useState<Hotel | null>(null);
   const [formTitle, setFormTitle] = useState("");
-  const [formLocation, setFormLocation] = useState("");
+  const [formCity, setFormCity] = useState("");
+  const [formAddress, setFormAddress] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -51,7 +56,8 @@ export function HotelsAdmin() {
   const openCreate = () => {
     setEditingHotel(null);
     setFormTitle("");
-    setFormLocation("");
+    setFormCity("");
+    setFormAddress("");
     setFormError(null);
     setShowModal(true);
   };
@@ -59,21 +65,23 @@ export function HotelsAdmin() {
   const openEdit = (hotel: Hotel) => {
     setEditingHotel(hotel);
     setFormTitle(hotel.title);
-    setFormLocation(hotel.location);
+    setFormCity(hotel.city);
+    setFormAddress(hotel.address || "");
     setFormError(null);
     setShowModal(true);
   };
 
   const handleSave = async () => {
-    if (!formTitle.trim() || !formLocation.trim()) {
-      setFormError("Заполните все поля");
+    if (!formTitle.trim() || !formCity.trim()) {
+      setFormError("Заполните название и город");
       return;
     }
     setSaving(true);
     setFormError(null);
     const data: HotelAddRequest = {
       title: formTitle.trim(),
-      location: formLocation.trim(),
+      city: formCity.trim(),
+      address: formAddress.trim() || undefined,
     };
     try {
       if (editingHotel) {
@@ -109,8 +117,36 @@ export function HotelsAdmin() {
     }
   };
 
+  const handleAvatarClick = (hotelId: number) => {
+    uploadTargetId.current = hotelId;
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const hotelId = uploadTargetId.current;
+    if (!file || !hotelId) return;
+    e.target.value = "";
+    setUploadingId(hotelId);
+    try {
+      await imagesApi.upload(hotelId, file);
+      await fetchHotels();
+    } catch {
+      setError("Не удалось загрузить фото");
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 px-8 py-8">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -205,6 +241,23 @@ export function HotelsAdmin() {
                 className="hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center justify-between gap-4">
+                  {/* Thumbnail */}
+                  <div className="relative shrink-0 h-14 w-14 rounded-lg overflow-hidden bg-secondary">
+                    {hotel.cover_image_url ? (
+                      <img
+                        src={hotel.cover_image_url}
+                        alt={hotel.title}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <svg className="h-6 w-6 text-subtle" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 0h.008v.008h-.008V7.5z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
@@ -215,11 +268,26 @@ export function HotelsAdmin() {
                     <h3 className="text-sm font-semibold text-ink truncate">
                       {hotel.title}
                     </h3>
-                    <p className="text-sm text-muted mt-1">{hotel.location}</p>
+                    <p className="text-sm text-muted mt-1">{hotel.city}{hotel.address ? `, ${hotel.address}` : ""}</p>
                   </div>
 
                   {/* Actions */}
                   <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => handleAvatarClick(hotel.id)}
+                      disabled={uploadingId === hotel.id}
+                      className="p-2 rounded-lg text-muted hover:text-ink hover:bg-secondary transition-colors disabled:opacity-50"
+                      title="Загрузить обложку"
+                    >
+                      {uploadingId === hotel.id ? (
+                        <Spinner size="sm" />
+                      ) : (
+                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      )}
+                    </button>
                     <Link to={`/admin/hotels/${hotel.id}/rooms`}>
                       <button
                         className="p-2 rounded-lg text-muted hover:text-ink hover:bg-secondary transition-colors"
@@ -333,10 +401,16 @@ export function HotelsAdmin() {
           />
           <Input
             label="Город"
-            value={formLocation}
-            onChange={(e) => setFormLocation(e.target.value)}
-            placeholder="e.g. Moscow"
+            value={formCity}
+            onChange={(e) => setFormCity(e.target.value)}
+            placeholder="Москва"
             required
+          />
+          <Input
+            label="Адрес (необязательно)"
+            value={formAddress}
+            onChange={(e) => setFormAddress(e.target.value)}
+            placeholder="ул. Тверская, 1"
           />
 
           {formError && (

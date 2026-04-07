@@ -12,9 +12,10 @@ def not_blank(value: str) -> str:
 
 class HotelAdd(BaseModel):
     title: NonEmptyStr
-    location: NonEmptyStr
+    city: NonEmptyStr
+    address: Optional[str] = None
 
-    @field_validator("title", "location")
+    @field_validator("title", "city")
     @classmethod
     def validate_not_blank(cls, value: str) -> str:
         return not_blank(value)
@@ -22,9 +23,10 @@ class HotelAdd(BaseModel):
 
 class HotelPatch(BaseModel):
     title: Optional[str] = None
-    location: Optional[str] = None
+    city: Optional[str] = None
+    address: Optional[str] = None
 
-    @field_validator("title", "location")
+    @field_validator("title", "city")
     @classmethod
     def validate_not_blank_optional(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
@@ -34,3 +36,15 @@ class HotelPatch(BaseModel):
 
 class Hotel(HotelAdd):
     id: int
+    cover_image_url: str | None = None
+
+
+class HotelSuggestion(BaseModel):
+    title: str
+    city: str
+    address: str | None = None
+
+
+class AutocompleteResult(BaseModel):
+    locations: list[str]
+    hotels: list[HotelSuggestion]

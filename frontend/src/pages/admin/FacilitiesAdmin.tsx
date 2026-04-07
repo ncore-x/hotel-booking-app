@@ -13,6 +13,7 @@ export function FacilitiesAdmin() {
   const [error, setError] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [adding, setAdding] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const fetchFacilities = useCallback(async () => {
     setLoading(true);
@@ -44,6 +45,20 @@ export function FacilitiesAdmin() {
       );
     } finally {
       setAdding(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Удалить удобство? Оно будет убрано у всех номеров.")) return;
+    setDeletingId(id);
+    setError(null);
+    try {
+      await facilitiesApi.delete(id);
+      setFacilities((prev) => prev.filter((f) => f.id !== id));
+    } catch (e) {
+      setError(e instanceof ApiError ? e.detail : "Ошибка удаления");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -147,10 +162,10 @@ export function FacilitiesAdmin() {
             {facilities.map((f) => (
               <div
                 key={f.id}
-                className="inline-flex items-center rounded-full bg-secondary text-muted px-3 py-1.5 text-sm font-medium hover:bg-secondary/80 transition-colors group"
+                className="inline-flex items-center gap-1.5 rounded-full bg-secondary text-muted px-3 py-1.5 text-sm font-medium group"
               >
                 <svg
-                  className="h-4 w-4 mr-2 text-subtle"
+                  className="h-4 w-4 text-subtle shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -163,6 +178,16 @@ export function FacilitiesAdmin() {
                   />
                 </svg>
                 {f.title}
+                <button
+                  onClick={() => handleDelete(f.id)}
+                  disabled={deletingId === f.id}
+                  className="ml-1 rounded-full p-0.5 text-subtle hover:text-fail hover:bg-fail/10 transition-colors disabled:opacity-40"
+                  title="Удалить"
+                >
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
             ))}
           </div>

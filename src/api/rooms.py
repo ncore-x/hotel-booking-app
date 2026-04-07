@@ -35,8 +35,8 @@ async def get_rooms(
     hotel_id: int,
     pagination: PaginationDep,
     db: DBDep,
-    date_from: date = Query(examples=["2025-09-01"]),
-    date_to: date = Query(examples=["2025-09-15"]),
+    date_from: date | None = Query(None, examples=["2025-09-01"]),
+    date_to: date | None = Query(None, examples=["2025-09-15"]),
 ):
     try:
         return await RoomService(db).get_filtered_by_time(

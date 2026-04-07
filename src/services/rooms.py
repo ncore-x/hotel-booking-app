@@ -25,12 +25,13 @@ class RoomService(BaseService):
     async def get_filtered_by_time(
         self,
         hotel_id: int,
-        date_from: date,
-        date_to: date,
+        date_from: date | None,
+        date_to: date | None,
         page: int = 1,
         per_page: int = 20,
     ) -> PaginatedResponse[RoomWithRels]:
-        check_date_to_after_date_from(date_from, date_to)
+        if date_from and date_to:
+            check_date_to_after_date_from(date_from, date_to)
         await HotelService(self.db).get_hotel_with_check(hotel_id)
 
         total = await self.db.rooms.count_filtered_by_time(

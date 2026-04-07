@@ -78,7 +78,7 @@ async def test_get_hotel_by_id(ac: AsyncClient):
     data = response.json()
     assert data["id"] == 1
     assert "title" in data
-    assert "location" in data
+    assert "city" in data
 
 
 async def test_get_hotel_not_found(ac: AsyncClient):
@@ -92,7 +92,7 @@ async def test_get_hotel_not_found(ac: AsyncClient):
 async def test_create_hotel_forbidden_for_regular_user(authenticated_ac: AsyncClient):
     response = await authenticated_ac.post(
         "/api/v1/hotels",
-        json={"title": "Forbidden Hotel", "location": "Nowhere"},
+        json={"title": "Forbidden Hotel", "city": "Nowhere"},
     )
     assert response.status_code == 403
 
@@ -100,17 +100,18 @@ async def test_create_hotel_forbidden_for_regular_user(authenticated_ac: AsyncCl
 async def test_create_hotel(admin_ac: AsyncClient):
     response = await admin_ac.post(
         "/api/v1/hotels",
-        json={"title": "Test Hotel Alpha", "location": "Москва, ул. Тверская, 1"},
+        json={"title": "Test Hotel Alpha", "city": "Москва", "address": "ул. Тверская, 1"},
     )
     assert response.status_code == 201
     data = response.json()
     assert data["title"] == "Test Hotel Alpha"
+    assert data["city"] == "Москва"
     assert "id" in data
     assert "Location" in response.headers
 
 
 async def test_create_hotel_duplicate(admin_ac: AsyncClient):
-    payload = {"title": "Duplicate Hotel X", "location": "Дубль, ул. Тест, 1"}
+    payload = {"title": "Duplicate Hotel X", "city": "Дубль", "address": "ул. Тест, 1"}
     await admin_ac.post("/api/v1/hotels", json=payload)
     response = await admin_ac.post("/api/v1/hotels", json=payload)
     assert response.status_code == 409
@@ -122,13 +123,13 @@ async def test_create_hotel_duplicate(admin_ac: AsyncClient):
 async def test_put_hotel(admin_ac: AsyncClient):
     create = await admin_ac.post(
         "/api/v1/hotels",
-        json={"title": "Hotel For Put", "location": "Краснодар"},
+        json={"title": "Hotel For Put", "city": "Краснодар"},
     )
     hotel_id = create.json()["id"]
 
     response = await admin_ac.put(
         f"/api/v1/hotels/{hotel_id}",
-        json={"title": "Hotel For Put Updated", "location": "Краснодар Новый"},
+        json={"title": "Hotel For Put Updated", "city": "Краснодар Новый"},
     )
     assert response.status_code == 200
     assert response.json()["title"] == "Hotel For Put Updated"
@@ -137,7 +138,7 @@ async def test_put_hotel(admin_ac: AsyncClient):
 async def test_put_hotel_not_found(admin_ac: AsyncClient):
     response = await admin_ac.put(
         "/api/v1/hotels/999999",
-        json={"title": "Ghost Hotel", "location": "Nowhere"},
+        json={"title": "Ghost Hotel", "city": "Nowhere"},
     )
     assert response.status_code == 404
 
@@ -148,7 +149,7 @@ async def test_put_hotel_not_found(admin_ac: AsyncClient):
 async def test_patch_hotel(admin_ac: AsyncClient):
     create = await admin_ac.post(
         "/api/v1/hotels",
-        json={"title": "Hotel For Patch", "location": "Сочи"},
+        json={"title": "Hotel For Patch", "city": "Сочи"},
     )
     hotel_id = create.json()["id"]
 
@@ -158,7 +159,7 @@ async def test_patch_hotel(admin_ac: AsyncClient):
     )
     assert response.status_code == 200
     assert response.json()["title"] == "Hotel For Patch Updated"
-    assert response.json()["location"] == "Сочи"
+    assert response.json()["city"] == "Сочи"
 
 
 async def test_patch_hotel_not_found(admin_ac: AsyncClient):
@@ -172,7 +173,7 @@ async def test_patch_hotel_not_found(admin_ac: AsyncClient):
 async def test_delete_hotel(admin_ac: AsyncClient):
     create = await admin_ac.post(
         "/api/v1/hotels",
-        json={"title": "Hotel To Delete", "location": "Удалённый город"},
+        json={"title": "Hotel To Delete", "city": "Удалённый город"},
     )
     hotel_id = create.json()["id"]
 

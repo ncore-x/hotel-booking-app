@@ -7,6 +7,7 @@ export interface Room {
   description: string | null;
   price: number;
   quantity: number;
+  capacity: number;
   facilities: Facility[];
 }
 
@@ -15,5 +16,6 @@ export interface RoomAddRequest {
   description?: string;
   price: number;
   quantity: number;
+  capacity: number;
   facilities_ids: number[];
 }

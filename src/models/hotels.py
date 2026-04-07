@@ -12,11 +12,12 @@ if typing.TYPE_CHECKING:
 
 class HotelsOrm(Base):
     __tablename__ = "hotels"
-    __table_args__ = (UniqueConstraint("title", "location", name="uq_hotels_title_location"),)
+    __table_args__ = (UniqueConstraint("title", "city", "address", name="uq_hotels_title_city_address"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(100))
-    location: Mapped[str]
+    city: Mapped[str]
+    address: Mapped[str | None]
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 

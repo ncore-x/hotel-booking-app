@@ -4,6 +4,7 @@ from typing import Literal
 from fastapi import Query, APIRouter, Body, Request, Response, status
 from fastapi_cache.decorator import cache
 
+
 from src.services.hotels import HotelService
 from src.exceptions import (
     CannotDeleteHotelWithRoomsException,
@@ -19,7 +20,7 @@ from src.exceptions import (
 from src.api.dependencies import PaginationDep, DBDep, AdminDep
 from src.middleware.prometheus import SEARCH_REQUESTS
 from src.schemas.common import PaginatedResponse
-from src.schemas.hotels import HotelPatch, HotelAdd, Hotel
+from src.schemas.hotels import HotelPatch, HotelAdd, Hotel, AutocompleteResult
 
 router = APIRouter(prefix="/hotels", tags=["Hotels"])
 
@@ -29,26 +30,45 @@ router = APIRouter(prefix="/hotels", tags=["Hotels"])
 async def get_hotels(
     pagination: PaginationDep,
     db: DBDep,
-    location: str | None = Query(None, description="Локация"),
+    city: str | None = Query(None, description="Город"),
     title: str | None = Query(None, description="Название отеля"),
-    date_from: date = Query(examples=["2025-09-01"]),
-    date_to: date = Query(examples=["2025-09-15"]),
-    sort_by: Literal["id", "title", "location"] = Query("id", description="Поле сортировки"),
+    search: str | None = Query(None, description="Поиск по городу, названию и адресу"),
+    date_from: date | None = Query(None, examples=["2025-09-01"]),
+    date_to: date | None = Query(None, examples=["2025-09-15"]),
+    sort_by: Literal["id", "title", "city"] = Query("id", description="Поле сортировки"),
     order: Literal["asc", "desc"] = Query("asc", description="Направление сортировки"),
+    guests: int = Query(1, ge=1, le=20, description="Количество гостей"),
 ):
     SEARCH_REQUESTS.labels(app_name="hotel_booking").inc()
     try:
         return await HotelService(db).get_filtered_by_time(
             pagination,
-            location,
+            city,
             title,
             date_from,
             date_to,
             sort_by,
             order,
+            guests,
+            search,
         )
     except InvalidDateRangeException:
         raise InvalidDateRangeHTTPException()
+
+
+@router.get("/popular-locations", summary="Популярные локации", response_model=list[str])
+@cache(expire=300)
+async def popular_locations(db: DBDep):
+    return await HotelService(db).popular_locations()
+
+
+@router.get("/autocomplete", summary="Подсказки для поиска", response_model=AutocompleteResult)
+@cache(expire=30)
+async def autocomplete_hotels(
+    db: DBDep,
+    q: str = Query(..., min_length=1, max_length=100),
+):
+    return await HotelService(db).autocomplete_combined(q.strip())
 
 
 @router.get("/{hotel_id}", summary="Получить отель", response_model=Hotel)

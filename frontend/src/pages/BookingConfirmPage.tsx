@@ -164,7 +164,7 @@ export function BookingConfirmPage() {
         </h1>
         {hotel && (
           <p className="mt-1 text-muted">
-            {hotel.title} — {hotel.location}
+            {hotel.title} — {hotel.city}
           </p>
         )}
       </div>

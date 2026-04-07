@@ -66,6 +66,10 @@ class Settings(BaseSettings):
     METRICS_ENABLED: bool = True
     METRICS_TOKEN: str | None = None  # если задан — /metrics требует Authorization: Bearer <token>
 
+    # Elasticsearch
+    ELASTICSEARCH_URL: str = "http://localhost:9200"
+    ES_ENABLED: bool = True
+
     # Tracing (OpenTelemetry → Tempo)
     OTEL_ENABLED: bool = False
     OTEL_ENDPOINT: str = "http://tempo:4317"  # gRPC endpoint

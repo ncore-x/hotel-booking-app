@@ -30,6 +30,8 @@ from src.api.images import router as router_images
 from src.api.rooms import router as router_rooms
 from src.exception_handlers import validation_exception_handler
 from src.init import redis_manager
+from src.elastic.client import init_es, close_es
+from src.elastic import hotels as es_hotels
 from src.limiter import limiter
 from src.config import settings
 from src.logging_config import setup_logging
@@ -71,6 +73,24 @@ openapi_tags = [
 ]
 
 
+async def _es_startup() -> None:
+    """Init Elasticsearch and reindex all hotels. Best-effort — errors don't block startup."""
+    es = await init_es()
+    if es is None:
+        return
+    try:
+        from src.utils.db_manager import DBManager
+        from src.database import async_session_maker_null_pool
+
+        async with DBManager(session_factory=async_session_maker_null_pool) as db:
+            all_hotels = await db.hotels.get_all()
+
+        hotels_data = [{"id": h.id, "title": h.title, "city": h.city, "address": h.address} for h in all_hotels]
+        await es_hotels.reindex_all(es, hotels_data)
+    except Exception as exc:
+        logging.warning("ES startup reindex failed: %s", exc)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
@@ -85,8 +105,12 @@ async def lifespan(app: FastAPI):
 
         FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
 
+    await _es_startup()
+
     yield
+
     await redis_manager.close()
+    await close_es()
 
 
 _docs_url = None if settings.MODE == "PROD" else "/docs"

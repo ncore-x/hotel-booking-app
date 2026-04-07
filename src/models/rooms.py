@@ -19,6 +19,7 @@ class RoomsOrm(Base):
     description: Mapped[str | None]
     price: Mapped[int]
     quantity: Mapped[int]
+    capacity: Mapped[int] = mapped_column(default=2, server_default="2")
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 

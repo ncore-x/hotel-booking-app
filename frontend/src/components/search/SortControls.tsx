@@ -7,8 +7,8 @@ const OPTIONS: Record<string, SortOption> = {
   "id-asc":       { sortBy: "id",       order: "asc"  },
   "title-asc":    { sortBy: "title",    order: "asc"  },
   "title-desc":   { sortBy: "title",    order: "desc" },
-  "location-asc": { sortBy: "location", order: "asc"  },
-  "location-desc":{ sortBy: "location", order: "desc" },
+  "city-asc": { sortBy: "city", order: "asc"  },
+  "city-desc":{ sortBy: "city", order: "desc" },
 };
 
 export function SortControls() {
@@ -28,8 +28,8 @@ export function SortControls() {
         <option value="id-asc">По умолчанию</option>
         <option value="title-asc">Название (А-Я)</option>
         <option value="title-desc">Название (Я-А)</option>
-        <option value="location-asc">Город (А-Я)</option>
-        <option value="location-desc">Город (Я-А)</option>
+        <option value="city-asc">Город (А-Я)</option>
+        <option value="city-desc">Город (Я-А)</option>
       </select>
     </div>
   );
