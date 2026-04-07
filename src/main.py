@@ -172,6 +172,7 @@ if settings.METRICS_ENABLED:
 
 BASE_DIR = Path(__file__).parent
 static_dir = BASE_DIR / "static"
+static_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
