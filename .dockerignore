@@ -33,7 +33,6 @@ loki-config.yaml
 tempo.yaml
 blackbox.yml
 docker-compose*.yml
-nginx.conf
 
 # pytest.ini is in pyproject.toml, but pytest.ini needed for env_files
 # tests/ kept in image — used by CI test stage
