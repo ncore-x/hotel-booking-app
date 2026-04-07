@@ -14,10 +14,20 @@ class HotelsRepository(BaseRepository):
     model = HotelsOrm
     mapper = HotelDataMapper
 
-    def _base_query(self, date_from: date | None, date_to: date | None, city=None, title=None, search=None, guests: int = 1):
+    def _base_query(
+        self,
+        date_from: date | None,
+        date_to: date | None,
+        city=None,
+        title=None,
+        search=None,
+        guests: int = 1,
+    ):
         query = select(HotelsOrm)
         if date_from and date_to:
-            rooms_ids_to_get = rooms_ids_for_booking(date_from=date_from, date_to=date_to, guests=guests)  # type: ignore[arg-type]
+            rooms_ids_to_get = rooms_ids_for_booking(
+                date_from=date_from, date_to=date_to, guests=guests
+            )  # type: ignore[arg-type]
             hotels_ids_to_get = (
                 select(RoomsOrm.hotel_id)
                 .select_from(RoomsOrm)
@@ -73,7 +83,13 @@ class HotelsRepository(BaseRepository):
             cover_result = await self.session.execute(cover_query)
             covers = {row[0]: row[1] for row in cover_result.all()}
             hotels = [
-                h.model_copy(update={"cover_image_url": f"/static/images/{covers[h.id]}" if h.id in covers else None})
+                h.model_copy(
+                    update={
+                        "cover_image_url": f"/static/images/{covers[h.id]}"
+                        if h.id in covers
+                        else None
+                    }
+                )
                 for h in hotels
             ]
 
@@ -115,7 +131,9 @@ class HotelsRepository(BaseRepository):
             .limit(limit)
         )
         hotel_result = await self.session.execute(hotel_query)
-        hotels = [{"title": row[0], "city": row[1], "address": row[2]} for row in hotel_result.all()]
+        hotels = [
+            {"title": row[0], "city": row[1], "address": row[2]} for row in hotel_result.all()
+        ]
 
         return {"locations": locations, "hotels": hotels}
 

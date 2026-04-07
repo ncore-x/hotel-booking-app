@@ -38,7 +38,9 @@ class RoomsRepository(BaseRepository):
             RoomDataWithRelsMapper.map_to_domain_entity(model) for model in result.scalars().all()
         ]
 
-    async def count_filtered_by_time(self, hotel_id: int, date_from: date | None, date_to: date | None) -> int:
+    async def count_filtered_by_time(
+        self, hotel_id: int, date_from: date | None, date_to: date | None
+    ) -> int:
         if date_from and date_to:
             rooms_ids_to_get = self._available_ids_query(hotel_id, date_from, date_to)
             base = select(self.model).filter(RoomsOrm.id.in_(rooms_ids_to_get))

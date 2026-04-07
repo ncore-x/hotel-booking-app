@@ -1,6 +1,9 @@
 import math
 
-from src.exceptions import FacilityTitleEmptyException, ObjectAlreadyExistsException, ObjectNotFoundException
+from src.exceptions import (
+    FacilityTitleEmptyException,
+    ObjectAlreadyExistsException,
+)
 from src.schemas.common import PaginatedResponse
 from src.schemas.facilities import FacilityAdd, Facility
 from src.services.base import BaseService
@@ -19,7 +22,9 @@ class FacilityService(BaseService):
         return facility
 
     async def facility_delete(self, facility_id: int) -> None:
-        await self.db.facilities.get_one(id=facility_id)  # raises ObjectNotFoundException if missing
+        await self.db.facilities.get_one(
+            id=facility_id
+        )  # raises ObjectNotFoundException if missing
         await self.db.facilities.delete(id=facility_id)
         await self.db.commit()
 

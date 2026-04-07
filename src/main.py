@@ -85,7 +85,9 @@ async def _es_startup() -> None:
         async with DBManager(session_factory=async_session_maker_null_pool) as db:
             all_hotels = await db.hotels.get_all()
 
-        hotels_data = [{"id": h.id, "title": h.title, "city": h.city, "address": h.address} for h in all_hotels]
+        hotels_data = [
+            {"id": h.id, "title": h.title, "city": h.city, "address": h.address} for h in all_hotels
+        ]
         await es_hotels.reindex_all(es, hotels_data)
     except Exception as exc:
         logging.warning("ES startup reindex failed: %s", exc)

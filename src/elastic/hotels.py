@@ -35,13 +35,15 @@ async def reindex_all(es: AsyncElasticsearch, hotels: list[dict]) -> None:
     operations = []
     for h in hotels:
         operations.append({"index": {"_index": INDEX, "_id": str(h["id"])}})
-        operations.append({
-            "id": h["id"],
-            "title": h["title"],
-            "city": h["city"],
-            "city_keyword": h["city"],
-            "address": h.get("address") or "",
-        })
+        operations.append(
+            {
+                "id": h["id"],
+                "title": h["title"],
+                "city": h["city"],
+                "city_keyword": h["city"],
+                "address": h.get("address") or "",
+            }
+        )
     await es.bulk(operations=operations)
     logger.info("Elasticsearch: проиндексировано %d отелей", len(hotels))
 
@@ -89,11 +91,7 @@ async def autocomplete(es: AsyncElasticsearch, q: str, limit: int = 5) -> dict:
                 "fields": city_fields,
             }
         },
-        aggs={
-            "unique_cities": {
-                "terms": {"field": "city_keyword", "size": limit}
-            }
-        },
+        aggs={"unique_cities": {"terms": {"field": "city_keyword", "size": limit}}},
     )
     locations = [b["key"] for b in city_resp["aggregations"]["unique_cities"]["buckets"]]
 
