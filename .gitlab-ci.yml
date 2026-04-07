@@ -35,7 +35,7 @@ test-job:
   before_script:
     - cp ${TEST_ENV} .env-test
   script:
-    - docker run --rm --network myNetwork --env-file .env-test booking-api-image uv run pytest -s -v --tb=short
+    - docker run --rm --network myNetwork --add-host host.docker.internal:host-gateway --env-file .env-test booking-api-image uv run pytest -s -v --tb=short
 
 deploy-job:
   stage: deploy
