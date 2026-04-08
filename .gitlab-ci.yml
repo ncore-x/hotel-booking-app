@@ -46,7 +46,7 @@ deploy-job:
     - cp ${ENV} .env
   script:
     - docker rm -f booking_nginx 2>/dev/null || true
-    - docker compose -f docker-compose-ci.yml up -d --force-recreate --remove-orphans
+    - docker compose -f docker-compose-ci.yml up -d --force-recreate
     - docker exec booking_nginx nginx -s reload
     - |
       echo "Verifying deployment..."
