@@ -47,7 +47,8 @@ deploy-job:
     - cp ${ENV} .env
   script:
     - docker rm -f booking_nginx 2>/dev/null || true
-    - docker compose -f docker-compose-ci.yml up -d --force-recreate
+    - docker compose -f docker-compose-ci.yml up -d booking_db booking_cache booking_elasticsearch
+    - docker compose -f docker-compose-ci.yml up -d --force-recreate booking_back_service booking_celery_worker_service booking_celery_beat_service booking_frontend_service booking_nginx_service
     - docker exec booking_nginx nginx -s reload
     - |
       echo "Verifying deployment..."

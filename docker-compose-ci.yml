@@ -1,11 +1,60 @@
 services:
+  booking_db:
+    image: postgres:17
+    container_name: booking_db
+    restart: unless-stopped
+    networks:
+      - myNetwork
+    ports:
+      - "6432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pg-booking-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+  booking_cache:
+    image: redis:8
+    container_name: booking_cache
+    restart: unless-stopped
+    networks:
+      - myNetwork
+    ports:
+      - "7379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
   booking_back_service:
     container_name: 'booking_back'
     image: booking-api-image:latest
+    restart: unless-stopped
+    depends_on:
+      booking_db:
+        condition: service_healthy
+      booking_cache:
+        condition: service_healthy
     networks:
       - myNetwork
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     ports:
       - "7777:8000"
     env_file:
@@ -27,13 +76,12 @@ services:
   booking_celery_worker_service:
     container_name: 'booking_celery_worker'
     image: booking-api-image:latest
+    restart: unless-stopped
     depends_on:
       booking_back_service:
         condition: service_healthy
     networks:
       - myNetwork
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     env_file:
       - .env
     volumes:
@@ -48,13 +96,12 @@ services:
   booking_celery_beat_service:
     container_name: 'booking_celery_beat'
     image: booking-api-image:latest
+    restart: unless-stopped
     depends_on:
       booking_back_service:
         condition: service_healthy
     networks:
       - myNetwork
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     env_file:
       - .env
     command: 'uv run celery --app=src.tasks.celery_app:celery_instance beat -l INFO'
@@ -69,6 +116,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    restart: unless-stopped
     depends_on:
       booking_back_service:
         condition: service_healthy
@@ -76,7 +124,6 @@ services:
       - myNetwork
     ports:
       - "3001:80"
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/"]
       interval: 10s
@@ -91,6 +138,7 @@ services:
   booking_elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.4
     container_name: booking_elasticsearch
+    restart: unless-stopped
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -99,7 +147,6 @@ services:
       - myNetwork
     ports:
       - "9200:9200"
-    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
       interval: 20s
@@ -121,8 +168,11 @@ services:
       context: .
       dockerfile: Dockerfile.nginx
     container_name: booking_nginx
+    restart: unless-stopped
     depends_on:
       booking_back_service:
+        condition: service_healthy
+      booking_frontend_service:
         condition: service_healthy
     networks:
       - myNetwork
@@ -131,7 +181,6 @@ services:
       - "443:443"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
-    restart: unless-stopped
     logging:
       driver: json-file
       options:
@@ -143,4 +192,6 @@ networks:
     external: true
 
 volumes:
+  pg-booking-data:
+    external: true
   imagesdata:
