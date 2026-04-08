@@ -10,6 +10,8 @@ services:
       - "7777:8000"
     env_file:
       - .env
+    volumes:
+      - imagesdata:/app/src/static/images
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health/live')"]
       interval: 10s
@@ -34,6 +36,8 @@ services:
       - "host.docker.internal:host-gateway"
     env_file:
       - .env
+    volumes:
+      - imagesdata:/app/src/static/images
     command: 'uv run celery --app=src.tasks.celery_app:celery_instance worker -l INFO'
     logging:
       driver: json-file
@@ -137,3 +141,6 @@ services:
 networks:
   myNetwork:
     external: true
+
+volumes:
+  imagesdata:
