@@ -46,8 +46,6 @@ deploy-job:
     - cp ${ENV} .env
   script:
     - docker rm -f booking_nginx 2>/dev/null || true
-    - docker ps -q --filter "publish=80" | xargs -r docker rm -f 2>/dev/null || true
-    - docker ps -q --filter "publish=443" | xargs -r docker rm -f 2>/dev/null || true
     - docker compose -f docker-compose-ci.yml up -d --force-recreate --remove-orphans
     - docker exec booking_nginx nginx -s reload
     - |
