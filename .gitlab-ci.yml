@@ -12,6 +12,7 @@ build-job:
     - cp ${TEST_ENV} .env-test
   script:
     - docker build -t booking-api-image .
+    - docker compose -f docker-compose-ci.yml build booking_frontend_service booking_nginx_service
 
 lint-job:
   stage: lint_format
