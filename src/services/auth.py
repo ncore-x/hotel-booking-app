@@ -2,18 +2,19 @@ import logging
 from datetime import datetime, timezone, timedelta
 from typing import TYPE_CHECKING
 
+import bcrypt
 import jwt
-from passlib.context import CryptContext
 from sqlalchemy.exc import NoResultFound
 
 from src.config import settings
 from src.exceptions import (
+    EmailNotRegisteredException,
     ExpiredTokenException,
     IncorrectPasswordException,
     IncorrectTokenException,
     InvalidRefreshTokenException,
-    EmailNotRegisteredException,
     ObjectAlreadyExistsException,
+    ObjectNotFoundException,
     SameEmailException,
     UserAlreadyExistsException,
     UserNotAuthenticatedException,
@@ -29,8 +30,6 @@ logger = logging.getLogger(__name__)
 
 
 class AuthService(BaseService):
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
     def __init__(
         self,
         db: DBManager | None = None,
@@ -54,10 +53,10 @@ class AuthService(BaseService):
         return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
     def hash_password(self, password: str) -> str:
-        return self.pwd_context.hash(password)
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        return self.pwd_context.verify(plain_password, hashed_password)
+        return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
 
     def decode_token(self, token: str) -> dict:
         """Декодирует токен. При неудаче пробует JWT_SECRET_KEY_PREVIOUS (ротация ключей)."""
@@ -92,7 +91,7 @@ class AuthService(BaseService):
     async def login_user(self, data: UserRequestAdd) -> tuple[str, str]:
         try:
             user = await self.db.users.get_user_with_hashed_password(email=data.email)
-        except NoResultFound:
+        except (NoResultFound, ObjectNotFoundException):
             raise EmailNotRegisteredException()
 
         if not self.verify_password(data.password, user.hashed_password):
@@ -164,7 +163,10 @@ class AuthService(BaseService):
         return await self.db.users.get_one_or_none(id=user_id)
 
     async def update_password(self, user_id: int, data: UserPasswordUpdate) -> None:
-        user = await self.db.users.get_user_with_hashed_password_by_id(user_id)
+        try:
+            user = await self.db.users.get_user_with_hashed_password_by_id(user_id)
+        except ObjectNotFoundException:
+            raise UserNotAuthenticatedException()
         if not self.verify_password(data.current_password, user.hashed_password):
             raise IncorrectPasswordException()
         new_hash = self.hash_password(data.new_password)
@@ -172,7 +174,10 @@ class AuthService(BaseService):
         await self.db.commit()
 
     async def update_email(self, user_id: int, data: UserEmailUpdate) -> None:
-        user = await self.db.users.get_user_with_hashed_password_by_id(user_id)
+        try:
+            user = await self.db.users.get_user_with_hashed_password_by_id(user_id)
+        except ObjectNotFoundException:
+            raise UserNotAuthenticatedException()
         if not self.verify_password(data.current_password, user.hashed_password):
             raise IncorrectPasswordException()
         if user.email == data.new_email:

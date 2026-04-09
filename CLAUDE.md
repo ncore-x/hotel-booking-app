@@ -53,8 +53,17 @@ Agents are in `.claude/agents/`. They load automatically — no manual invocatio
 
 ## Developer Docs (for humans)
 
-- `docs/DEVELOPER_GUIDE.md` — developer onboarding guide
-- `docs/runbooks.md` — alert runbooks
+- `docs/DEVELOPER_GUIDE.md` — index page linking to all developer docs
+- `docs/getting-started.md` — quick start, install, run
+- `docs/architecture.md` — layers, project structure, models, schemas, code patterns
+- `docs/api.md` — all HTTP endpoints reference
+- `docs/celery.md` — background tasks, worker config
+- `docs/testing.md` — test structure, fixtures, patterns, coverage
+- `docs/migrations.md` — Alembic commands and rules
+- `docs/observability.md` — Prometheus, Grafana, Loki, Tempo, alerts
+- `docs/deployment.md` — Docker, volumes, SSH tunnels, env variables
+- `docs/faq.md` — common questions and solutions
+- `docs/runbooks.md` — alert runbooks (18 scenarios)
 
 ## Known Bugs
 
