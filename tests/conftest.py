@@ -2,7 +2,6 @@
 # ruff: noqa: E402
 import json
 import pytest
-import pytest_asyncio
 from typing import AsyncGenerator
 from httpx import AsyncClient, ASGITransport
 from unittest import mock
@@ -43,7 +42,7 @@ async def get_db_null_pool():
         yield db
 
 
-@pytest_asyncio.fixture(loop_scope="session")
+@pytest.fixture(scope="function")
 async def db() -> AsyncGenerator[DBManager, None]:
     async for db in get_db_null_pool():
         yield db
