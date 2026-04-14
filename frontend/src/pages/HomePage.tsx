@@ -33,7 +33,6 @@ export function HomePage() {
   }>({ items: [], pages: 1, has_next: false, has_prev: false });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [allLocations, setAllLocations] = useState<string[]>([]);
 
   const trendingRef = useRef<HTMLDivElement>(null);
 
