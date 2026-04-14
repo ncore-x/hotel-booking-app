@@ -34,7 +34,7 @@ async def _check_redis() -> bool:
         return False
 
 
-@router.get("/live", summary="Liveness probe", include_in_schema=False)
+@router.api_route("/live", methods=["GET", "HEAD"], summary="Liveness probe", include_in_schema=False)
 async def liveness():
     """
     Liveness probe: процесс жив и отвечает.
