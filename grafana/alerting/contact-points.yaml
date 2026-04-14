@@ -12,6 +12,12 @@ contactPoints:
           message: |
             🟢 Watchdog: alerting pipeline работает нормально
         disableResolveMessage: true
+      - uid: watchdog_email
+        type: email
+        settings:
+          addresses: "${ALERT_EMAIL}"
+          singleEmail: true
+        disableResolveMessage: true
 
   - orgId: 1
     name: Critical
@@ -85,4 +91,10 @@ contactPoints:
             Инцидент устранён
             {{- end }}
             {{ end }}
+        disableResolveMessage: false
+      - uid: warning_email
+        type: email
+        settings:
+          addresses: "${ALERT_EMAIL}"
+          singleEmail: true
         disableResolveMessage: false
