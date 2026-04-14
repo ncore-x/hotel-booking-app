@@ -18,12 +18,23 @@ from src.main import app
 from src.database import Base, engine_null_pool, async_session_maker_null_pool
 from src.config import settings
 from src.api.dependencies import get_db
+from src.init import redis_manager
 from sqlalchemy import update
 
 
 @pytest.fixture(scope="session", autouse=True)
 def check_test_mode():
     assert settings.MODE == "TEST"
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def connect_redis(check_test_mode):
+    await redis_manager.connect()
+    yield
+    try:
+        await redis_manager.close()
+    except RuntimeError:
+        pass
 
 
 async def get_db_null_pool():

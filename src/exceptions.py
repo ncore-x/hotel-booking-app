@@ -95,6 +95,10 @@ class InsufficientPermissionsException(NabronirovalException):
 
 
 # Image domain exceptions
+class ImageNotFoundException(NabronirovalException):
+    detail = "Изображение не найдено!"
+
+
 class FileTooLargeException(NabronirovalException):
     detail = "Файл слишком большой!"
 
@@ -262,3 +266,8 @@ class UnsupportedMediaTypeHTTPException(NabronirovalHTTPException):
 class CorruptedImageHTTPException(NabronirovalHTTPException):
     status_code = 400
     detail = "Повреждённый или неверный файл изображения!"
+
+
+class ImageNotFoundHTTPException(NabronirovalHTTPException):
+    status_code = 404
+    detail = "Изображение не найдено!"

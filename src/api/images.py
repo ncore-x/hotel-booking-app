@@ -10,6 +10,8 @@ from src.exceptions import (
     FileTooLargeHTTPException,
     HotelNotFoundException,
     HotelNotFoundHTTPException,
+    ImageNotFoundException,
+    ImageNotFoundHTTPException,
     UnsupportedMediaTypeException,
     UnsupportedMediaTypeHTTPException,
 )
@@ -51,3 +53,18 @@ async def get_hotel_images(hotel_id: int, db: DBDep):
         return await ImagesService(db).get_hotel_images(hotel_id)
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException()
+
+
+@router.delete(
+    "/{hotel_id}/images/{image_id}",
+    summary="Удаление изображения отеля",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_image(_: AdminDep, hotel_id: int, image_id: int, db: DBDep):
+    """Удаление изображения отеля. Только для администраторов."""
+    try:
+        await ImagesService(db).delete_image(hotel_id, image_id)
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException()
+    except ImageNotFoundException:
+        raise ImageNotFoundHTTPException()

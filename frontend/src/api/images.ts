@@ -1,4 +1,4 @@
-import { get, upload } from "./client";
+import { get, upload, del } from "./client";
 import type { HotelImage } from "../types/image";
 
 export const imagesApi = {
@@ -7,4 +7,7 @@ export const imagesApi = {
 
   upload: (hotelId: number, file: File) =>
     upload<HotelImage>(`/hotels/${hotelId}/images`, file),
+
+  delete: (hotelId: number, imageId: number) =>
+    del(`/hotels/${hotelId}/images/${imageId}`),
 };

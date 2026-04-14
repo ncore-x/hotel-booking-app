@@ -11,6 +11,7 @@ from src.exceptions import (
     EmptyFileException,
     FileTooLargeException,
     HotelNotFoundException,
+    ImageNotFoundException,
     ObjectNotFoundException,
     UnsupportedMediaTypeException,
     CorruptedImageException,
@@ -125,3 +126,22 @@ class ImagesService(BaseService):
         except ObjectNotFoundException as ex:
             raise HotelNotFoundException from ex
         return await self.db.hotel_images.get_filtered(hotel_id=hotel_id)
+
+    async def delete_image(self, hotel_id: int, image_id: int) -> None:
+        try:
+            await self.db.hotels.get_one(id=hotel_id)
+        except ObjectNotFoundException as ex:
+            raise HotelNotFoundException from ex
+
+        image = await self.db.hotel_images.get_one_or_none(id=image_id, hotel_id=hotel_id)
+        if image is None:
+            raise ImageNotFoundException()
+
+        image_path = settings.IMAGES_DIR / image.filename
+        await self.db.hotel_images.delete(id=image_id)
+        await self.db.commit()
+
+        try:
+            await asyncio.to_thread(image_path.unlink, True)
+        except Exception as e:
+            logger.warning("Не удалось удалить файл изображения %s: %s", image_path, e)

@@ -18,6 +18,7 @@ export function ImagesAdmin() {
   const [images, setImages] = useState<HotelImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
@@ -40,6 +41,21 @@ export function ImagesAdmin() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const handleDelete = async (imageId: number) => {
+    setDeletingId(imageId);
+    setError(null);
+    try {
+      await imagesApi.delete(hId, imageId);
+      setImages((prev) => prev.filter((img) => img.id !== imageId));
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.detail : "Ошибка удаления"
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -185,11 +201,12 @@ export function ImagesAdmin() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {images.map((img) => (
             <div
               key={img.id}
-              className="group relative overflow-hidden rounded-lg bg-secondary aspect-square"
+              className="group relative overflow-hidden rounded-lg bg-secondary"
+              style={{ aspectRatio: "4/3" }}
               onMouseEnter={() => setHoveredId(img.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
@@ -202,16 +219,33 @@ export function ImagesAdmin() {
 
               {/* Overlay */}
               <div
-                className={`absolute inset-0 bg-black/50 flex flex-col items-center justify-center transition-opacity duration-200 ${
+                className={`absolute inset-0 bg-black/60 flex flex-col items-center justify-between p-2 transition-opacity duration-200 ${
                   hoveredId === img.id ? "opacity-100" : "opacity-0"
                 }`}
               >
-                <div className="text-center space-y-2">
-                  <p className="text-xs text-on-brand font-medium">
+                <div className="text-center w-full">
+                  <p className="text-[10px] text-white/80 truncate">
                     {img.filename}
                   </p>
-                  <p className="text-xs text-on-brand/70">ID: {img.id}</p>
+                  <p className="text-[10px] text-white/50">ID: {img.id}</p>
                 </div>
+                <button
+                  onClick={() => handleDelete(img.id)}
+                  disabled={deletingId === img.id}
+                  className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium bg-fail/80 hover:bg-fail text-white transition-colors disabled:opacity-50"
+                >
+                  {deletingId === img.id ? (
+                    <svg className="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                  ) : (
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  )}
+                  Удалить
+                </button>
               </div>
             </div>
           ))}
