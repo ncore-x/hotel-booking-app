@@ -1,7 +1,7 @@
 """add oauth fields and make hashed_password nullable
 
 Revision ID: d4e5f6a7b8c0
-Revises: c3d4e5f6a7b9
+Revises: e5f6a7b8c9d0
 Create Date: 2026-04-15 14:00:00.000000
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 revision: str = "d4e5f6a7b8c0"
-down_revision: Union[str, None] = "c3d4e5f6a7b9"
+down_revision: Union[str, None] = "e5f6a7b8c9d0"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
