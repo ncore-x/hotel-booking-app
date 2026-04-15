@@ -16,6 +16,8 @@ import { RoomsAdmin } from "./pages/admin/RoomsAdmin";
 import { ImagesAdmin } from "./pages/admin/ImagesAdmin";
 import { FacilitiesAdmin } from "./pages/admin/FacilitiesAdmin";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { ConfirmPage } from "./pages/ConfirmPage";
+import { OAuthCallbackPage } from "./pages/OAuthCallbackPage";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 export function App() {
@@ -37,6 +39,8 @@ export function App() {
           {/* Auth pages — fullscreen, no header/footer */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/confirm" element={<ConfirmPage />} />
+          <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
           {/* Main app — with Header + Footer */}
           <Route

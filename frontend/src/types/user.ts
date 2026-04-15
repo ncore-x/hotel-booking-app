@@ -2,6 +2,23 @@ export interface User {
   id: number;
   email: string;
   is_admin: boolean;
+  first_name?: string | null;
+  last_name?: string | null;
+  phone?: string | null;
+  birth_date?: string | null;
+  gender?: string | null;
+  citizenship?: string | null;
+  avatar_url?: string | null;
+  oauth_provider?: string | null;
+}
+
+export interface UserProfileUpdate {
+  first_name?: string | null;
+  last_name?: string | null;
+  phone?: string | null;
+  birth_date?: string | null;
+  gender?: string | null;
+  citizenship?: string | null;
 }
 
 export interface LoginRequest {

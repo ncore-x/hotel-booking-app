@@ -1,5 +1,5 @@
-import { get, post, patch } from "./client";
-import type { User, LoginRequest, LoginResponse, UserPasswordUpdate, UserEmailUpdate } from "../types/user";
+import { get, post, patch, del, upload } from "./client";
+import type { User, LoginRequest, LoginResponse, UserPasswordUpdate, UserEmailUpdate, UserProfileUpdate } from "../types/user";
 
 export const authApi = {
   register: (data: LoginRequest) => post<User>("/auth/register", data),
@@ -9,4 +9,11 @@ export const authApi = {
   refresh: () => post<LoginResponse>("/auth/refresh"),
   updatePassword: (data: UserPasswordUpdate) => patch<void>("/auth/me", data),
   updateEmail: (data: UserEmailUpdate) => patch<void>("/auth/me/email", data),
+  updateProfile: (data: UserProfileUpdate) => patch<User>("/auth/me/profile", data),
+  uploadAvatar: (file: File) => upload<User>("/auth/me/avatar", file),
+  deleteAvatar: () => del<void>("/auth/me/avatar"),
+  confirmChange: (token: string) => get<{ detail: string }>(`/auth/confirm?token=${encodeURIComponent(token)}`),
+  getOAuthUrl: (provider: string) => get<{ url: string }>(`/auth/oauth/${provider}/authorize`),
+  oauthCallback: (provider: string, code: string, state: string) =>
+    post<LoginResponse>(`/auth/oauth/${provider}/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`),
 };

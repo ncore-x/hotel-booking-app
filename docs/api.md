@@ -7,13 +7,24 @@
 | POST | `/auth/register` | Регистрация | - | AUTH_RATE_LIMIT |
 | POST | `/auth/login` | Вход (устанавливает cookies) | - | AUTH_RATE_LIMIT |
 | GET | `/auth/me` | Профиль текущего пользователя | JWT | - |
-| PATCH | `/auth/me` | Сменить пароль | JWT | - |
-| PATCH | `/auth/me/email` | Сменить email | JWT | - |
+| PATCH | `/auth/me` | Инициировать смену пароля (отправляет письмо с подтверждением) | JWT | - |
+| PATCH | `/auth/me/email` | Инициировать смену email (отправляет письмо с подтверждением) | JWT | - |
+| GET | `/auth/confirm` | Применить смену пароля/email по токену из письма | - | - |
+| GET | `/auth/oauth/{provider}/authorize` | Получить URL для OAuth авторизации (Google) | - | - |
+| POST | `/auth/oauth/{provider}/callback` | Завершить OAuth вход, получить JWT cookies | - | - |
 | POST | `/auth/refresh` | Обновить access token | refresh cookie | - |
 | POST | `/auth/logout` | Blacklist токенов, очистка cookies | JWT | - |
 
 **JWT:** Access token (короткоживущий) + Refresh token (30 дней). Оба в httponly cookies.
 **Key rotation:** Если установлен `JWT_SECRET_KEY_PREVIOUS`, старые токены валидны.
+
+**OAuth:** Поддерживается Google OAuth 2.0. Требует `GOOGLE_CLIENT_ID` и `GOOGLE_CLIENT_SECRET`.  
+Флоу: `GET /authorize` → редирект на Google → `POST /callback?code=&state=` → JWT cookies.  
+OAuth-пользователи не имеют пароля — `PATCH /auth/me` и `PATCH /auth/me/email` вернут 401.
+
+**Confirmation flow:** `PATCH /auth/me` и `PATCH /auth/me/email` не применяют изменения сразу.  
+Они создают одноразовый токен в Redis (TTL 1 час) и отправляют письмо со ссылкой.  
+`GET /auth/confirm?token=` применяет изменение. Токен одноразовый — повторный запрос вернёт 400.
 
 ## Hotels (`/hotels`)
 

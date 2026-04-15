@@ -20,6 +20,17 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
+const CITY_GRADIENTS = [
+  "from-blue-600 to-indigo-700",
+  "from-emerald-500 to-teal-700",
+  "from-orange-500 to-red-600",
+  "from-purple-600 to-violet-700",
+  "from-pink-500 to-rose-600",
+  "from-amber-500 to-orange-600",
+  "from-cyan-600 to-blue-700",
+  "from-green-600 to-emerald-700",
+];
+
 export function HomePage() {
   const tr = useT();
   const { dateFrom, dateTo, city, title, search, guests, sortBy, order, page, perPage, setPage, setCity } =
@@ -99,6 +110,21 @@ export function HomePage() {
     return locs;
   }, [result.items]);
 
+  // Сохраняем список городов из "чистой" загрузки (без фильтров),
+  // чтобы панель направлений оставалась видимой при выборе города.
+  const [savedLocations, setSavedLocations] = useState<string[]>([]);
+  const [savedCities, setSavedCities] = useState<Array<{ name: string; count: number }>>([]);
+  useEffect(() => {
+    if (!city && !title && !search && uniqueLocations.length > 0) {
+      setSavedLocations(uniqueLocations);
+      const counts: Record<string, number> = {};
+      for (const hotel of result.items) {
+        if (hotel.city) counts[hotel.city] = (counts[hotel.city] ?? 0) + 1;
+      }
+      setSavedCities(uniqueLocations.map((name) => ({ name, count: counts[name] ?? 0 })));
+    }
+  }, [uniqueLocations, city, title, search, result.items]);
+
   return (
     <div className="bg-surface">
       {/* ── HERO ── */}
@@ -129,6 +155,46 @@ export function HomePage() {
       <div className="mx-auto max-w-5xl px-4 py-8 lg:px-8">
         <SearchBar />
       </div>
+
+      {/* ── EXPLORE BY LOCATION (always visible once loaded) ── */}
+      {savedLocations.length > 0 && (
+        <motion.section
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="mx-auto max-w-7xl px-4 pb-4 pt-2 lg:px-8"
+        >
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">
+            {tr.home.exploreLocations}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setCity("")}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                city === ""
+                  ? "bg-brand text-on-brand"
+                  : "border border-divider text-muted hover:border-ink hover:text-ink"
+              }`}
+            >
+              {tr.home.allLocations}
+            </button>
+            {savedLocations.map((loc) => (
+              <button
+                key={loc}
+                onClick={() => setCity(loc)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                  city === loc
+                    ? "bg-brand text-on-brand"
+                    : "border border-divider text-muted hover:border-ink hover:text-ink"
+                }`}
+              >
+                {loc}
+              </button>
+            ))}
+          </div>
+        </motion.section>
+      )}
 
       {/* ── SEARCH RESULTS (shown when user is searching) ── */}
       {hasSearch && (
@@ -164,46 +230,6 @@ export function HomePage() {
 
       {!hasSearch && (
         <>
-          {/* ── EXPLORE BY LOCATION ── */}
-          {!loading && uniqueLocations.length > 0 && (
-            <motion.section
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="mx-auto max-w-7xl px-4 pb-4 pt-2 lg:px-8"
-            >
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">
-                {tr.home.exploreLocations}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setCity("")}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                    city === ""
-                      ? "bg-brand text-on-brand"
-                      : "border border-divider text-muted hover:border-ink hover:text-ink"
-                  }`}
-                >
-                  {tr.home.allLocations}
-                </button>
-                {uniqueLocations.map((loc) => (
-                  <button
-                    key={loc}
-                    onClick={() => setCity(loc)}
-                    className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                      city === loc
-                        ? "bg-brand text-on-brand"
-                        : "border border-divider text-muted hover:border-ink hover:text-ink"
-                    }`}
-                  >
-                    {loc}
-                  </button>
-                ))}
-              </div>
-            </motion.section>
-          )}
-
           {/* ── TOP TRENDING HOTELS ── */}
           <motion.section
             variants={fadeUp}
@@ -345,39 +371,46 @@ export function HomePage() {
         </>
       )}
 
-      {/* ── ALL HOTELS (no search active) ── */}
-      {!hasSearch && (
+      {/* ── POPULAR DESTINATIONS (no search active) ── */}
+      {!hasSearch && savedCities.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
-          <div className="mb-6 flex items-center justify-between">
-            <h2
-              className="text-3xl font-black uppercase tracking-tight text-ink"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              {tr.home.trendingTitle}
-            </h2>
-            <SortControls />
-          </div>
-
-          {loading ? (
-            <div className="flex justify-center py-16">
-              <Spinner size="lg" />
-            </div>
-          ) : error ? (
-            <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900 dark:bg-red-900/20 dark:text-red-400">{error}</div>
-          ) : (
-            <>
-              <HotelGrid hotels={result.items} />
-              <div className="mt-8">
-                <Pagination
-                  page={page}
-                  pages={result.pages}
-                  hasNext={result.has_next}
-                  hasPrev={result.has_prev}
-                  onPageChange={setPage}
+          <h2
+            className="mb-8 text-3xl font-black uppercase tracking-tight text-ink"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            {tr.home.popularDestinations}
+          </h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {savedCities.map(({ name, count }, i) => (
+              <button
+                key={name}
+                onClick={() => setCity(name)}
+                className="group relative overflow-hidden rounded-2xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              >
+                {/* Gradient background */}
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br opacity-90 transition-opacity duration-300 group-hover:opacity-100 ${CITY_GRADIENTS[i % CITY_GRADIENTS.length]}`}
                 />
-              </div>
-            </>
-          )}
+                {/* Content */}
+                <div className="relative flex flex-col justify-between p-5 h-36">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                      {count > 0 ? `${count}+ ${tr.home.viewHotels}` : tr.home.viewHotels}
+                    </p>
+                    <h3 className="mt-1 text-xl font-black leading-tight text-white">
+                      {name}
+                    </h3>
+                  </div>
+                  <span className="flex items-center gap-1 text-sm font-medium text-white/80 transition-all duration-200 group-hover:text-white group-hover:gap-2">
+                    {tr.home.viewHotels}
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
         </section>
       )}
     </div>

@@ -1,5 +1,9 @@
+from unittest.mock import MagicMock, patch
+
 import pytest
 from httpx import AsyncClient
+
+from src.services.confirmation import ConfirmationService
 
 
 @pytest.mark.parametrize(
@@ -108,7 +112,15 @@ async def test_register_invalid_data(email: str, password: str, ac: AsyncClient)
 
 
 async def test_change_password(unauth_ac: AsyncClient):
-    """Регистрируемся, меняем пароль, логинимся с новым паролем."""
+    """Регистрируемся, меняем пароль через confirmation flow, логинимся с новым паролем."""
+    captured: list[str] = []
+    original = ConfirmationService.create_token
+
+    async def _capture(self, *args, **kwargs):
+        token = await original(self, *args, **kwargs)
+        captured.append(token)
+        return token
+
     reg = await unauth_ac.post(
         "/api/v1/auth/register",
         json={"email": "changepass@example.com", "password": "OldPass123"},
@@ -121,11 +133,18 @@ async def test_change_password(unauth_ac: AsyncClient):
     )
     assert login.status_code == 200
 
-    patch = await unauth_ac.patch(
-        "/api/v1/auth/me",
-        json={"current_password": "OldPass123", "new_password": "NewPass456"},
-    )
-    assert patch.status_code == 204
+    with patch.object(ConfirmationService, "create_token", _capture):
+        with patch("src.tasks.tasks.send_confirmation_email_task") as mock_task:
+            mock_task.delay = MagicMock()
+            patch_resp = await unauth_ac.patch(
+                "/api/v1/auth/me",
+                json={"current_password": "OldPass123", "new_password": "NewPass456"},
+            )
+    assert patch_resp.status_code == 204
+    assert len(captured) == 1
+
+    confirm_resp = await unauth_ac.get(f"/api/v1/auth/confirm?token={captured[0]}")
+    assert confirm_resp.status_code == 200
 
     # Logout so subsequent login attempts are not blocked by the existing cookie
     await unauth_ac.post("/api/v1/auth/logout")

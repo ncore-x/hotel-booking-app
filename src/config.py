@@ -43,6 +43,13 @@ class Settings(BaseSettings):
     IMAGES_DIR: Path = Path("src/static/images")
     MAX_IMAGE_SIZE_BYTES: int = 5_242_880  # 5 MB
 
+    # App public URL (used in confirmation emails)
+    APP_BASE_URL: str = "http://localhost:5173"
+
+    # OAuth 2.0
+    GOOGLE_CLIENT_ID: str | None = None
+    GOOGLE_CLIENT_SECRET: str | None = None
+
     # SMTP (опционально — если не задано, письма только логируются)
     SMTP_HOST: str | None = None
     SMTP_PORT: int = 587

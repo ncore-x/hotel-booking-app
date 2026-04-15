@@ -6,6 +6,7 @@ export const translations = {
       destinations: "Destinations",
       admin: "Admin",
       myBookings: "My Bookings",
+      myProfile: "My Account",
       signOut: "Sign Out",
       logIn: "Log In",
       signUp: "Sign Up",
@@ -40,6 +41,8 @@ export const translations = {
       exploreLocations: "Explore by Location",
       allLocations: "All",
       trendingTitle: "Top Trending Hotels",
+      popularDestinations: "Popular Destinations",
+      viewHotels: "View hotels",
       browseAll: "Browse all",
       testimonialsTitle: "What Our Guests Say",
       footerCta: {
@@ -115,6 +118,10 @@ export const translations = {
       noAccount: "Don't have an account?",
       signUp: "Sign up",
       error: "Invalid email or password.",
+      orContinueWith: "Or continue with",
+      oauthError: "OAuth sign-in failed. Please try again.",
+      oauthConflict: "This email is already registered via a different sign-in method.",
+      oauthNotConfigured: "This sign-in method is not available.",
     },
 
     // RegisterPage
@@ -129,6 +136,14 @@ export const translations = {
       logIn: "Log in",
       passwordMismatch: "Passwords do not match.",
       passwordTooShort: "Password must be at least 6 characters.",
+      orContinueWith: "Or continue with",
+    },
+
+    // OAuthCallbackPage
+    oauthCallback: {
+      loading: "Signing you in…",
+      error: "Sign-in failed. Please try again.",
+      conflict: "This email is already registered via a different sign-in method.",
     },
 
     // MyBookingsPage
@@ -146,17 +161,48 @@ export const translations = {
     // ProfilePage
     profilePage: {
       title: "My Profile",
+      profileSettings: "Profile Settings",
+      profileSubtitle: "Fill in your details to autofill booking forms.",
+      firstName: "First Name",
+      lastName: "Last Name",
+      birthDate: "Date of Birth",
+      citizenship: "Citizenship",
+      gender: "Gender",
+      genderMale: "Male",
+      genderFemale: "Female",
+      phone: "Phone",
+      emailReadonly: "Email",
+      emailReadonlyHint: "Email cannot be changed here",
+      profileSuccess: "Profile saved.",
+      profileError: "Failed to save profile.",
       changePassword: "Change Password",
       changeEmail: "Change Email",
       currentPassword: "Current Password",
       newPassword: "New Password",
+      confirmPassword: "Confirm New Password",
+      passwordMismatch: "Passwords do not match.",
       newEmail: "New Email",
       save: "Save Changes",
       success: "Updated successfully.",
+      passwordSent: "Confirmation link sent to your email. Follow the link to apply the change.",
       passwordSuccess: "Password updated successfully.",
       passwordError: "Failed to update password.",
+      emailSent: (email: string) => `Confirmation link sent to ${email}. Follow the link to apply the change.`,
       emailSuccess: "Email updated successfully.",
       emailError: "Failed to update email.",
+      confirmSuccess: "Change confirmed successfully.",
+      confirmError: "The link is invalid or has already been used.",
+      confirmLoading: "Applying change…",
+      linkedAccounts: "Sign-in Methods",
+      linkedAccountsSubtitle: "Accounts you can use to sign in.",
+      passwordMethod: "Password",
+      passwordMethodDesc: "Sign in with email and password",
+      googleMethod: "Google",
+      googleMethodDesc: "Sign in with your Google account",
+      githubMethod: "GitHub",
+      githubMethodDesc: "Sign in with your GitHub account",
+      connected: "Connected",
+      notConnected: "Not connected",
     },
 
     // BookingCard
@@ -184,6 +230,26 @@ export const translations = {
       booked: "Booked!",
       loadError: "Failed to load booking data",
       createError: "Failed to create booking",
+    },
+
+    // Notifications panel
+    notifications: {
+      title: "Notifications",
+      markAllRead: "Mark all read",
+      clearAll: "Clear all",
+      empty: "No notifications yet.",
+      bookingCreatedTitle: "Booking confirmed",
+      bookingCreatedBody: (id: number, hotelTitle: string, city: string) =>
+        `Booking #${id} at ${hotelTitle}, ${city}`,
+      bookingCancelledTitle: "Booking cancelled",
+      bookingCancelledBody: (id: number) => `Booking #${id} has been cancelled.`,
+      bookingUpdatedTitle: "Dates rescheduled",
+      bookingUpdatedBody: (id: number, dateFrom: string, dateTo: string) =>
+        `Booking #${id}: ${dateFrom} → ${dateTo}`,
+      passwordSentTitle: "Password change requested",
+      passwordSentBody: "Follow the link in your inbox to confirm.",
+      emailSentTitle: "Email change requested",
+      emailSentBody: (email: string) => `Confirmation link sent to ${email}.`,
     },
 
     // Common
@@ -223,6 +289,7 @@ export const translations = {
       destinations: "Направления",
       admin: "Админ",
       myBookings: "Мои бронирования",
+      myProfile: "Личный кабинет",
       signOut: "Выйти",
       logIn: "Войти",
       signUp: "Регистрация",
@@ -269,6 +336,8 @@ export const translations = {
       exploreLocations: "Популярные направления",
       allLocations: "Все",
       trendingTitle: "Популярные отели",
+      popularDestinations: "Популярные направления",
+      viewHotels: "Смотреть отели",
       browseAll: "Смотреть все",
       testimonialsTitle: "Что говорят гости",
       footerCta: {
@@ -352,6 +421,10 @@ export const translations = {
       noAccount: "Нет аккаунта?",
       signUp: "Зарегистрироваться",
       error: "Неверный email или пароль.",
+      orContinueWith: "Или войдите через",
+      oauthError: "Ошибка OAuth. Попробуйте снова.",
+      oauthConflict: "Этот email уже зарегистрирован через другой способ входа.",
+      oauthNotConfigured: "Этот способ входа недоступен.",
     },
 
     register: {
@@ -365,6 +438,13 @@ export const translations = {
       logIn: "Войти",
       passwordMismatch: "Пароли не совпадают.",
       passwordTooShort: "Пароль должен содержать не менее 6 символов.",
+      orContinueWith: "Или зарегистрируйтесь через",
+    },
+
+    oauthCallback: {
+      loading: "Выполняем вход…",
+      error: "Ошибка входа. Попробуйте снова.",
+      conflict: "Этот email уже зарегистрирован через другой способ входа.",
     },
 
     myBookings: {
@@ -380,17 +460,48 @@ export const translations = {
 
     profilePage: {
       title: "Мой профиль",
+      profileSettings: "Настройки профиля",
+      profileSubtitle: "Укажите свои данные, чтобы при бронировании они заполнялись автоматически.",
+      firstName: "Имя",
+      lastName: "Фамилия",
+      birthDate: "Дата рождения",
+      citizenship: "Гражданство",
+      gender: "Пол",
+      genderMale: "Мужчина",
+      genderFemale: "Женщина",
+      phone: "Телефон",
+      emailReadonly: "Электронная почта",
+      emailReadonlyHint: "Email изменяется в разделе ниже",
+      profileSuccess: "Профиль сохранён.",
+      profileError: "Не удалось сохранить профиль.",
       changePassword: "Изменить пароль",
       changeEmail: "Изменить email",
       currentPassword: "Текущий пароль",
       newPassword: "Новый пароль",
+      confirmPassword: "Подтвердите новый пароль",
+      passwordMismatch: "Пароли не совпадают.",
       newEmail: "Новый email",
       save: "Сохранить",
       success: "Успешно обновлено.",
+      passwordSent: "Письмо с подтверждением отправлено на вашу почту. Перейдите по ссылке для применения изменений.",
       passwordSuccess: "Пароль успешно изменён.",
       passwordError: "Не удалось изменить пароль.",
+      emailSent: (email: string) => `Письмо с подтверждением отправлено на ${email}. Перейдите по ссылке для применения изменений.`,
       emailSuccess: "Email успешно изменён.",
       emailError: "Не удалось изменить email.",
+      confirmSuccess: "Изменение успешно подтверждено.",
+      confirmError: "Ссылка недействительна или уже использована.",
+      confirmLoading: "Применяем изменение…",
+      linkedAccounts: "Способы входа",
+      linkedAccountsSubtitle: "Аккаунты, через которые можно войти в систему.",
+      passwordMethod: "Пароль",
+      passwordMethodDesc: "Вход по email и паролю",
+      googleMethod: "Google",
+      googleMethodDesc: "Вход через аккаунт Google",
+      githubMethod: "GitHub",
+      githubMethodDesc: "Вход через аккаунт GitHub",
+      connected: "Подключён",
+      notConnected: "Не подключён",
     },
 
     bookingCard: {
@@ -422,6 +533,25 @@ export const translations = {
       booked: "Забронировано!",
       loadError: "Не удалось загрузить данные",
       createError: "Не удалось создать бронирование",
+    },
+
+    notifications: {
+      title: "Уведомления",
+      markAllRead: "Прочитать все",
+      clearAll: "Очистить",
+      empty: "Пока нет уведомлений.",
+      bookingCreatedTitle: "Бронирование создано",
+      bookingCreatedBody: (id: number, hotelTitle: string, city: string) =>
+        `Бронирование #${id} в ${hotelTitle}, ${city}`,
+      bookingCancelledTitle: "Бронирование отменено",
+      bookingCancelledBody: (id: number) => `Бронирование #${id} отменено.`,
+      bookingUpdatedTitle: "Даты перенесены",
+      bookingUpdatedBody: (id: number, dateFrom: string, dateTo: string) =>
+        `Бронирование #${id}: ${dateFrom} → ${dateTo}`,
+      passwordSentTitle: "Запрос на смену пароля",
+      passwordSentBody: "Перейдите по ссылке в письме для подтверждения.",
+      emailSentTitle: "Запрос на смену email",
+      emailSentBody: (email: string) => `Ссылка подтверждения отправлена на ${email}.`,
     },
 
     common: {

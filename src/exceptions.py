@@ -271,3 +271,50 @@ class CorruptedImageHTTPException(NabronirovalHTTPException):
 class ImageNotFoundHTTPException(NabronirovalHTTPException):
     status_code = 404
     detail = "Изображение не найдено!"
+
+
+# Confirmation token exceptions
+class ConfirmationTokenNotFoundException(NabronirovalException):
+    detail = "Ссылка для подтверждения недействительна или уже использована!"
+
+
+class ConfirmationTokenNotFoundHTTPException(NabronirovalHTTPException):
+    status_code = 400
+    detail = "Ссылка для подтверждения недействительна или уже использована!"
+
+
+# OAuth exceptions
+class OAuthProviderNotConfiguredException(NabronirovalException):
+    detail = "OAuth-провайдер не настроен!"
+
+
+class InvalidOAuthStateException(NabronirovalException):
+    detail = "Недействительный OAuth state!"
+
+
+class UnsupportedOAuthProviderException(NabronirovalException):
+    detail = "Неподдерживаемый OAuth-провайдер!"
+
+
+class OAuthEmailConflictException(NabronirovalException):
+    detail = "Этот email уже зарегистрирован через другой способ входа!"
+
+
+class OAuthProviderNotConfiguredHTTPException(NabronirovalHTTPException):
+    status_code = 503
+    detail = "OAuth-провайдер не настроен!"
+
+
+class InvalidOAuthStateHTTPException(NabronirovalHTTPException):
+    status_code = 400
+    detail = "Недействительный OAuth state!"
+
+
+class UnsupportedOAuthProviderHTTPException(NabronirovalHTTPException):
+    status_code = 400
+    detail = "Неподдерживаемый OAuth-провайдер!"
+
+
+class OAuthEmailConflictHTTPException(NabronirovalHTTPException):
+    status_code = 409
+    detail = "Этот email уже зарегистрирован через другой способ входа!"

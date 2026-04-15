@@ -11,6 +11,7 @@ import { Spinner } from "../components/ui/Spinner";
 import { Button } from "../components/ui/Button";
 import { ApiError } from "../api/client";
 import { useT } from "../i18n/useT";
+import { useNotificationStore } from "../stores/notificationStore";
 import type { Room } from "../types/room";
 import type { Hotel } from "../types/hotel";
 
@@ -21,6 +22,7 @@ export function BookingConfirmPage() {
   const user = useAuthStore((s) => s.user);
   const { dateFrom: storeDateFrom, dateTo: storeDateTo, reset: resetBooking } = useBookingStore();
   const t = useT();
+  const addNotification = useNotificationStore((s) => s.add);
 
   // Prefer URL params (survives refresh); fall back to store (legacy navigation)
   const dateFrom = searchParams.get("from") ?? storeDateFrom;
@@ -72,11 +74,20 @@ export function BookingConfirmPage() {
     setSubmitting(true);
     setError(null);
     try {
-      await bookingsApi.create({
+      const booking = await bookingsApi.create({
         room_id: rId,
         date_from: dateFrom,
         date_to: dateTo,
       });
+      addNotification(
+        "booking_created",
+        t.notifications.bookingCreatedTitle,
+        t.notifications.bookingCreatedBody(
+          booking.id,
+          hotel?.title ?? "",
+          hotel?.city ?? "",
+        ),
+      );
       setSuccess(true);
       resetBooking();
     } catch (e) {

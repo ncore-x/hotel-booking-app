@@ -13,6 +13,8 @@ from src.exceptions import (
     InsufficientPermissionsHTTPException,
 )
 from src.services.auth import AuthService
+from src.services.confirmation import ConfirmationService
+from src.services.oauth import OAuthService
 from src.services.token_blacklist import TokenBlacklistService
 from src.utils.db_manager import DBManager
 from src.database import async_session_maker
@@ -37,6 +39,18 @@ def get_blacklist_service() -> TokenBlacklistService:
     from src.init import redis_manager
 
     return TokenBlacklistService(redis=redis_manager)
+
+
+def get_confirmation_service() -> ConfirmationService:
+    from src.init import redis_manager
+
+    return ConfirmationService(redis=redis_manager)
+
+
+def get_oauth_service() -> OAuthService:
+    from src.init import redis_manager
+
+    return OAuthService(redis=redis_manager)
 
 
 async def get_current_user_id(

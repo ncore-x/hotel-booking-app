@@ -13,6 +13,7 @@ interface AuthState {
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
+  loginWithOAuth: (provider: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -64,5 +65,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   clearError: () => {
     if (get().error !== null) set({ error: null });
+  },
+
+  loginWithOAuth: async (provider: string) => {
+    set({ error: null });
+    try {
+      const { url } = await authApi.getOAuthUrl(provider);
+      sessionStorage.setItem("oauth_provider", provider);
+      window.location.href = url;
+    } catch (e) {
+      const msg = e instanceof ApiError ? e.detail : "OAuth error";
+      set({ error: msg });
+      throw e;
+    }
   },
 }));

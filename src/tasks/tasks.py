@@ -246,6 +246,102 @@ def send_checkin_email_task(
     )
 
 
+def _send_confirmation_email(to_email: str, subject: str, confirm_url: str) -> None:
+    """
+    Отправляет письмо с ссылкой подтверждения через SMTP.
+    Если SMTP не настроен — логирует ссылку и продолжает.
+    """
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    from src.config import settings
+
+    plain = (
+        f"Здравствуйте!\n\n"
+        f"Для подтверждения перейдите по ссылке:\n{confirm_url}\n\n"
+        f"Ссылка действительна 1 час. Если вы не запрашивали изменение — проигнорируйте письмо.\n\n"
+        f"С уважением,\nКоманда Hotel Booking"
+    )
+    html = f"""<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+        <tr>
+          <td style="background:#2563eb;padding:28px 40px;">
+            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">Hotel Booking</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:36px 40px;">
+            <h2 style="margin:0 0 16px;color:#1e293b;font-size:20px;">{subject}</h2>
+            <p style="margin:0 0 28px;color:#475569;font-size:15px;line-height:1.6;">
+              Нажмите кнопку ниже для подтверждения. Ссылка действительна&nbsp;<strong>1&nbsp;час</strong>.
+            </p>
+            <table cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="background:#2563eb;border-radius:6px;">
+                  <a href="{confirm_url}" style="display:inline-block;padding:12px 28px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">
+                    Подтвердить
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:24px 0 0;color:#94a3b8;font-size:13px;">
+              Если кнопка не работает, скопируйте ссылку в браузер:<br>
+              <a href="{confirm_url}" style="color:#2563eb;word-break:break-all;">{confirm_url}</a>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#f8fafc;padding:20px 40px;border-top:1px solid #e2e8f0;">
+            <p style="margin:0;color:#94a3b8;font-size:13px;">
+              Если вы не запрашивали это изменение — просто проигнорируйте письмо.
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+
+    if not settings.SMTP_HOST:
+        logging.warning(
+            "SMTP не настроен — письмо подтверждения не отправлено. Ссылка для разработки: %s",
+            confirm_url,
+        )
+        return
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = settings.SMTP_FROM
+    msg["To"] = to_email
+    msg.attach(MIMEText(plain, "plain", "utf-8"))
+    msg.attach(MIMEText(html, "html", "utf-8"))
+
+    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as smtp:
+        smtp.ehlo()
+        smtp.starttls()
+        if settings.SMTP_USER and settings.SMTP_PASSWORD:
+            smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+        smtp.sendmail(settings.SMTP_FROM, [to_email], msg.as_string())
+    logging.info("Письмо подтверждения отправлено: to=%s, subject=%s", to_email, subject)
+
+
+@celery_instance.task(
+    name="send_confirmation_email",
+    autoretry_for=(Exception,),
+    max_retries=3,
+    default_retry_delay=60,
+)
+def send_confirmation_email_task(to_email: str, subject: str, confirm_url: str) -> None:
+    """Celery task: отправляет письмо с ссылкой подтверждения."""
+    _send_confirmation_email(to_email=to_email, subject=subject, confirm_url=confirm_url)
+
+
 async def _get_bookings_and_notify():
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
         rows = await db.bookings.get_today_checkins_with_emails()

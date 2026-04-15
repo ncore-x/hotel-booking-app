@@ -4,6 +4,7 @@ import { useAuthStore } from "../../stores/authStore";
 import { useThemeStore } from "../../stores/themeStore";
 import { useLangStore } from "../../stores/langStore";
 import { useT } from "../../i18n/useT";
+import { NotificationPanel } from "./NotificationPanel";
 
 export function Header() {
   const { user, logout } = useAuthStore();
@@ -47,8 +48,11 @@ export function Header() {
           )}
         </nav>
 
-        {/* Controls: lang + theme */}
+        {/* Controls: notifications + lang + theme */}
         <div className="hidden items-center gap-2 md:flex">
+          {/* Notifications */}
+          {user && <NotificationPanel />}
+
           {/* Language toggle */}
           <button
             onClick={toggleLang}
@@ -86,9 +90,27 @@ export function Header() {
               </Link>
               <Link
                 to="/profile"
-                className="text-sm font-medium text-muted transition-colors hover:text-ink"
+                className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
               >
-                {user.email}
+                <div className="h-8 w-8 overflow-hidden rounded-full border border-divider bg-secondary shrink-0">
+                  {user.avatar_url ? (
+                    <img src={user.avatar_url} alt="avatar" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-brand/10">
+                      <span className="text-xs font-bold text-brand">
+                        {(user.first_name?.[0] ?? user.email[0]).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-brand leading-none">
+                    {t.nav.myProfile}
+                  </span>
+                  <span className="text-sm font-medium text-muted leading-tight">
+                    {user.first_name ?? user.email}
+                  </span>
+                </div>
               </Link>
               <button
                 onClick={logout}
@@ -115,12 +137,14 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          className="flex items-center justify-center rounded-lg p-2 text-muted hover:bg-secondary md:hidden"
-          onClick={() => setMenuOpen((o) => !o)}
-          aria-label="Menu"
-        >
+        {/* Mobile: notifications + hamburger */}
+        <div className="flex items-center gap-1 md:hidden">
+          {user && <NotificationPanel />}
+          <button
+            className="flex items-center justify-center rounded-lg p-2 text-muted hover:bg-secondary"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label="Menu"
+          >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             {menuOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -128,7 +152,8 @@ export function Header() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             )}
           </svg>
-        </button>
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
@@ -165,7 +190,10 @@ export function Header() {
             {user ? (
               <>
                 <Link to="/bookings" className="text-sm font-medium text-ink" onClick={() => setMenuOpen(false)}>{t.nav.myBookings}</Link>
-                <Link to="/profile" className="text-sm font-medium text-ink" onClick={() => setMenuOpen(false)}>{user.email}</Link>
+                <Link to="/profile" className="flex flex-col gap-0.5" onClick={() => setMenuOpen(false)}>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-brand">{t.nav.myProfile}</span>
+                  <span className="text-sm font-medium text-ink">{user.email}</span>
+                </Link>
                 {user.is_admin && (
                   <Link to="/admin/hotels" className="text-sm font-medium text-ink" onClick={() => setMenuOpen(false)}>{t.nav.admin}</Link>
                 )}

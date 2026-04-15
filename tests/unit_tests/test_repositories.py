@@ -79,6 +79,16 @@ def _make_orm_user(id=1, email="user@test.com", hashed_password="hash", is_admin
     m.email = email
     m.hashed_password = hashed_password
     m.is_admin = is_admin
+    m.oauth_provider = None
+    m.oauth_avatar_url = None
+    m.oauth_id = None
+    m.first_name = None
+    m.last_name = None
+    m.birth_date = None
+    m.gender = None
+    m.citizenship = None
+    m.phone = None
+    m.avatar_filename = None
     return m
 
 

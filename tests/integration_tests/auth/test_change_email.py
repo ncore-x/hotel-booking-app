@@ -10,10 +10,13 @@
 6. Без авторизации → 401
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 from httpx import AsyncClient, ASGITransport
 
 from src.main import app
+from src.services.confirmation import ConfirmationService
 
 
 @pytest.fixture
@@ -34,13 +37,32 @@ async def email_test_client():
 
 
 async def test_change_email_success(email_test_client: AsyncClient):
-    resp = await email_test_client.patch(
-        "/api/v1/auth/me/email",
-        json={"new_email": "email_changed@example.com", "current_password": "EmailChange1!"},
-    )
-    assert resp.status_code == 204
+    """PATCH sends a confirmation token to Redis; GET /confirm applies the change."""
+    captured: list[str] = []
+    original = ConfirmationService.create_token
 
-    # /me возвращает новый email
+    async def _capture(self, *args, **kwargs):
+        token = await original(self, *args, **kwargs)
+        captured.append(token)
+        return token
+
+    with patch.object(ConfirmationService, "create_token", _capture):
+        with patch("src.tasks.tasks.send_confirmation_email_task") as mock_task:
+            mock_task.delay = MagicMock()
+            resp = await email_test_client.patch(
+                "/api/v1/auth/me/email",
+                json={
+                    "new_email": "email_changed@example.com",
+                    "current_password": "EmailChange1!",
+                },
+            )
+    assert resp.status_code == 204
+    assert len(captured) == 1
+
+    confirm = await email_test_client.get(f"/api/v1/auth/confirm?token={captured[0]}")
+    assert confirm.status_code == 200
+
+    # /me returns the new email
     me = await email_test_client.get("/api/v1/auth/me")
     assert me.status_code == 200
     assert me.json()["email"] == "email_changed@example.com"

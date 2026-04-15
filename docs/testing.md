@@ -25,7 +25,7 @@ tests/
 ├── mock_hotels.json     # Тестовые данные отелей
 ├── mock_rooms.json      # Тестовые данные номеров
 ├── unit_tests/          # Service layer, tasks, elastic, auth, logging (мокированные, без БД)
-│   ├── test_auth_service.py     # AuthService (32 теста)
+│   ├── test_auth_service.py     # AuthService (35 тестов)
 │   ├── test_services.py         # Booking/Facility/Hotel/Room/Images services (62 теста)
 │   ├── test_tasks.py            # Celery tasks: resize, email (14 тестов)
 │   ├── test_elastic_client.py   # ES клиент (7 тестов)
@@ -34,9 +34,13 @@ tests/
 │   ├── test_logging_config.py   # JSON логирование (7 тестов)
 │   ├── test_token_blacklist.py  # Redis blacklist (7 тестов)
 │   ├── test_redis_connector.py  # Redis connector (10 тестов)
+│   ├── test_confirmation_service.py # ConfirmationService: create/consume token (12 тестов)
+│   ├── test_oauth_service.py        # OAuthService: authorize URL, callback (14 тестов)
 │   └── test_tracing.py          # OpenTelemetry (1 тест)
 └── integration_tests/   # API через httpx.AsyncClient
     ├── auth/            # Регистрация, логин, RBAC, refresh, email
+    │   ├── test_confirmation.py     # GET /auth/confirm?token= (5 тестов)
+    │   └── test_oauth.py            # OAuth authorize + callback (8 тестов)
     ├── hotels/          # CRUD отелей
     ├── rooms/           # CRUD номеров
     ├── bookings/        # Бронирования
@@ -76,10 +80,13 @@ tests/
 - **ES fallback**: Патчить `get_es_client` → `None` (отключён) или `AsyncMock()` (включён)
 - **Cache**: Патчится целиком: `mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f)`
 - **NullPool**: Использовать `engine_null_pool` в тестах — избегает asyncio pool issues
+- **Capture confirmation token**: патчить `ConfirmationService.create_token` для захвата токена без прямого обращения к Redis — прямые `redis_manager.redis.keys()` вызовы ломают pool при session event loop
+- **OAuth state via HTTP**: вызывать `GET /auth/oauth/google/authorize` через ASGI, извлекать state из URL — не писать state напрямую в Redis из тестов
+- **asyncio loop scope**: в `pytest.ini` обязательны оба ключа: `asyncio_default_fixture_loop_scope = session` и `asyncio_default_test_loop_scope = session`
 
 ## Текущий статус
 
-327 тестов, 86% покрытие (апрель 2026).
+413 тестов, 86%+ покрытие (апрель 2026).
 
 ### Покрытие по слоям
 

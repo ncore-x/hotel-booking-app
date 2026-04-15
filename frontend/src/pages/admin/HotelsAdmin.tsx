@@ -234,139 +234,91 @@ export function HotelsAdmin() {
         </div>
       ) : (
         <>
-          <div className="space-y-3">
+          <div className="grid grid-cols-3 gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
             {hotels.map((hotel) => (
               <Card
                 key={hotel.id}
-                className="hover:shadow-md transition-shadow"
+                className="flex flex-col overflow-hidden p-0 hover:shadow-md transition-shadow"
               >
-                <div className="flex items-center justify-between gap-4">
-                  {/* Thumbnail */}
-                  <div className="relative shrink-0 h-14 w-14 rounded-lg overflow-hidden bg-secondary">
-                    {hotel.cover_image_url ? (
-                      <img
-                        src={hotel.cover_image_url}
-                        alt={hotel.title}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <svg className="h-6 w-6 text-subtle" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 0h.008v.008h-.008V7.5z" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="inline-flex items-center rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-medium text-brand">
-                        ID {hotel.id}
-                      </span>
+                {/* Cover image */}
+                <div className="relative h-24 w-full bg-secondary shrink-0">
+                  {hotel.cover_image_url ? (
+                    <img
+                      src={hotel.cover_image_url}
+                      alt={hotel.title}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <svg className="h-6 w-6 text-subtle" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 0h.008v.008h-.008V7.5z" />
+                      </svg>
                     </div>
-                    <h3 className="text-sm font-semibold text-ink truncate">
-                      {hotel.title}
-                    </h3>
-                    <p className="text-sm text-muted mt-1">{hotel.city}{hotel.address ? `, ${hotel.address}` : ""}</p>
-                  </div>
+                  )}
+                  <span className="absolute top-1.5 left-1.5 inline-flex items-center rounded-full bg-black/55 px-1.5 py-px text-[10px] font-semibold text-white backdrop-blur-sm">
+                    ID {hotel.id}
+                  </span>
+                </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => handleAvatarClick(hotel.id)}
-                      disabled={uploadingId === hotel.id}
-                      className="p-2 rounded-lg text-muted hover:text-ink hover:bg-secondary transition-colors disabled:opacity-50"
-                      title="Загрузить обложку"
-                    >
-                      {uploadingId === hotel.id ? (
-                        <Spinner size="sm" />
-                      ) : (
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      )}
-                    </button>
-                    <Link to={`/admin/hotels/${hotel.id}/rooms`}>
-                      <button
-                        className="p-2 rounded-lg text-muted hover:text-ink hover:bg-secondary transition-colors"
-                        title="Номера"
-                      >
-                        <svg
-                          className="h-5 w-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                          />
-                        </svg>
-                      </button>
-                    </Link>
-                    <Link to={`/admin/hotels/${hotel.id}/images`}>
-                      <button
-                        className="p-2 rounded-lg text-muted hover:text-ink hover:bg-secondary transition-colors"
-                        title="Фотографии"
-                      >
-                        <svg
-                          className="h-5 w-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                      </button>
-                    </Link>
-                    <button
-                      onClick={() => openEdit(hotel)}
-                      className="p-2 rounded-lg text-muted hover:text-ink hover:bg-secondary transition-colors"
-                      title="Редактировать"
-                    >
-                      <svg
-                        className="h-5 w-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
+                {/* Info */}
+                <div className="flex flex-1 flex-col gap-0.5 px-2 py-1.5">
+                  <h3 className="text-xs font-semibold text-ink leading-tight line-clamp-2">
+                    {hotel.title}
+                  </h3>
+                  <p className="text-[10px] text-muted truncate leading-tight">
+                    {hotel.city}{hotel.address ? `, ${hotel.address}` : ""}
+                  </p>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center justify-between border-t border-divider px-1 py-1">
+                  <button
+                    onClick={() => handleAvatarClick(hotel.id)}
+                    disabled={uploadingId === hotel.id}
+                    className="p-1 rounded text-muted hover:text-ink hover:bg-secondary transition-colors disabled:opacity-50"
+                    title="Загрузить обложку"
+                  >
+                    {uploadingId === hotel.id ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    )}
+                  </button>
+                  <Link to={`/admin/hotels/${hotel.id}/rooms`}>
+                    <button className="p-1 rounded text-muted hover:text-ink hover:bg-secondary transition-colors" title="Номера">
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                       </svg>
                     </button>
-                    <button
-                      onClick={() => handleDelete(hotel.id)}
-                      className="p-2 rounded-lg text-muted hover:text-fail hover:bg-fail/5 transition-colors"
-                      title="Удалить"
-                    >
-                      <svg
-                        className="h-5 w-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
+                  </Link>
+                  <Link to={`/admin/hotels/${hotel.id}/images`}>
+                    <button className="p-1 rounded text-muted hover:text-ink hover:bg-secondary transition-colors" title="Фотографии">
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </button>
-                  </div>
+                  </Link>
+                  <button
+                    onClick={() => openEdit(hotel)}
+                    className="p-1 rounded text-muted hover:text-ink hover:bg-secondary transition-colors"
+                    title="Редактировать"
+                  >
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => handleDelete(hotel.id)}
+                    className="p-1 rounded text-muted hover:text-fail hover:bg-fail/5 transition-colors"
+                    title="Удалить"
+                  >
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 </div>
               </Card>
             ))}

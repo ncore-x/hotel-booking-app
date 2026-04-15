@@ -468,6 +468,7 @@ async def test_update_email_success():
     old_hash = svc.hash_password("Password1xx")
     mock_user = MagicMock(email="old@example.com", hashed_password=old_hash)
     db.users.get_user_with_hashed_password_by_id.return_value = mock_user
+    db.users.get_one_or_none.return_value = None  # new email is not taken
 
     from src.schemas.users import UserEmailUpdate
 
@@ -544,3 +545,51 @@ async def test_get_one_or_none_user_missing():
 
     result = await svc.get_one_or_none_user(999)
     assert result is None
+
+
+# ─── OAuth guards ─────────────────────────────────────────────────────────────
+# OAuth-only users have hashed_password=None — login and password update must
+# reject them with IncorrectPasswordException (not AttributeError or crash).
+
+
+async def test_login_oauth_user_raises_incorrect_password():
+    """OAuth user (no hashed_password) cannot login with a password."""
+    db = _make_db()
+    svc = _make_service(db)
+    mock_user = MagicMock(id=1, hashed_password=None, is_admin=False)
+    db.users.get_user_with_hashed_password.return_value = mock_user
+
+    from src.schemas.users import UserRequestAdd
+
+    with pytest.raises(IncorrectPasswordException):
+        await svc.login_user(UserRequestAdd(email="oauth@example.com", password="AnyPass1"))
+
+
+async def test_update_password_oauth_user_raises_incorrect_password():
+    """OAuth user (no hashed_password) cannot change password via PATCH."""
+    db = _make_db()
+    svc = _make_service(db)
+    mock_user = MagicMock(id=1, hashed_password=None, email="oauth@example.com")
+    db.users.get_user_with_hashed_password_by_id.return_value = mock_user
+
+    from src.schemas.users import UserPasswordUpdate
+
+    with pytest.raises(IncorrectPasswordException):
+        await svc.update_password(
+            1, UserPasswordUpdate(current_password="AnyPass1", new_password="NewPass2")
+        )
+
+
+async def test_update_email_oauth_user_raises_incorrect_password():
+    """OAuth user (no hashed_password) cannot change email via PATCH."""
+    db = _make_db()
+    svc = _make_service(db)
+    mock_user = MagicMock(id=1, hashed_password=None, email="oauth@example.com")
+    db.users.get_user_with_hashed_password_by_id.return_value = mock_user
+
+    from src.schemas.users import UserEmailUpdate
+
+    with pytest.raises(IncorrectPasswordException):
+        await svc.update_email(
+            1, UserEmailUpdate(new_email="new@example.com", current_password="AnyPass1")
+        )

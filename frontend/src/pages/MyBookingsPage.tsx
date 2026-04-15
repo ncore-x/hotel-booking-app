@@ -7,6 +7,7 @@ import { BookingCard } from "../components/booking/BookingCard";
 import { Pagination } from "../components/Pagination";
 import { Spinner } from "../components/ui/Spinner";
 import { ApiError } from "../api/client";
+import { useNotificationStore } from "../stores/notificationStore";
 import type { Booking } from "../types/booking";
 
 type Filter = "all" | "upcoming" | "active" | "completed";
@@ -23,6 +24,7 @@ export function MyBookingsPage() {
   const user = useAuthStore((s) => s.user);
   const isLoading = useAuthStore((s) => s.isLoading);
   const t = useT();
+  const addNotification = useNotificationStore((s) => s.add);
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [page, setPage] = useState(1);
@@ -63,6 +65,11 @@ export function MyBookingsPage() {
     setActionLoading(id);
     try {
       await bookingsApi.cancel(id);
+      addNotification(
+        "booking_cancelled",
+        t.notifications.bookingCancelledTitle,
+        t.notifications.bookingCancelledBody(id),
+      );
       await fetchBookings();
     } catch (e) {
       const msg = e instanceof ApiError ? e.detail : t.common.error;
@@ -77,6 +84,11 @@ export function MyBookingsPage() {
     setActionLoading(id);
     try {
       await bookingsApi.patch(id, { date_from: dateFrom, date_to: dateTo });
+      addNotification(
+        "booking_updated",
+        t.notifications.bookingUpdatedTitle,
+        t.notifications.bookingUpdatedBody(id, dateFrom, dateTo),
+      );
       await fetchBookings();
     } catch (e) {
       const msg = e instanceof ApiError ? e.detail : t.common.error;
