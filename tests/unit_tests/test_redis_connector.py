@@ -13,9 +13,13 @@ def manager():
 
 
 async def test_connect(manager: RedisManager):
-    with patch("src.connectors.redis_connector.redis.Redis") as mock_redis:
+    with patch("src.connectors.redis_connector.redis.from_url") as mock_from_url:
         await manager.connect()
-        mock_redis.assert_called_once_with(host="localhost", port=6379)
+        mock_from_url.assert_called_once_with(
+            "redis://localhost:6379",
+            socket_connect_timeout=5,
+            socket_timeout=5,
+        )
         assert manager.redis is not None
 
 

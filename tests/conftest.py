@@ -30,6 +30,11 @@ def check_test_mode():
 @pytest.fixture(scope="session", autouse=True)
 async def connect_redis(check_test_mode):
     await redis_manager.connect()
+    ok = await redis_manager.ping()
+    assert ok, (
+        f"Redis недоступен после connect(): host={settings.REDIS_HOST}, "
+        f"port={settings.REDIS_PORT}. Проверьте переменные REDIS_HOST/REDIS_PORT."
+    )
     yield
     try:
         await redis_manager.close()

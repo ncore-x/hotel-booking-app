@@ -11,7 +11,13 @@ class RedisManager:
 
     async def connect(self):
         logging.info(f"Подключение к Redis host={self.host}, port={self.port}")
-        self.redis = redis.Redis(host=self.host, port=self.port)
+        # from_url bypasses hostname IDNA-validation issues present in redis-py 6.x
+        # on Python 3.13 with non-standard hostnames (e.g. Docker service names with underscores)
+        self.redis = redis.from_url(
+            f"redis://{self.host}:{self.port}",
+            socket_connect_timeout=5,
+            socket_timeout=5,
+        )
         logging.info(f"Redis подключён: host={self.host}, port={self.port}")
 
     async def ping(self) -> bool:
@@ -19,7 +25,8 @@ class RedisManager:
             return False
         try:
             return await self.redis.ping()
-        except Exception:
+        except Exception as e:
+            logging.error("Redis ping failed: %r", e)
             return False
 
     async def set(self, key: str, value: str, expire: int | None = None):
