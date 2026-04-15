@@ -2,16 +2,8 @@ apiVersion: 1
 
 contactPoints:
   - orgId: 1
-    name: Telegram Watchdog
+    name: Watchdog
     receivers:
-      - uid: watchdog_telegram
-        type: telegram
-        settings:
-          bottoken: "${TELEGRAM_BOT_TOKEN}"
-          chatid: "1097986020"
-          message: |
-            🟢 Watchdog: alerting pipeline работает нормально
-        disableResolveMessage: true
       - uid: watchdog_email
         type: email
         settings:
@@ -22,36 +14,6 @@ contactPoints:
   - orgId: 1
     name: Critical
     receivers:
-      - uid: critical_telegram
-        type: telegram
-        settings:
-          bottoken: "${TELEGRAM_BOT_TOKEN}"
-          chatid: "1097986020"
-          message: |
-            {{ range .Alerts -}}
-            {{ if eq .Status "firing" -}}
-            {{ .Annotations.emoji }} 🔴 [FIRING] {{ .Labels.alertname }}
-            {{ .Annotations.summary }}
-            {{ .Annotations.description }}
-            {{- if .Labels.name }}
-            Контейнер: {{ .Labels.name }}{{ end }}
-            {{- if .Labels.queue_name }}
-            Очередь: {{ .Labels.queue_name }}{{ end }}
-            {{- if .Labels.mountpoint }}
-            Раздел: {{ .Labels.mountpoint }}{{ end }}
-            {{- else -}}
-            {{ .Annotations.emoji }} ✅ [RESOLVED] {{ .Labels.alertname }}
-            {{ .Annotations.summary }}
-            {{- if .Labels.name }}
-            Контейнер: {{ .Labels.name }}{{ end }}
-            {{- if .Labels.queue_name }}
-            Очередь: {{ .Labels.queue_name }}{{ end }}
-            {{- if .Labels.mountpoint }}
-            Раздел: {{ .Labels.mountpoint }}{{ end }}
-            Инцидент устранён
-            {{- end }}
-            {{ end }}
-        disableResolveMessage: false
       - uid: critical_email
         type: email
         settings:
@@ -60,38 +22,8 @@ contactPoints:
         disableResolveMessage: false
 
   - orgId: 1
-    name: Telegram
+    name: Warning
     receivers:
-      - uid: afhd40ntpeoe8a
-        type: telegram
-        settings:
-          bottoken: "${TELEGRAM_BOT_TOKEN}"
-          chatid: "1097986020"
-          message: |
-            {{ range .Alerts -}}
-            {{ if eq .Status "firing" -}}
-            {{ .Annotations.emoji }} 🟡 [FIRING] {{ .Labels.alertname }}
-            {{ .Annotations.summary }}
-            {{ .Annotations.description }}
-            {{- if .Labels.name }}
-            Контейнер: {{ .Labels.name }}{{ end }}
-            {{- if .Labels.queue_name }}
-            Очередь: {{ .Labels.queue_name }}{{ end }}
-            {{- if .Labels.mountpoint }}
-            Раздел: {{ .Labels.mountpoint }}{{ end }}
-            {{- else -}}
-            {{ .Annotations.emoji }} ✅ [RESOLVED] {{ .Labels.alertname }}
-            {{ .Annotations.summary }}
-            {{- if .Labels.name }}
-            Контейнер: {{ .Labels.name }}{{ end }}
-            {{- if .Labels.queue_name }}
-            Очередь: {{ .Labels.queue_name }}{{ end }}
-            {{- if .Labels.mountpoint }}
-            Раздел: {{ .Labels.mountpoint }}{{ end }}
-            Инцидент устранён
-            {{- end }}
-            {{ end }}
-        disableResolveMessage: false
       - uid: warning_email
         type: email
         settings:
