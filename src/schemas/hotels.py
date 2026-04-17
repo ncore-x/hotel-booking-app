@@ -1,7 +1,7 @@
 from typing import Optional, Annotated
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, StringConstraints, field_validator
 
-NonEmptyStr = Annotated[str, Field(strip_whitespace=True)]
+NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True)]
 
 
 def not_blank(value: str) -> str:
