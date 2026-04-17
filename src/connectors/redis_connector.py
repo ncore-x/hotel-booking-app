@@ -10,11 +10,12 @@ class RedisManager:
         self.redis: redis.Redis | None = None
 
     async def connect(self):
-        logging.info(f"Подключение к Redis host={self.host}, port={self.port}")
+        host = self.host.strip()
+        logging.info(f"Подключение к Redis host={host}, port={self.port}")
         # from_url bypasses hostname IDNA-validation issues present in redis-py 6.x
         # on Python 3.13 with non-standard hostnames (e.g. Docker service names with underscores)
         self.redis = redis.from_url(
-            f"redis://{self.host}:{self.port}",
+            f"redis://{host}:{self.port}",
             socket_connect_timeout=5,
             socket_timeout=5,
         )
