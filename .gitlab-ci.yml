@@ -36,12 +36,7 @@ test-job:
   before_script:
     - cp ${TEST_ENV} .env-test
   script:
-    - docker run --rm --network myNetwork --add-host host.docker.internal:host-gateway --env-file .env-test booking-api-image uv run pytest -s -v --tb=short 2>&1 | tee pytest_output.txt; exit ${PIPESTATUS[0]}
-  artifacts:
-    when: on_failure
-    paths:
-      - pytest_output.txt
-    expire_in: 1 day
+    - docker run --rm --network myNetwork --add-host host.docker.internal:host-gateway --env-file .env-test booking-api-image uv run pytest -s -v --tb=short
 
 deploy-job:
   stage: deploy
