@@ -1,0 +1,4 @@
+[    1663ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://python-project.online/api/v1/auth/me:0
+[    1676ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://python-project.online/api/v1/auth/refresh:0
+[    1739ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "new-password"): (More info: https://goo.gl/9p2vKq) %o @ https://python-project.online/register:0
+[    1739ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "new-password"): (More info: https://goo.gl/9p2vKq) %o @ https://python-project.online/register:0

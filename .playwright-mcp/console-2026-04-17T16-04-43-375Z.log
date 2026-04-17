@@ -1,0 +1,4 @@
+[     149ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "new-password"): (More info: https://goo.gl/9p2vKq) %o @ https://python-project.online/register:0
+[     149ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "new-password"): (More info: https://goo.gl/9p2vKq) %o @ https://python-project.online/register:0
+[   29810ms] [ERROR] Failed to load resource: the server responded with a status of 422 (Unprocessable Content) @ https://python-project.online/api/v1/auth/register:0
+[   48475ms] [ERROR] Failed to load resource: the server responded with a status of 409 (Conflict) @ https://python-project.online/api/v1/auth/register:0

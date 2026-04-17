@@ -1,0 +1,166 @@
+- generic [ref=e38]:
+  - banner [ref=e39]:
+    - generic [ref=e40]:
+      - link "StaySpring." [ref=e41] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=e42]:
+        - link "Home" [ref=e43] [cursor=pointer]:
+          - /url: /
+      - generic [ref=e44]:
+        - button "Notifications" [ref=e46]:
+          - img [ref=e47]
+        - button "Toggle language" [ref=e49]: RU
+        - button "Toggle theme" [ref=e50]:
+          - img [ref=e51]
+        - link "My Bookings" [ref=e53] [cursor=pointer]:
+          - /url: /bookings
+        - link "P My Account playwright_test@example.com" [ref=e54] [cursor=pointer]:
+          - /url: /profile
+          - generic [ref=e57]: P
+          - generic [ref=e58]:
+            - generic [ref=e59]: My Account
+            - generic [ref=e60]: playwright_test@example.com
+        - button "Sign Out" [ref=e61]
+  - main [ref=e62]:
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - img "Luxury hotel" [ref=e65]
+        - heading "Find Your Dream Getaway" [level=1] [ref=e68]:
+          - generic [ref=e69]: Find Your
+          - text: Dream Getaway
+      - generic [ref=e73]:
+        - generic [ref=e75]:
+          - img [ref=e76]
+          - generic [ref=e79]:
+            - paragraph [ref=e80]: Destination
+            - textbox "City, hotel or area" [ref=e81]
+        - button "Check In — Check Out 18 Apr—2 May· 14 nights" [ref=e83]:
+          - img [ref=e84]
+          - generic [ref=e86]:
+            - paragraph [ref=e87]: Check In — Check Out
+            - paragraph [ref=e88]:
+              - text: 18 Apr—2 May
+              - generic [ref=e89]: · 14 nights
+          - img [ref=e90]
+        - button "Guests 2 guests" [ref=e93]:
+          - img [ref=e94]
+          - generic [ref=e96]:
+            - paragraph [ref=e97]: Guests
+            - paragraph [ref=e98]: 2 guests
+          - img [ref=e99]
+        - button "Search" [ref=e102]:
+          - img [ref=e103]
+          - text: Search
+      - generic [ref=e105]:
+        - paragraph [ref=e106]: Explore by Location
+        - generic [ref=e107]:
+          - button "All" [ref=e108]
+          - button "Al Thanayah 1 Barsha Heights" [ref=e109]
+          - button "Сочи" [ref=e110]
+      - generic [ref=e111]:
+        - generic [ref=e113]:
+          - heading "Top Trending Hotels" [level=2] [ref=e114]
+          - generic [ref=e116]:
+            - button "Scroll left" [ref=e117]:
+              - img [ref=e118]
+            - button "Scroll right" [ref=e120]:
+              - img [ref=e121]
+        - generic [ref=e123]:
+          - link "Signature 1 Hotel Tecom" [ref=e125] [cursor=pointer]:
+            - /url: /hotels/5
+            - generic [ref=e127]:
+              - img [ref=e129]
+              - generic [ref=e133]:
+                - img [ref=e134]
+                - text: Al Thanayah 1 Barsha Heights, Tecom, Dubai
+              - generic [ref=e139]:
+                - heading "Signature 1 Hotel Tecom" [level=3] [ref=e140]
+                - paragraph [ref=e141]: Al Thanayah 1 Barsha Heights, Tecom, Dubai
+          - link "Апартаменты Brevis Rents" [ref=e143] [cursor=pointer]:
+            - /url: /hotels/6
+            - generic [ref=e145]:
+              - img [ref=e147]
+              - generic [ref=e151]:
+                - img [ref=e152]
+                - text: Сочи, ул. Орджоникидзе, д. 11/1
+              - generic [ref=e157]:
+                - heading "Апартаменты Brevis Rents" [level=3] [ref=e158]
+                - paragraph [ref=e159]: Сочи, ул. Орджоникидзе, д. 11/1
+      - generic [ref=e160]:
+        - heading "What Our Guests Say" [level=2] [ref=e161]
+        - paragraph [ref=e162]: Discover handpicked hotels across the globe — from hidden retreats to city icons.
+        - generic [ref=e163]:
+          - generic [ref=e164]:
+            - paragraph [ref=e165]: "\"Booked in under two minutes. The room was exactly as pictured — spotless, quiet, and the breakfast was outstanding.\""
+            - generic [ref=e166]:
+              - generic [ref=e167]: S
+              - generic [ref=e168]:
+                - paragraph [ref=e169]: Sofia K.
+                - paragraph [ref=e170]: Berlin, Germany
+          - generic [ref=e171]:
+            - paragraph [ref=e172]: "\"StaySpring recommended a hotel I'd never have found on my own. Genuinely surprised by the quality for the price.\""
+            - generic [ref=e173]:
+              - generic [ref=e174]: M
+              - generic [ref=e175]:
+                - paragraph [ref=e176]: Marco T.
+                - paragraph [ref=e177]: Milan, Italy
+          - generic [ref=e178]:
+            - paragraph [ref=e179]: "\"The filters are a dream. I found a pet-friendly, sea-view suite in fifteen seconds flat. Will use every trip.\""
+            - generic [ref=e180]:
+              - generic [ref=e181]: P
+              - generic [ref=e182]:
+                - paragraph [ref=e183]: Priya N.
+                - paragraph [ref=e184]: Mumbai, India
+          - generic [ref=e185]:
+            - paragraph [ref=e186]: "\"Cancelled a booking at midnight, refund landed by morning. Customer service that actually works.\""
+            - generic [ref=e187]:
+              - generic [ref=e188]: J
+              - generic [ref=e189]:
+                - paragraph [ref=e190]: James L.
+                - paragraph [ref=e191]: London, UK
+      - generic [ref=e192]:
+        - img "Hotel exterior" [ref=e193]
+        - generic [ref=e195]:
+          - generic [ref=e196]:
+            - heading "Ready to Find Your Perfect Stay?" [level=2] [ref=e197]
+            - paragraph [ref=e198]: Thousands of properties. One seamless experience.
+          - link "View Available Dates" [ref=e199] [cursor=pointer]:
+            - /url: /
+      - generic [ref=e200]:
+        - heading "Popular Destinations" [level=2] [ref=e201]
+        - generic [ref=e202]:
+          - button "1+ View hotels Al Thanayah 1 Barsha Heights View hotels" [ref=e203]:
+            - generic [ref=e205]:
+              - generic [ref=e206]:
+                - paragraph [ref=e207]: 1+ View hotels
+                - heading "Al Thanayah 1 Barsha Heights" [level=3] [ref=e208]
+              - generic [ref=e209]:
+                - text: View hotels
+                - img [ref=e210]
+          - button "1+ View hotels Сочи View hotels" [ref=e212]:
+            - generic [ref=e214]:
+              - generic [ref=e215]:
+                - paragraph [ref=e216]: 1+ View hotels
+                - heading "Сочи" [level=3] [ref=e217]
+              - generic [ref=e218]:
+                - text: View hotels
+                - img [ref=e219]
+  - contentinfo [ref=e221]:
+    - generic [ref=e222]:
+      - generic [ref=e223]:
+        - generic [ref=e224]:
+          - paragraph [ref=e225]: StaySpring.
+          - paragraph [ref=e226]: Find your perfect stay, anywhere in the world.
+        - generic [ref=e227]:
+          - paragraph [ref=e228]: Menu
+          - list [ref=e229]:
+            - listitem [ref=e230]:
+              - link "Home" [ref=e231] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e232]:
+              - link "My Bookings" [ref=e233] [cursor=pointer]:
+                - /url: /bookings
+            - listitem [ref=e234]:
+              - link "About" [ref=e235] [cursor=pointer]:
+                - /url: /profile
+      - paragraph [ref=e237]: © 2026 StaySpring. All rights reserved.

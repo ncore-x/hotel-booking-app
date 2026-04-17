@@ -26,8 +26,24 @@ export function RegisterPage() {
       setLocalError(t.register.passwordMismatch);
       return;
     }
-    if (password.length < 6) {
+    if (password.length < 8) {
       setLocalError(t.register.passwordTooShort);
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setLocalError(t.register.passwordNoUpper);
+      return;
+    }
+    if (!/[a-z]/.test(password)) {
+      setLocalError(t.register.passwordNoLower);
+      return;
+    }
+    if (!/\d/.test(password)) {
+      setLocalError(t.register.passwordNoDigit);
+      return;
+    }
+    if (/\s/.test(password)) {
+      setLocalError(t.register.passwordHasSpace);
       return;
     }
 
