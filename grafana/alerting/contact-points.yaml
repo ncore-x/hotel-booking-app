@@ -1,13 +1,5 @@
 apiVersion: 1
 
-deleteContactPoints:
-  - orgId: 1
-    uid: critical_telegram
-  - orgId: 1
-    uid: watchdog_telegram
-  - orgId: 1
-    uid: afhd40ntpeoe8a
-
 contactPoints:
   - orgId: 1
     name: Watchdog

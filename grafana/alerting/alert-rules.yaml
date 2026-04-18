@@ -447,7 +447,7 @@ groups:
       - uid: sloburn0000002
         title: SLO Slow Burn
         condition: threshold
-        for: 5m
+        for: 1h
         noDataState: OK
         execErrState: Error
         labels:
@@ -688,3 +688,840 @@ groups:
                   query: {params: [A]}
                   reducer: {params: [], type: last}
                   type: query
+
+  - orgId: 1
+    name: hotel-booking-anomaly
+    folder: Hotel Booking Anomaly Alerts
+    interval: 1m
+    rules:
+
+      # 1. CPU baseline deviation
+      - uid: anomaly_cpu_baseline
+        title: CPU Spike vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU выше базовой линии на 50%"
+          description: "rate(process_cpu_seconds_total[5m]) превышает значение 5 минут назад в 1.5 раза"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'rate(process_cpu_seconds_total{app_name="hotel_booking"}[5m]) / (rate(process_cpu_seconds_total{app_name="hotel_booking"}[5m] offset 5m) > 0.001)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [1.5], type: gt}
+
+      # 2. p95 latency baseline deviation
+      - uid: anomaly_p95_latency
+        title: p95 Latency Spike vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "p95 latency выше базовой линии на 100%"
+          description: "p95 задержка удвоилась по сравнению со значением 10 минут назад"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'histogram_quantile(0.95, rate(fastapi_requests_duration_seconds_bucket{app_name="hotel_booking"}[5m])) / (histogram_quantile(0.95, rate(fastapi_requests_duration_seconds_bucket{app_name="hotel_booking"}[5m] offset 10m)) > 0.01)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [2.0], type: gt}
+
+      # 3. DB connections baseline deviation
+      - uid: anomaly_db_connections
+        title: DB Connections Spike vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Кол-во DB соединений выше базовой линии на 80%"
+          description: "Активные соединения к PostgreSQL выросли в 1.8 раза по сравнению с 15 минутами назад"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 900, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'pg_stat_activity_count{datname="hotel_booking"} / (pg_stat_activity_count{datname="hotel_booking"} offset 15m > 1)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 900, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [1.8], type: gt}
+
+      # 4. Celery queue depth spike
+      - uid: anomaly_celery_queue
+        title: Celery Queue Depth Spike
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Очередь Celery больше 100 задач"
+          description: "Глубина очереди Celery превысила 100 задач — воркеры не успевают"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'celery_queue_length{queue_name="celery"}'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [100], type: gt}
+
+      # 5. RPS drop (traffic anomaly)
+      - uid: anomaly_rps_drop
+        title: RPS Drop vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "RPS упал ниже 50% от базовой линии"
+          description: "Количество запросов в секунду упало более чем вдвое по сравнению с 10 минутами назад"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'rate(fastapi_requests_total{app_name="hotel_booking"}[5m]) / (rate(fastapi_requests_total{app_name="hotel_booking"}[5m] offset 10m) > 0.1)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: min
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [0.5], type: lt}
+
+      # 6. 5xx error rate spike
+      - uid: anomaly_5xx_spike
+        title: 5xx Error Rate Spike vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "5xx ошибки выросли в 3 раза по сравнению с базовой линией"
+          description: "Доля 5xx ответов относительно всех запросов выросла в 3+ раза за последние 5 минут"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: '(rate(fastapi_requests_total{app_name="hotel_booking",status_code=~"5.."}[5m]) / (rate(fastapi_requests_total{app_name="hotel_booking"}[5m]) > 0.1)) / ((rate(fastapi_requests_total{app_name="hotel_booking",status_code=~"5.."}[5m] offset 10m) / (rate(fastapi_requests_total{app_name="hotel_booking"}[5m] offset 10m) > 0.1)) > 0.001)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [3.0], type: gt}
+
+      # 7. 4xx error rate spike (client errors)
+      - uid: anomaly_4xx_spike
+        title: 4xx Error Rate Spike vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "4xx ошибки выросли в 5 раз по сравнению с базовой линией"
+          description: "Резкий рост 4xx может указывать на атаку, сломанный клиент или проблему авторизации"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: '(rate(fastapi_requests_total{app_name="hotel_booking",status_code=~"4.."}[5m]) / (rate(fastapi_requests_total{app_name="hotel_booking",status_code=~"4.."}[5m] offset 10m) > 0.01))'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [5.0], type: gt}
+
+      # 8. Slow DB queries spike
+      - uid: anomaly_slow_queries
+        title: Slow DB Queries Spike vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Медленных SQL-запросов в 3 раза больше базовой линии"
+          description: "Рост медленных запросов указывает на деградацию производительности БД"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'rate(pg_stat_statements_total_time_seconds_total[5m]) / (rate(pg_stat_statements_total_time_seconds_total[5m] offset 10m) > 0.001)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [3.0], type: gt}
+
+      # 9. DB locks spike
+      - uid: anomaly_db_locks
+        title: DB Locks Spike
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Блокировки БД выросли в 3 раза"
+          description: "Резкий рост блокировок в PostgreSQL может указывать на deadlock или долгую транзакцию"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'pg_locks_count / (pg_locks_count offset 10m > 1)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [3.0], type: gt}
+
+      # 10. Redis cache hit ratio drop
+      - uid: anomaly_redis_cache_hit
+        title: Redis Cache Hit Ratio Drop
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Cache hit ratio Redis упал ниже 80%"
+          description: "Низкий cache hit ratio увеличивает нагрузку на PostgreSQL"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_total + 1)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: min
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [0.8], type: lt}
+
+      # 11. Container memory spike
+      - uid: anomaly_container_memory
+        title: Container Memory Spike vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Память контейнера выросла на 50% от базовой линии"
+          description: "Возможная утечка памяти в приложении hotel_booking"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 1800, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'container_memory_rss{name="hotel_booking"} / (container_memory_rss{name="hotel_booking"} offset 30m > 10485760)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 1800, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [1.5], type: gt}
+
+      # 12. OOM kills
+      - uid: anomaly_oom_kills
+        title: OOM Kill Detected
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Обнаружен OOM Kill в контейнерах"
+          description: "Контейнер был убит из-за нехватки памяти"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'increase(container_oom_events_total[5m])'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [0], type: gt}
+
+      # 13. Disk fill prediction
+      - uid: anomaly_disk_prediction
+        title: Disk Full Prediction < 24h
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Диск заполнится менее чем через 24 часа"
+          description: "predict_linear показывает заполнение диска в течение 24 часов при текущей скорости роста"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 3600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'predict_linear(node_filesystem_avail_bytes{mountpoint="/"}[1h], 86400) < 0'
+              refId: A
+              instant: true
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: classic_conditions
+              conditions:
+                - evaluator: {params: [0], type: gt}
+                  operator: {type: and}
+                  query: {params: [A]}
+                  reducer: {params: [], type: last}
+                  type: query
+
+      # 14. File descriptors exhaustion
+      - uid: anomaly_file_descriptors
+        title: File Descriptors > 80% Limit
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Использовано более 80% лимита файловых дескрипторов"
+          description: "Высокий расход fd может привести к ошибкам 'too many open files'"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'process_open_fds{app_name="hotel_booking"} / (process_max_fds{app_name="hotel_booking"} > 0)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [0.8], type: gt}
+
+      # 15. Probe latency spike (blackbox)
+      - uid: anomaly_probe_latency
+        title: Probe Duration Spike vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Время ответа health probe выросло в 3 раза"
+          description: "Blackbox exporter фиксирует аномальное время ответа на /health endpoint"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'probe_duration_seconds{instance=~".*hotel_booking.*"} / (probe_duration_seconds{instance=~".*hotel_booking.*"} offset 10m > 0.001)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [3.0], type: gt}
+
+      # 16. Redis eviction spike
+      - uid: anomaly_redis_eviction
+        title: Redis Evictions Spike
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis начал вытеснять ключи (>10/min)"
+          description: "Eviction ключей указывает на нехватку памяти Redis или неправильную TTL-политику"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'rate(redis_evicted_keys_total[5m]) * 60'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 300, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [10], type: gt}
+
+      # 17. Redis memory > 80% of maxmemory
+      - uid: anomaly_redis_memory
+        title: Redis Memory > 80% of Limit
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis использует более 80% доступной памяти"
+          description: "При достижении maxmemory Redis начнёт применять eviction policy"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'redis_memory_used_bytes / (redis_memory_max_bytes > 0)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [0.8], type: gt}
+
+      # 18. Celery task runtime spike
+      - uid: anomaly_celery_runtime
+        title: Celery Task Runtime Spike vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Среднее время выполнения Celery задачи выросло в 2 раза"
+          description: "Задачи Celery стали выполняться значительно дольше — возможная деградация зависимостей"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 1200, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: '(rate(celery_task_runtime_sum[5m]) / (rate(celery_task_runtime_count[5m]) > 0)) / ((rate(celery_task_runtime_sum[5m] offset 15m) / (rate(celery_task_runtime_count[5m] offset 15m) > 0)) > 0.01)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 1200, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [2.0], type: gt}
+
+      # 19. Celery task retries spike
+      - uid: anomaly_celery_retries
+        title: Celery Task Retries Spike
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Повторные попытки Celery задач выросли в 5 раз"
+          description: "Рост retry указывает на нестабильность внешних зависимостей или баги в задачах"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'rate(celery_task_retried_total[5m]) / (rate(celery_task_retried_total[5m] offset 10m) > 0.001)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [5.0], type: gt}
+
+      # 20. Container restarts spike
+      - uid: anomaly_container_restarts
+        title: Container Restart Rate Spike
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Контейнер перезапускался более 3 раз за 15 минут"
+          description: "CrashLoopBackOff или нестабильный процесс — требуется анализ логов"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 900, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'increase(container_start_time_seconds{name=~"hotel_booking.*"}[15m])'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 900, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [3], type: gt}
+
+      # 21. TCP retransmissions spike
+      - uid: anomaly_tcp_retransmits
+        title: TCP Retransmissions Spike vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "TCP ретрансмиссии выросли в 5 раз"
+          description: "Рост ретрансмиссий указывает на нестабильность сети или перегрузку"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'rate(node_netstat_Tcp_RetransSegs[5m]) / (rate(node_netstat_Tcp_RetransSegs[5m] offset 10m) > 0.001)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [5.0], type: gt}
+
+      # 22. 401 Unauthorized spike (security)
+      - uid: anomaly_401_spike
+        title: 401 Unauthorized Spike vs Baseline
+        condition: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "HTTP 401 ответов в 10 раз больше базовой линии"
+          description: "Резкий рост 401 может указывать на brute-force атаку или массовые невалидные токены"
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              expr: 'rate(fastapi_requests_total{app_name="hotel_booking",status_code="401"}[5m]) / (rate(fastapi_requests_total{app_name="hotel_booking",status_code="401"}[5m] offset 10m) > 0.001)'
+              refId: A
+              instant: true
+          - refId: B
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: max
+          - refId: threshold
+            relativeTimeRange: {from: 0, to: 0}
+            datasourceUid: "-100"
+            model:
+              refId: threshold
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: {params: [10.0], type: gt}

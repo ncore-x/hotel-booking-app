@@ -15,7 +15,7 @@ policies:
         matchers:
           - alertname = Watchdog
         group_by: [alertname]
-        group_wait: 10s
+        group_wait: 1m
         group_interval: 24h
         repeat_interval: 24h
 
