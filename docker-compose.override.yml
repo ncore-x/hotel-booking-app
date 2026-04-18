@@ -3,4 +3,4 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.local.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.local.conf:/etc/nginx/nginx-app.conf:ro
