@@ -183,12 +183,9 @@ services:
         condition: service_healthy
     networks:
       - myNetwork
-    command: ["nginx", "-g", "daemon off;", "-c", "/etc/nginx/nginx-app.conf"]
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx-app.conf:ro
     logging:
       driver: json-file
       options:
