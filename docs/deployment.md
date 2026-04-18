@@ -103,7 +103,6 @@ ssh nas
 | `OTEL_SAMPLE_RATE` | 1.0 | Процент трейсов (0.1 = 10%) |
 | `SENTRY_DSN` | - | Sentry для error tracking |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | - | SMTP для email |
-| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | - | Telegram алерты |
 | `ALERT_EMAIL` | - | Email для critical алертов |
 | `APP_VERSION` | dev | Версия в /health |
 | `BUILD_VERSION` | dev | Docker build arg → APP_VERSION |

@@ -2,7 +2,7 @@
 
 Дежурный справочник: что делать при срабатывании каждого alert rule.
 
-**Стек мониторинга:** Prometheus → Grafana → Telegram/Email
+**Стек мониторинга:** Prometheus → Grafana → Email
 **Дашборд:** Grafana → FastAPI Observability
 **Логи:** Grafana → Loki → фильтр `container_name=booking_back`
 **Трейсы:** Grafana → Tempo
@@ -580,7 +580,7 @@ Blackbox не поднимается → алерты [Endpoint Probe Failed](#e
 
 **Что случилось:** Watchdog **перестал** приходить — это значит alerting pipeline сломан.
 
-Watchdog приходит каждые 24 часа и сигнализирует что Grafana → Telegram работает. Если он не пришёл — проблема в самом мониторинге.
+Watchdog приходит каждые 24 часа и сигнализирует что alerting pipeline работает. Если он не пришёл — проблема в самом мониторинге.
 
 ### Диагностика
 
@@ -591,16 +591,13 @@ curl -s http://localhost:3000/api/health
 # Prometheus работает?
 curl -s http://localhost:9090/-/healthy
 
-# Telegram bot доступен?
-curl -s "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe"
 ```
 
 ### Исправление
 
 1. **Grafana упала** → `docker compose up -d grafana`
 2. **Prometheus упал** → `docker compose up -d prometheus`
-3. **Telegram bot token истёк/заблокирован** → обновить `TELEGRAM_BOT_TOKEN` в `.env`; `docker compose up -d --no-deps grafana`
-4. **Alert rules не загрузились** → Grafana UI → Alerting → Alert rules; проверить нет ли ошибок провижининга
+3. **Alert rules не загрузились** → Grafana UI → Alerting → Alert rules; проверить нет ли ошибок провижининга
 
 ---
 

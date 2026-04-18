@@ -6,7 +6,7 @@
 Приложение → Prometheus (метрики, 90 дней)
            → Loki (логи, 7 дней) ← Promtail (сбор из Docker)
            → Tempo (трейсы, 7 дней) ← OpenTelemetry
-           → Grafana (дашборды + алерты → Telegram / Email)
+           → Grafana (дашборды + алерты → Email)
 ```
 
 ## Exporters
@@ -51,7 +51,7 @@
 | DB Connections High | warning | >80% от max |
 | Watchdog | - | Heartbeat (24h repeat) |
 
-**Маршрутизация:** Critical → Telegram + Email, Warning → Telegram (подавляются ночью/выходные), Watchdog → отдельный канал (24h).
+**Маршрутизация:** Critical → Email, Warning → Email (подавляются ночью/выходные), Watchdog → отдельный канал (24h).
 
 ## Дашборд
 
