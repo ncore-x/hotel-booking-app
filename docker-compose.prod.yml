@@ -1,0 +1,4 @@
+services:
+  booking_nginx_service:
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
