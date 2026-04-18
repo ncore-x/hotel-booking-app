@@ -10,6 +10,7 @@ export interface User {
   citizenship?: string | null;
   avatar_url?: string | null;
   oauth_provider?: string | null;
+  has_password?: boolean;
 }
 
 export interface UserProfileUpdate {

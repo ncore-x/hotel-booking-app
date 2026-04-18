@@ -17,4 +17,4 @@
 | [Мониторинг](observability.md) | Prometheus, Grafana, Loki, Tempo, алерты, дашборды |
 | [Docker и деплой](deployment.md) | Сервисы, volumes, SSH tunnel, переменные окружения |
 | [FAQ](faq.md) | Частые вопросы и решения типичных проблем |
-| [Runbooks](runbooks.md) | Действия при срабатывании алертов (18 сценариев) |
+| [Runbooks](runbooks.md) | Действия при срабатывании алертов (19 базовых + 22 anomaly = 41 сценарий) |

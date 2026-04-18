@@ -115,7 +115,7 @@ async def login_user(request: Request, response: Response, data: UserRequestAdd,
 
 @router.get("/me", summary="Текущий пользователь", response_model=User)
 async def get_me(user_id: UserIdDep, db: DBDep):
-    return await AuthService(db).get_one_or_none_user(user_id)
+    return await AuthService(db).get_me(user_id)
 
 
 @router.patch("/me", summary="Изменить пароль", status_code=status.HTTP_204_NO_CONTENT)

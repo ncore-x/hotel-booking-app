@@ -60,6 +60,19 @@ BUILD_VERSION=$(git rev-parse --short HEAD) docker compose build
 - Grafana alerting file provisioning: `muteTimes:` и `policies:` **в разных файлах** (иначе ошибка валидации)
 - Доступ к мониторингу — только через SSH tunnel, порты **не** открыты наружу
 
+## Grafana alerting provisioning
+
+Файлы конфигурации в `grafana/alerting/`:
+
+| Файл | Содержимое |
+|------|-----------|
+| `alert-rules.yaml` | Правила — 2 группы: `hotel-booking` (17 пороговых) + `hotel-booking-anomaly` (22 baseline) |
+| `contact-points.yaml` | Точки доставки: `Watchdog`, `Critical`, `Warning` — все через Email (`${ALERT_EMAIL}`) |
+| `notification-policy.yaml` | Маршрутизация: critical → немедленно, warning → подавляется ночью/выходные |
+| `mute-timings.yaml` | Временные окна подавления (22:00–08:00 UTC, вых.) |
+
+Изменения применяются при `docker compose up -d --no-deps grafana`. Grafana загружает файлы при старте — **не** горячей перезагрузкой.
+
 ## SSH tunnel доступ
 
 ```bash

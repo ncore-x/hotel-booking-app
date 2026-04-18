@@ -87,6 +87,17 @@ class UsersRepository(BaseRepository):
             return None
         return User.model_validate(model, from_attributes=True)
 
+    async def link_oauth(
+        self, user_id: int, provider: str, oauth_id: str, avatar_url: str | None
+    ) -> None:
+        """Привязывает OAuth-провайдер к существующему пользователю."""
+        stmt = (
+            update(self.model)
+            .where(self.model.id == user_id)
+            .values(oauth_provider=provider, oauth_id=oauth_id, oauth_avatar_url=avatar_url)
+        )
+        await self.session.execute(stmt)
+
     async def create_oauth_user(self, data: UserOAuthAdd) -> User:
         """Создаёт нового пользователя через OAuth (без пароля)."""
         orm_obj = self.model(

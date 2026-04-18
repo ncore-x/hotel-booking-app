@@ -182,6 +182,9 @@ class AuthService(BaseService):
     async def get_one_or_none_user(self, user_id: int):
         return await self.db.users.get_one_or_none(id=user_id)
 
+    async def get_me(self, user_id: int):
+        return await self.db.users.get_user_with_hashed_password_by_id(user_id)
+
     async def update_password(self, user_id: int, data: UserPasswordUpdate) -> None:
         try:
             user = await self.db.users.get_user_with_hashed_password_by_id(user_id)

@@ -399,11 +399,11 @@ export function ProfilePage() {
                   </div>
                 </div>
                 <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                  !user.oauth_provider
+                  user.has_password
                     ? "bg-green-500/10 text-green-600 dark:text-green-400"
                     : "bg-secondary text-muted"
                 }`}>
-                  {!user.oauth_provider ? p.connected : p.notConnected}
+                  {user.has_password ? p.connected : p.notConnected}
                 </span>
               </div>
 

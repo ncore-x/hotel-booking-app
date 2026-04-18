@@ -48,9 +48,19 @@ ssh nas  # Автоматически пробрасывает порты
 
 ## Как добавить алерт?
 
-1. Добавь правило в `grafana/alerting/alert-rules.yaml`
-2. Помни: `absent()` + `noDataState: Alerting` для "сервис не отвечает"; `noDataState: OK` для "метрика пропала потому что всё хорошо"
-3. `docker compose up -d --no-deps grafana` для применения
+1. Добавь правило в `grafana/alerting/alert-rules.yaml` — в нужную группу:
+   - `hotel-booking` — классический пороговый алерт (абсолютный порог)
+   - `hotel-booking-anomaly` — отклонение от базовой линии (аномалия)
+2. Тип правила:
+   - **Порог:** `noDataState: Alerting` + `absent()` — для "сервис упал"; `noDataState: OK` — для "метрика пропала потому что всё нормально"
+   - **Baseline:** `metric / (metric offset Xm > guard_value) > ratio` — паттерн сравнения с baseline через offset; `guard_value` защищает от деления на ноль
+3. `docker compose up -d --no-deps grafana` для применения без перезапуска стека
+
+**Пример baseline-алерта (CPU вырос в 1.5× за 5m):**
+```yaml
+expr: 'rate(process_cpu_seconds_total[5m]) / (rate(process_cpu_seconds_total[5m] offset 5m) > 0.001)'
+# threshold: gt 1.5, noDataState: OK
+```
 
 ## Как не потерять данные при обновлении?
 

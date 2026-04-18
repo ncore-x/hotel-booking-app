@@ -7,7 +7,6 @@ import pytest
 
 from src.exceptions import (
     InvalidOAuthStateException,
-    OAuthEmailConflictException,
     OAuthProviderNotConfiguredException,
     UnsupportedOAuthProviderException,
 )
@@ -233,7 +232,8 @@ async def test_handle_callback_returns_existing_user(mock_async_client, mock_set
 
 @patch("src.services.oauth.settings")
 @patch("src.services.oauth.httpx.AsyncClient")
-async def test_handle_callback_email_conflict_raises(mock_async_client, mock_settings):
+async def test_handle_callback_email_conflict_links_account(mock_async_client, mock_settings):
+    """OAuth callback with matching email links OAuth to existing password account."""
     mock_settings.GOOGLE_CLIENT_ID = "cid"
     mock_settings.GOOGLE_CLIENT_SECRET = "csecret"
     mock_settings.APP_BASE_URL = "http://localhost"
@@ -253,12 +253,14 @@ async def test_handle_callback_email_conflict_raises(mock_async_client, mock_set
     db = _make_db()
     db.users.get_by_oauth = AsyncMock(return_value=None)
     # Existing password-based user with same email
-    existing = MagicMock(oauth_provider=None)
+    existing = MagicMock(id=42, oauth_provider=None)
     db.users.get_one_or_none = AsyncMock(return_value=existing)
+    db.users.link_oauth = AsyncMock(return_value=None)
 
     svc = _make_service(db=db, redis=redis)
-    with pytest.raises(OAuthEmailConflictException):
-        await svc.handle_callback("google", "code", "state")
+    user, is_new = await svc.handle_callback("google", "code", "state")
+    assert is_new is False
+    db.users.link_oauth.assert_awaited_once_with(42, "google", "google-xyz", None)
 
 
 @patch("src.services.oauth.settings")

@@ -207,8 +207,8 @@ async def test_callback_existing_oauth_user_logs_in(mock_async_client, mock_sett
 
 @patch("src.services.oauth.settings")
 @patch("src.services.oauth.httpx.AsyncClient")
-async def test_callback_email_conflict_returns_409(mock_async_client, mock_settings):
-    """OAuth user's email matches an existing password-based account → 409."""
+async def test_callback_email_conflict_links_account(mock_async_client, mock_settings):
+    """OAuth user's email matches an existing password-based account → auto-link, 200."""
     mock_settings.GOOGLE_CLIENT_ID = "cid"
     mock_settings.GOOGLE_CLIENT_SECRET = "csec"
     mock_settings.APP_BASE_URL = "http://localhost"
@@ -240,4 +240,5 @@ async def test_callback_email_conflict_returns_409(mock_async_client, mock_setti
             "/api/v1/auth/oauth/google/callback",
             params={"code": "code", "state": state},
         )
-    assert resp.status_code == 409
+    # Account auto-linked, login succeeds
+    assert resp.status_code == 200

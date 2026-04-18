@@ -593,3 +593,32 @@ async def test_update_email_oauth_user_raises_incorrect_password():
         await svc.update_email(
             1, UserEmailUpdate(new_email="new@example.com", current_password="AnyPass1")
         )
+
+
+async def test_get_me_returns_user_with_has_password():
+    """get_me delegates to get_user_with_hashed_password_by_id and returns UserWithHashedPassword."""
+    from src.schemas.users import UserWithHashedPassword
+
+    db = _make_db()
+    expected = UserWithHashedPassword(id=7, email="me@example.com", hashed_password="hash")
+    db.users.get_user_with_hashed_password_by_id = AsyncMock(return_value=expected)
+
+    svc = _make_service(db)
+    result = await svc.get_me(7)
+
+    db.users.get_user_with_hashed_password_by_id.assert_awaited_once_with(7)
+    assert result.has_password is True
+
+
+async def test_get_me_oauth_user_has_password_false():
+    """OAuth user without hashed_password has has_password=False."""
+    from src.schemas.users import UserWithHashedPassword
+
+    db = _make_db()
+    expected = UserWithHashedPassword(id=8, email="oauth@example.com", hashed_password=None)
+    db.users.get_user_with_hashed_password_by_id = AsyncMock(return_value=expected)
+
+    svc = _make_service(db)
+    result = await svc.get_me(8)
+
+    assert result.has_password is False

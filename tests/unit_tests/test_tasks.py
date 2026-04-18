@@ -10,6 +10,7 @@ from PIL import Image
 from src.tasks.tasks import (
     _build_checkin_email,
     _send_checkin_email,
+    _send_confirmation_email,
 )
 
 
@@ -238,6 +239,83 @@ async def test_get_bookings_and_notify():
         await _get_bookings_and_notify()
 
     assert mock_task.delay.call_count == 2
+
+
+def test_send_confirmation_email_no_smtp():
+    """Если SMTP_HOST не задан — просто логирует и возвращает без ошибки."""
+    with patch("src.config.settings") as mock_settings:
+        mock_settings.SMTP_HOST = ""
+        _send_confirmation_email(
+            to_email="user@example.com",
+            subject="Confirm",
+            confirm_url="http://localhost/confirm?token=abc",
+        )
+
+
+def test_send_confirmation_email_with_smtp():
+    """Успешная отправка вызывает ehlo, starttls, login, sendmail."""
+    with (
+        patch("src.config.settings") as mock_settings,
+        patch("smtplib.SMTP") as mock_smtp_class,
+    ):
+        mock_settings.SMTP_HOST = "smtp.example.com"
+        mock_settings.SMTP_PORT = 587
+        mock_settings.SMTP_FROM = "noreply@example.com"
+        mock_settings.SMTP_USER = "user"
+        mock_settings.SMTP_PASSWORD = "pass"
+
+        mock_smtp = MagicMock()
+        mock_smtp_class.return_value.__enter__ = MagicMock(return_value=mock_smtp)
+        mock_smtp_class.return_value.__exit__ = MagicMock(return_value=False)
+
+        _send_confirmation_email(
+            to_email="user@example.com",
+            subject="Подтверждение смены пароля",
+            confirm_url="http://localhost/confirm?token=abc",
+        )
+
+        mock_smtp.ehlo.assert_called_once()
+        mock_smtp.starttls.assert_called_once()
+        mock_smtp.login.assert_called_once_with("user", "pass")
+        mock_smtp.sendmail.assert_called_once()
+
+
+def test_send_confirmation_email_smtp_unreachable_does_not_raise():
+    """OSError (сеть недоступна) логируется как WARNING, задача не падает."""
+    with (
+        patch("src.config.settings") as mock_settings,
+        patch("smtplib.SMTP") as mock_smtp_class,
+    ):
+        mock_settings.SMTP_HOST = "smtp.example.com"
+        mock_settings.SMTP_PORT = 587
+        mock_settings.SMTP_FROM = "noreply@example.com"
+        mock_settings.SMTP_USER = ""
+        mock_settings.SMTP_PASSWORD = ""
+        mock_smtp_class.side_effect = OSError(101, "Network is unreachable")
+
+        _send_confirmation_email(
+            to_email="user@example.com",
+            subject="Подтверждение",
+            confirm_url="http://localhost/confirm?token=xyz",
+        )
+
+
+def test_send_checkin_email_smtp_unreachable_does_not_raise():
+    """OSError при отправке письма о заезде логируется, задача не падает."""
+    from datetime import date
+
+    with (
+        patch("src.config.settings") as mock_settings,
+        patch("smtplib.SMTP") as mock_smtp_class,
+    ):
+        mock_settings.SMTP_HOST = "smtp.example.com"
+        mock_settings.SMTP_PORT = 587
+        mock_settings.SMTP_FROM = "noreply@example.com"
+        mock_settings.SMTP_USER = ""
+        mock_settings.SMTP_PASSWORD = ""
+        mock_smtp_class.side_effect = OSError(101, "Network is unreachable")
+
+        _send_checkin_email("guest@example.com", 1, date(2026, 5, 1), date(2026, 5, 5))
 
 
 async def test_get_bookings_and_notify_error_logged():

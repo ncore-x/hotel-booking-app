@@ -1,6 +1,6 @@
 services:
 
-  # ── Infrastructure ────────────────────────────────────────────────────────────
+  # ── Databases ─────────────────────────────────────────────────────────────────
 
   booking_db:
     image: postgres:17
@@ -74,121 +74,6 @@ services:
       resources:
         limits:
           memory: 1g
-
-  # ── Application ───────────────────────────────────────────────────────────────
-
-  booking_back_service:
-    container_name: booking_back
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: booking_back_image
-    restart: unless-stopped
-    depends_on:
-      booking_db:
-        condition: service_healthy
-      booking_cache:
-        condition: service_healthy
-    networks:
-      - myNetwork
-    ports:
-      - "7777:8000"
-    env_file:
-      - .env
-    volumes:
-      - imagesdata:/app/src/static/images
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-
-  booking_celery_worker_service:
-    container_name: booking_celery_worker
-    image: booking_back_image
-    restart: unless-stopped
-    depends_on:
-      booking_back_service:
-        condition: service_healthy
-    networks:
-      - myNetwork
-    env_file:
-      - .env
-    volumes:
-      - imagesdata:/app/src/static/images
-    command: 'uv run celery --app=src.tasks.celery_app:celery_instance worker -l INFO'
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-
-  booking_celery_beat_service:
-    container_name: booking_celery_beat
-    image: booking_back_image
-    restart: unless-stopped
-    depends_on:
-      booking_back_service:
-        condition: service_healthy
-    networks:
-      - myNetwork
-    env_file:
-      - .env
-    command: 'uv run celery --app=src.tasks.celery_app:celery_instance beat -l INFO'
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-
-  booking_frontend_service:
-    container_name: booking_frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    depends_on:
-      booking_back_service:
-        condition: service_healthy
-    networks:
-      - myNetwork
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-
-  booking_nginx_service:
-    image: hotel-booking-app-booking_nginx_service:latest
-    container_name: booking_nginx
-    restart: unless-stopped
-    depends_on:
-      booking_back_service:
-        condition: service_healthy
-      booking_frontend_service:
-        condition: service_healthy
-    networks:
-      - myNetwork
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.local.conf:/etc/nginx/nginx.conf:ro
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
 
   # ── Observability ─────────────────────────────────────────────────────────────
 
@@ -392,8 +277,6 @@ services:
       - "9187:9187"
     networks:
       - myNetwork
-    env_file:
-      - .env
     environment:
       DATA_SOURCE_NAME: "postgresql://${DB_USER}:${DB_PASS}@booking_db:5432/${DB_NAME}?sslmode=disable"
     logging:
@@ -508,7 +391,6 @@ networks:
 volumes:
   pg-booking-data:
     external: true
-  imagesdata:
   prometheusdata:
   grafanadata:
   tempodata:

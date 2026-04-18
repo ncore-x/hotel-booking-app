@@ -1,0 +1,3 @@
+FROM hotel-booking-app-booking_back_service:latest
+USER root
+COPY src/ /app/src/

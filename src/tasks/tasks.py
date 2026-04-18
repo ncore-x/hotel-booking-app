@@ -217,13 +217,18 @@ def _send_checkin_email(to_email: str, booking_id: int, date_from, date_to) -> N
     msg.attach(MIMEText(plain, "plain", "utf-8"))
     msg.attach(MIMEText(html, "html", "utf-8"))
 
-    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as smtp:
-        smtp.ehlo()
-        smtp.starttls()
-        if settings.SMTP_USER and settings.SMTP_PASSWORD:
-            smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-        smtp.sendmail(settings.SMTP_FROM, [to_email], msg.as_string())
-    logging.info(f"Письмо о заезде отправлено: booking_id={booking_id}, to={to_email}")
+    try:
+        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as smtp:
+            smtp.ehlo()
+            smtp.starttls()
+            if settings.SMTP_USER and settings.SMTP_PASSWORD:
+                smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+            smtp.sendmail(settings.SMTP_FROM, [to_email], msg.as_string())
+        logging.info(f"Письмо о заезде отправлено: booking_id={booking_id}, to={to_email}")
+    except OSError as exc:
+        logging.warning(
+            "SMTP недоступен (%s) — письмо о заезде не отправлено (booking_id=%s)", exc, booking_id
+        )
 
 
 @celery_instance.task(
@@ -322,13 +327,20 @@ def _send_confirmation_email(to_email: str, subject: str, confirm_url: str) -> N
     msg.attach(MIMEText(plain, "plain", "utf-8"))
     msg.attach(MIMEText(html, "html", "utf-8"))
 
-    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as smtp:
-        smtp.ehlo()
-        smtp.starttls()
-        if settings.SMTP_USER and settings.SMTP_PASSWORD:
-            smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-        smtp.sendmail(settings.SMTP_FROM, [to_email], msg.as_string())
-    logging.info("Письмо подтверждения отправлено: to=%s, subject=%s", to_email, subject)
+    try:
+        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as smtp:
+            smtp.ehlo()
+            smtp.starttls()
+            if settings.SMTP_USER and settings.SMTP_PASSWORD:
+                smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+            smtp.sendmail(settings.SMTP_FROM, [to_email], msg.as_string())
+        logging.info("Письмо подтверждения отправлено: to=%s, subject=%s", to_email, subject)
+    except OSError as exc:
+        logging.warning(
+            "SMTP недоступен (%s) — письмо не отправлено. Ссылка для разработки: %s",
+            exc,
+            confirm_url,
+        )
 
 
 @celery_instance.task(

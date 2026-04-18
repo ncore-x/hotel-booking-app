@@ -1,6 +1,13 @@
 from datetime import date
 
-from pydantic import BaseModel, ConfigDict, EmailStr, computed_field, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    computed_field,
+    field_validator,
+    model_validator,
+)
 
 from src.validators import validate_email_russian, validate_password_russian
 
@@ -70,6 +77,7 @@ class User(BaseModel):
     avatar_filename: str | None = None
     oauth_provider: str | None = None
     oauth_avatar_url: str | None = None
+    has_password: bool = False
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -85,6 +93,11 @@ class User(BaseModel):
 
 class UserWithHashedPassword(User):
     hashed_password: str | None = None
+
+    @model_validator(mode="after")
+    def _set_has_password(self) -> "UserWithHashedPassword":
+        self.has_password = self.hashed_password is not None
+        return self
 
 
 class LoginResponse(BaseModel):

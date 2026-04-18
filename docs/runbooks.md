@@ -33,6 +33,33 @@
 | [Blackbox Exporter Down](#blackbox-exporter-down) | critical | [↓](#blackbox-exporter-down) |
 | [Watchdog](#watchdog) | — | [↓](#watchdog) |
 
+**Anomaly alerts (отклонение от baseline):**
+
+| Alert | Severity | Раздел |
+|-------|----------|--------|
+| [CPU Spike vs Baseline](#cpu-spike-vs-baseline) | warning | [↓](#cpu-spike-vs-baseline) |
+| [p95 Latency Spike vs Baseline](#p95-latency-spike-vs-baseline) | warning | [↓](#p95-latency-spike-vs-baseline) |
+| [DB Connections Spike vs Baseline](#db-connections-spike-vs-baseline) | warning | [↓](#db-connections-spike-vs-baseline) |
+| [Celery Queue Depth Spike](#celery-queue-depth-spike) | warning | [↓](#celery-queue-depth-spike) |
+| [RPS Drop vs Baseline](#rps-drop-vs-baseline) | warning | [↓](#rps-drop-vs-baseline) |
+| [5xx Error Rate Spike vs Baseline](#5xx-error-rate-spike-vs-baseline) | critical | [↓](#5xx-error-rate-spike-vs-baseline) |
+| [4xx Error Rate Spike vs Baseline](#4xx-error-rate-spike-vs-baseline) | warning | [↓](#4xx-error-rate-spike-vs-baseline) |
+| [Slow DB Queries Spike vs Baseline](#slow-db-queries-spike-vs-baseline) | warning | [↓](#slow-db-queries-spike-vs-baseline) |
+| [DB Locks Spike](#db-locks-spike) | warning | [↓](#db-locks-spike) |
+| [Redis Cache Hit Ratio Drop](#redis-cache-hit-ratio-drop) | warning | [↓](#redis-cache-hit-ratio-drop) |
+| [Container Memory Spike vs Baseline](#container-memory-spike-vs-baseline) | warning | [↓](#container-memory-spike-vs-baseline) |
+| [OOM Kill Detected](#oom-kill-detected) | critical | [↓](#oom-kill-detected) |
+| [Disk Full Prediction < 24h](#disk-full-prediction--24h) | warning | [↓](#disk-full-prediction--24h) |
+| [File Descriptors > 80% Limit](#file-descriptors--80-limit) | warning | [↓](#file-descriptors--80-limit) |
+| [Probe Duration Spike vs Baseline](#probe-duration-spike-vs-baseline) | warning | [↓](#probe-duration-spike-vs-baseline) |
+| [Redis Evictions Spike](#redis-evictions-spike) | warning | [↓](#redis-evictions-spike) |
+| [Redis Memory > 80% of Limit](#redis-memory--80-of-limit) | warning | [↓](#redis-memory--80-of-limit) |
+| [Celery Task Runtime Spike vs Baseline](#celery-task-runtime-spike-vs-baseline) | warning | [↓](#celery-task-runtime-spike-vs-baseline) |
+| [Celery Task Retries Spike](#celery-task-retries-spike) | warning | [↓](#celery-task-retries-spike) |
+| [Container Restart Rate Spike](#container-restart-rate-spike) | critical | [↓](#container-restart-rate-spike) |
+| [TCP Retransmissions Spike vs Baseline](#tcp-retransmissions-spike-vs-baseline) | warning | [↓](#tcp-retransmissions-spike-vs-baseline) |
+| [401 Unauthorized Spike vs Baseline](#401-unauthorized-spike-vs-baseline) | warning | [↓](#401-unauthorized-spike-vs-baseline) |
+
 ---
 
 ## Service Down
@@ -622,3 +649,534 @@ curl -H "Authorization: Bearer $(cat metrics_token)" http://localhost:7777/metri
 # Статус Prometheus targets
 curl -s http://localhost:9090/api/v1/targets | python3 -m json.tool | grep -E "health|job"
 ```
+
+---
+
+## Anomaly Alerts — отклонение от базовой линии
+
+Все алерты этой группы используют сравнение с baseline через `offset`. Они срабатывают, когда метрика **значительно отклоняется от своего недавнего значения** — не просто превышает порог, а меняется аномально быстро.
+
+**Общая диагностика:** если несколько anomaly-алертов срабатывают одновременно — скорее всего это один инцидент (деплой, перегрузка, сетевой сбой). Начинай с дашборда, не с отдельных runbook.
+
+---
+
+## CPU Spike vs Baseline
+
+**Severity:** warning | **Условие:** CPU в 1.5× выше чем 5m назад, for 5m
+
+**Что случилось:** резкий рост CPU без пропорционального роста трафика — возможна утечка горутин/тредов, тяжёлый запрос, бесконечный цикл или деплой.
+
+### Диагностика
+
+```bash
+# Текущее потребление CPU по контейнерам
+docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}"
+
+# Профиль процессов внутри контейнера
+docker exec booking_back top -bn1 | head -20
+
+# Недавние ошибки
+docker logs --tail=100 booking_back 2>&1 | grep -E "ERROR|exception"
+```
+
+Grafana: dashboard → Container CPU panel → сравнить с трафиком (RPS).
+
+### Исправление
+
+1. Если CPU растёт вместе с RPS — нормальный рост нагрузки, масштабировать воркеры.
+2. Если CPU растёт без роста RPS — подозрение на бесконечный цикл или тяжёлый фоновый процесс. Проверить Celery tasks.
+3. После деплоя — JIT-прогрев, подождать 5–10 минут.
+
+---
+
+## p95 Latency Spike vs Baseline
+
+**Severity:** warning | **Условие:** p95 в 2× выше чем 10m назад, for 5m
+
+**Что случилось:** задержки резко выросли — деградация БД, Redis, внешнего сервиса или перегрузка приложения.
+
+### Диагностика
+
+```bash
+# Медленные запросы в PostgreSQL
+docker exec booking_db psql -U postgres -d hotel_booking -c \
+  "SELECT pid, now()-query_start AS duration, query FROM pg_stat_activity WHERE state='active' AND now()-query_start > interval '1s' ORDER BY duration DESC;"
+
+# Redis latency
+redis-cli -p 6379 latency latest
+
+# Трейсы медленных запросов
+# Grafana → Tempo → поиск по duration > 500ms
+```
+
+### Исправление
+
+1. Медленные SQL-запросы → анализировать EXPLAIN ANALYZE, добавить индексы.
+2. Redis lag → проверить memory и evictions (алерт Redis Memory).
+3. Внешний сервис → проверить probe latency алерт.
+
+---
+
+## DB Connections Spike vs Baseline
+
+**Severity:** warning | **Условие:** соединения в 1.8× выше чем 15m назад, for 5m
+
+**Что случилось:** резкий рост соединений к PostgreSQL — возможен connection leak, рост трафика или pgBouncer не справляется.
+
+### Диагностика
+
+```bash
+docker exec booking_db psql -U postgres -d hotel_booking -c \
+  "SELECT state, count(*) FROM pg_stat_activity GROUP BY state;"
+
+# Максимум соединений
+docker exec booking_db psql -U postgres -c "SHOW max_connections;"
+```
+
+### Исправление
+
+1. Если соединений > 80% от max → уменьшить `POOL_SIZE` в `src/config.py`, перезапустить приложение.
+2. Connection leak → проверить незакрытые сессии в трейсах Tempo.
+
+---
+
+## Celery Queue Depth Spike
+
+**Severity:** warning | **Условие:** queue > 100 задач, for 5m
+
+**Что случилось:** очередь Celery накапливается — воркеры не успевают обрабатывать задачи.
+
+### Диагностика
+
+```bash
+# Статус воркеров
+docker exec celery_worker celery -A src.tasks.celery_app:celery_instance inspect active
+
+# Размер очереди в Redis
+redis-cli -p 6379 llen celery
+```
+
+### Исправление
+
+1. Воркер завис → `docker compose restart celery_worker`.
+2. Задача зависает → проверить `celery_task_runtime_spike` алерт, найти долгую задачу.
+3. Масштабировать: `docker compose up -d --scale celery_worker=2`.
+
+---
+
+## RPS Drop vs Baseline
+
+**Severity:** warning | **Условие:** RPS < 50% от значения 10m назад, for 5m
+
+**Что случилось:** трафик резко упал — возможен upstream сбой, nginx не пропускает запросы, или приложение перестало отвечать.
+
+### Диагностика
+
+```bash
+# nginx access log
+docker logs --tail=50 booking_nginx 2>&1
+
+# Приложение отвечает?
+curl -s http://localhost:7777/api/v1/health/live
+
+# Upstream проксирование
+docker exec booking_nginx nginx -t
+```
+
+### Исправление
+
+Если RPS упал до нуля → переходи к runbook [Service Down](#service-down). Если частичный drop — проверить nginx upstream и балансировку.
+
+---
+
+## 5xx Error Rate Spike vs Baseline
+
+**Severity:** critical | **Условие:** доля 5xx в 3× выше чем 10m назад, for 5m
+
+**Что случилось:** резкий рост серверных ошибок после стабильного периода — деплой, деградация зависимости или новый баг.
+
+### Диагностика
+
+```bash
+docker logs --tail=200 booking_back 2>&1 | grep -E "500|ERROR|Traceback"
+```
+
+Grafana: Loki → `{container_name="booking_back"} |= "500"` → найти первое вхождение ошибки.
+
+### Исправление
+
+1. После деплоя → рассмотреть откат: `git revert` + деплой.
+2. БД недоступна → см. [Slow DB Query](#slow-db-query).
+3. Redis недоступен → см. [Redis Down](#redis-down).
+
+---
+
+## 4xx Error Rate Spike vs Baseline
+
+**Severity:** warning | **Условие:** 4xx в 5× выше чем 10m назад, for 10m
+
+**Что случилось:** массовые клиентские ошибки — возможна атака перебором, сломанный клиент или изменение API без обратной совместимости.
+
+### Диагностика
+
+```bash
+# Топ URL с ошибками из nginx
+docker logs --tail=500 booking_nginx 2>&1 | grep " 4[0-9][0-9] " | awk '{print $7}' | sort | uniq -c | sort -rn | head -10
+```
+
+Если преобладают 401 — см. [401 Unauthorized Spike vs Baseline](#401-unauthorized-spike-vs-baseline).
+
+### Исправление
+
+1. Атака → включить rate limiting в nginx.
+2. Сломанный клиент → найти по User-Agent или IP, заблокировать.
+3. Смена API → проверить changelog, уведомить потребителей.
+
+---
+
+## Slow DB Queries Spike vs Baseline
+
+**Severity:** warning | **Условие:** суммарное время запросов в 3× выше чем 10m назад, for 5m
+
+**Что случилось:** PostgreSQL начал тратить значительно больше времени на выполнение запросов — missing index, bloat, или lock contention.
+
+### Диагностика
+
+```bash
+docker exec booking_db psql -U postgres -d hotel_booking -c \
+  "SELECT query, calls, total_exec_time/calls AS avg_ms, rows FROM pg_stat_statements ORDER BY total_exec_time DESC LIMIT 10;"
+```
+
+### Исправление
+
+1. Новый запрос без индекса → `EXPLAIN ANALYZE` + добавить индекс миграцией.
+2. Table bloat → `VACUUM ANALYZE <table>`.
+3. Lock wait → см. [DB Locks Spike](#db-locks-spike).
+
+---
+
+## DB Locks Spike
+
+**Severity:** warning | **Условие:** блокировки в 3× выше чем 10m назад, for 5m
+
+**Что случилось:** рост блокировок в PostgreSQL — возможен deadlock, долгая транзакция или проблема в `SELECT FOR UPDATE` логике бронирований.
+
+### Диагностика
+
+```bash
+docker exec booking_db psql -U postgres -d hotel_booking -c \
+  "SELECT pid, granted, mode, relation::regclass, query FROM pg_locks l JOIN pg_stat_activity a USING(pid) WHERE NOT granted ORDER BY pid;"
+```
+
+### Исправление
+
+1. Deadlock → найти в логах `deadlock detected`, проанализировать порядок блокировок.
+2. Долгая транзакция → `SELECT pg_terminate_backend(<pid>)` (крайняя мера).
+3. Проверить что `SELECT FOR UPDATE` в `BookingsRepository.add_booking` не захватывает лишние строки.
+
+---
+
+## Redis Cache Hit Ratio Drop
+
+**Severity:** warning | **Условие:** hit ratio < 80%, for 10m
+
+**Что случилось:** большинство запросов к Redis не находят данные — cache cold start, массовая инвалидация или несоответствие ключей.
+
+### Диагностика
+
+```bash
+redis-cli -p 6379 info stats | grep -E "hits|misses|keyspace"
+redis-cli -p 6379 info keyspace
+```
+
+### Исправление
+
+1. После рестарта Redis → нормально, кэш прогреется за 5–15 минут.
+2. Массовая инвалидация → проверить Celery задачи на `cache.clear()`.
+3. Несоответствие TTL → проверить `src/services/` — ключи кэширования и TTL.
+
+---
+
+## Container Memory Spike vs Baseline
+
+**Severity:** warning | **Условие:** RSS в 1.5× выше чем 30m назад, for 10m
+
+**Что случилось:** постепенная утечка памяти или разовый всплеск при обработке большого запроса.
+
+### Диагностика
+
+```bash
+docker stats --no-stream booking_back
+
+# Heap профиль (если включён memray)
+# Grafana → dashboard → Container Memory panel → trend за последний час
+```
+
+### Исправление
+
+1. Если память растёт линейно — утечка. Перезапустить: `docker compose restart booking_back`, завести issue.
+2. Разовый всплеск — проверить Loki на большие ответы или тяжёлые запросы.
+3. Если RSS близок к OOM → приоритет critical, сразу перезапустить.
+
+---
+
+## OOM Kill Detected
+
+**Severity:** critical | **Условие:** increase(container_oom_events_total[5m]) > 0
+
+**Что случилось:** контейнер был убит ядром из-за нехватки памяти.
+
+### Диагностика
+
+```bash
+# Проверить что контейнер живой
+docker ps | grep booking_back
+
+# Последние логи (до OOM)
+docker logs --tail=200 booking_back 2>&1
+
+# Системные OOM события
+dmesg | grep -i "oom" | tail -10
+```
+
+### Исправление
+
+1. Увеличить memory limit в `docker-compose.yml`.
+2. Найти источник утечки (см. [Container Memory Spike vs Baseline](#container-memory-spike-vs-baseline)).
+3. До устранения утечки — настроить автоматический рестарт: `restart: unless-stopped`.
+
+---
+
+## Disk Full Prediction < 24h
+
+**Severity:** warning | **Условие:** predict_linear(disk_avail[1h], 86400) < 0, for 30m
+
+**Что случилось:** при текущей скорости роста диск заполнится менее чем через 24 часа.
+
+### Диагностика
+
+```bash
+df -h
+du -sh /var/lib/docker/volumes/* | sort -hr | head -10
+
+# Логи Loki (основной потребитель)
+du -sh /var/lib/docker/volumes/*loki* 2>/dev/null
+```
+
+### Исправление
+
+1. Удалить старые Docker образы: `docker image prune -a --filter "until=72h"`.
+2. Очистить логи: `docker exec loki sh -c "find /loki -name '*.gz' -mtime +7 -delete"`.
+3. Уменьшить retention в `loki-config.yaml` → `retention_period: 72h`.
+
+---
+
+## File Descriptors > 80% Limit
+
+**Severity:** warning | **Условие:** process_open_fds / process_max_fds > 0.8, for 10m
+
+**Что случилось:** приложение держит много открытых файлов/сокетов — возможен fd leak.
+
+### Диагностика
+
+```bash
+# Сколько fd открыто у процесса
+docker exec booking_back sh -c "ls /proc/1/fd | wc -l"
+
+# Что именно открыто
+docker exec booking_back sh -c "ls -la /proc/1/fd" | head -30
+```
+
+### Исправление
+
+1. Увеличить лимит в `docker-compose.yml`: `ulimits: nofile: {soft: 65536, hard: 65536}`.
+2. Найти незакрытые соединения — проверить `async with` / контекстные менеджеры в репозиториях.
+
+---
+
+## Probe Duration Spike vs Baseline
+
+**Severity:** warning | **Условие:** probe latency в 3× выше чем 10m назад, for 5m
+
+**Что случилось:** blackbox exporter фиксирует аномальное время ответа на health endpoint — приложение медленно отвечает на проверки.
+
+### Диагностика
+
+```bash
+# Прямой замер
+time curl -s http://localhost:7777/api/v1/health/live
+
+# Посмотреть все probe метрики
+curl -s http://localhost:9115/probe?target=http://booking_back:7777/api/v1/health/live&module=http_2xx
+```
+
+### Исправление
+
+Если health endpoint тормозит — скорее всего тормозит и весь сервис. Переходи к [p95 Latency Spike vs Baseline](#p95-latency-spike-vs-baseline).
+
+---
+
+## Redis Evictions Spike
+
+**Severity:** warning | **Условие:** evictions > 10/min, for 5m
+
+**Что случилось:** Redis вытесняет ключи из памяти — настроен `maxmemory` и он достигнут, или `eviction policy` агрессивная.
+
+### Диагностика
+
+```bash
+redis-cli -p 6379 info memory | grep -E "used_memory_human|maxmemory_human|evicted"
+redis-cli -p 6379 config get maxmemory-policy
+```
+
+### Исправление
+
+1. Увеличить `maxmemory` в конфиге Redis.
+2. Сменить политику на `allkeys-lru` если кэш полностью контролируем.
+3. Уменьшить TTL для крупных объектов.
+
+---
+
+## Redis Memory > 80% of Limit
+
+**Severity:** warning | **Условие:** redis_memory_used / redis_memory_max > 0.8, for 10m
+
+**Что случилось:** Redis близок к лимиту памяти — скоро начнутся evictions.
+
+### Диагностика
+
+```bash
+redis-cli -p 6379 info memory
+redis-cli -p 6379 memory doctor
+# Топ ключей по размеру
+redis-cli -p 6379 memory usage <key>
+```
+
+### Исправление
+
+1. Найти и удалить крупные ненужные ключи: `redis-cli -p 6379 --bigkeys`.
+2. Увеличить `maxmemory` в `docker-compose.yml` (env `REDIS_MAXMEMORY`).
+3. Проверить что кэш-функции возвращают только нужные данные.
+
+---
+
+## Celery Task Runtime Spike vs Baseline
+
+**Severity:** warning | **Условие:** avg runtime в 2× выше чем 15m назад, for 10m
+
+**Что случилось:** задачи Celery стали выполняться значительно дольше — деградация зависимостей (БД, Redis, внешний API).
+
+### Диагностика
+
+```bash
+# Активные задачи
+docker exec celery_worker celery -A src.tasks.celery_app:celery_instance inspect active
+
+# Метрики из Prometheus
+curl -s "http://localhost:9090/api/v1/query?query=rate(celery_task_runtime_sum[5m])/rate(celery_task_runtime_count[5m])"
+```
+
+### Исправление
+
+1. Медленный DB → см. [Slow DB Queries Spike vs Baseline](#slow-db-queries-spike-vs-baseline).
+2. Redis timeout → см. [Redis Down](#redis-down).
+3. Внешний API тормозит → добавить таймаут в задаче, использовать circuit breaker.
+
+---
+
+## Celery Task Retries Spike
+
+**Severity:** warning | **Условие:** retries в 5× выше чем 10m назад, for 5m
+
+**Что случилось:** задачи повторяются из-за ошибок — нестабильность зависимостей или баг в логике задачи.
+
+### Диагностика
+
+```bash
+docker logs --tail=200 celery_worker 2>&1 | grep -E "Retry|RETRY|retry"
+
+# Какие задачи retry'ятся
+docker exec celery_worker celery -A src.tasks.celery_app:celery_instance inspect reserved
+```
+
+### Исправление
+
+1. Найти тип задачи с retries → проверить её зависимости.
+2. Если retry шторм (retries → ещё retries) → временно остановить воркер, починить причину, перезапустить.
+3. Проверить `max_retries` в задаче — не должно быть бесконечных повторений.
+
+---
+
+## Container Restart Rate Spike
+
+**Severity:** critical | **Условие:** >3 рестарта контейнера hotel_booking за 15m
+
+**Что случилось:** контейнер находится в CrashLoop — падает и перезапускается. Приложение нестабильно.
+
+### Диагностика
+
+```bash
+# Сколько раз перезапускался
+docker inspect booking_back --format '{{.RestartCount}}'
+
+# Логи последнего краша
+docker logs --tail=100 booking_back 2>&1
+
+# Exit code последнего запуска
+docker inspect booking_back --format '{{.State.ExitCode}}'
+```
+
+### Исправление
+
+1. Exit code 137 (SIGKILL) → OOM, см. [OOM Kill Detected](#oom-kill-detected).
+2. Exit code 1 (unhandled exception) → проверить логи на startup ошибки (БД недоступна, неверный env).
+3. Временно остановить автоперезапуск: `docker update --restart=no booking_back`, починить причину.
+
+---
+
+## TCP Retransmissions Spike vs Baseline
+
+**Severity:** warning | **Условие:** TCP retransmits в 5× выше чем 10m назад, for 10m
+
+**Что случилось:** нестабильность сети между сервисами — пакеты теряются, соединения переустанавливаются.
+
+### Диагностика
+
+```bash
+# Статистика сети
+netstat -s | grep -i retransmit
+
+# Потери между контейнерами
+docker exec booking_back ping -c 10 booking_db
+docker exec booking_back ping -c 10 booking_cache
+```
+
+### Исправление
+
+1. Если потери между контейнерами → проблема Docker network, пересоздать: `docker network inspect booking_network`.
+2. Если потери к внешним хостам → проблема хостовой сети или провайдера.
+3. Увеличить `TCP_KEEPALIVE` таймауты в настройках соединений.
+
+---
+
+## 401 Unauthorized Spike vs Baseline
+
+**Severity:** warning | **Условие:** 401 в 10× выше чем 10m назад, for 5m
+
+**Что случилось:** массовые неавторизованные запросы — возможна brute-force атака на пароли/токены, истечение токенов у многих клиентов, или баг в auth middleware.
+
+### Диагностика
+
+```bash
+# Топ IP по 401
+docker logs --tail=1000 booking_nginx 2>&1 | grep " 401 " | awk '{print $1}' | sort | uniq -c | sort -rn | head -10
+
+# Топ endpoints с 401
+docker logs --tail=1000 booking_nginx 2>&1 | grep " 401 " | awk '{print $7}' | sort | uniq -c | sort -rn | head -10
+```
+
+### Исправление
+
+1. Brute-force с одного IP → заблокировать в nginx: `deny <IP>;` в конфиге.
+2. Массовое истечение токенов → проверить срок жизни JWT в `src/config.py` (`ACCESS_TOKEN_EXPIRE_MINUTES`).
+3. Баг в auth middleware → проверить последний деплой, откатить если нужно.

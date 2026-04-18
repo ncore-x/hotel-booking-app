@@ -7,7 +7,6 @@ import httpx
 from src.config import settings
 from src.exceptions import (
     InvalidOAuthStateException,
-    OAuthEmailConflictException,
     OAuthProviderNotConfiguredException,
     UnsupportedOAuthProviderException,
 )
@@ -158,11 +157,14 @@ class OAuthService(BaseService):
         if existing:
             return existing, False
 
-        # If email is known, check for a password-based account conflict
+        # If email is known, check for existing account — link OAuth if found
         if email:
             by_email = await self.db.users.get_one_or_none(email=email)
-            if by_email is not None and by_email.oauth_provider != provider:
-                raise OAuthEmailConflictException()
+            if by_email is not None:
+                if by_email.oauth_provider != provider:
+                    await self.db.users.link_oauth(by_email.id, provider, oauth_id, avatar)
+                    await self.db.commit()
+                return by_email, False
 
         # Create new user
         first_name = name.split()[0] if name else None
